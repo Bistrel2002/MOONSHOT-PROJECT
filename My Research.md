@@ -1,17 +1,40 @@
-# SECOND PROJECT RESEARCH
+#Moonshot
 
-    Still with the same idea of trying to help old age people, I decided to direct my self toward Camera system and smart personal assistant that uses AI.
+I am excited to present to you a moonshot project aimed at creating indoor navigation through innovative technology.
 
-## FUNCTION
+# Problem Addressed:
 
- 1. Camera Monitoring System: Yes, a home monitoring system using cameras could be used to detect falls, unusual movements or signs of distress in the elderly. These cameras could be equipped with image recognition and artificial intelligence software to automatically detect situations that require intervention. Captured images or videos could also be stored and be accessible remotely for caregivers or family members who wish to check on the well-being of the elderly person.
+<aside>
+⚠️ One year ago, when I was coming to France, my first plane stopped at CASABLANCA(Airport) in Morocco, I was unable to find myself and know where precisely I was supposed to go, I got helped by a Woman who was sitting right beside me in the first plane, secondly, last summer holidays I was at Rennes, and I encountered a similar problem when I entered inside a mall, I was looking for a McDo but I was unable to know where precisely it was located in the mall, and finally I left the place and went back home. This problem of indoor navigation I thought it was just a problem for me but, after questioning family members and friends almost all of them had issues with indoor navigation. My project aims to tackle this challenge by implementing a cutting-edge navigation solution that seamlessly integrates with existing infrastructure while providing intuitive and precise user guidance.
 
-2. Smart Personal Assistant: Design an intelligent personal assistant that uses artificial intelligence to help seniors in their daily lives. The assistant could help seniors remember to take their medication, and provide them with useful information about weather, news, and local events. And also have access to their personal caregiver's contacts and family's members contacts, make use of a cloud storage that stores relevant information. 
+</aside>
 
-## LINK BETWEEN THE TWO FUNTIONS
+# Solution:
 
-    For this project i decided to take two project and make one with several functionalities, then the question is what is the link between the home monitoring system and the smart personal assistant ? As i just later un mentioned above, the function of the camera monitoring system, a link between the first and second function be done as follow: each time the Camera detect a situation that requires an intervention, send the information to the smart personal assistant, and this authomatically contact loveones like family members, or caregivers for them to intervain immediately. And lastly the the captured image and videos, will be stored in the cloud of the smart personal assistant, and will be easily accessed remotely by the family members or caregivers anytime they wishes to check at the elderly-person health or well-being.
+### Line-Based Floor Navigation with AR Integration.
 
-### WHY DID I DECIDED TO CHOOSE THIS
-    Now our days many, elderly person lives alone and they have nobody to assist them in their daily routine, some of them have lost of memories, and they need some particular cargiver or family member who will constantly come and visit them just to check their well-being. And this is sometime painfull for people who live several km away from their old age person, so with this project I'm trying to help those people to be constantly updated about the well-being of their relatives without been physicaly present, and also get access to quick emergency each time there is a critical situation just by authomatically contact the caregiver or the family member who in turns contact immediately the emmergency.
-    My second reason is because many people now our days have a bad view on AI, they thing AI can only be used to harm others, with this project, I want to prove to them that AI have many positive advantage, is and will be very helpful in our community, and can save lifes.
+I propose implementing marker-based floor navigation with augmented reality (AR) overlays to guide users within indoor spaces. Inspired by the intuitive navigation style seen in racing video games(Forza Horizon 4 and 5), users will be able to select their destination from the map interface of the application, prompting a directional line to appear on the floor, guiding them seamlessly to their chosen location. This innovative approach eliminates the need for traditional turn-by-turn directions and instead provides users with a clear visual path overlaid with the real-world environment.
+
+### Technology Stack:
+
+1. **AR Development Platform: Unity AR Foundation**
+    
+    Unity AR Foundation provides a unified interface that allows developers to build AR applications that can run on both iOS and Android devices, streamlining development and ensuring compatibility.
+    
+2. **Line-Based AR Library: Vectrosity**
+    
+    By integrating Vectrosity into the Unity project, I can easily implement Line-Based Floor Navigation with AR integration, drawing virtual lines on the floor to guide users to their destinations. Additionally, Vectrosity offers performance optimizations, which can be beneficial for AR applications running on mobile devices.
+    
+3. **Integration with GPS and Sensors for Accuracy:**
+- **GPS Integration:**
+    - Android Location API (for Android) / iOS Core Location Framework (for iOS)
+    - Leveraging the built-in location services provided by Android and iOS simplifies the integration of GPS data into the navigation system.
+- **Sensor Fusion:**
+    - Android Sensor API (for Android) / iOS Core Motion Framework (for iOS)
+    - Utilizing the sensor APIs native to Android and iOS devices ensures seamless integration of accelerometer and gyroscope data for precise user movement tracking.
+
+For the first phase, I will focus solely on developing the Android app. Once completed, I will proceed with integrating IOS.
+
+**Implementation Approach:** The project will be implemented using a combination of AR development platforms and tools to ensure compatibility and scalability. By leveraging Unity AR Foundation, ARCore, Vectrosity, and ARToolkit, I will create a robust navigation solution that can cater to a wide range of devices.
+
+In conclusion, the line-based navigation project with AR integration presents a forward-thinking solution to the challenges of indoor navigation. By harnessing the power of emerging technologies such as AR, GPS integration, and sensor fusion, I aim to provide users with a seamless and intuitive navigation experience, ultimately improving efficiency and enhancing user satisfaction.
