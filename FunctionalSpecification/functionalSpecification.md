@@ -66,16 +66,17 @@ will provide precise location data to ensure accurate navigation.
 #### Persona 3: Accessibility User - Elena Vasquez
 ![persons1](images/3.png)
 
+#### Persona 4: Hospital Visitor - Robert Chen
+![persons1](images/6.png)
+
+
 ### 3.2 Secondary Personas
 
-#### Persona 4: Venue Administrator - David Wilson
+#### Persona 5: Venue Administrator - David Wilson
 ![persons1](images/4.png)
 
-#### Persona 5: First-time Visitor - Mei Chen
+#### Persona 6: First-time Visitor - Mei Chen
 ![persons1](images/5.png)
-
-#### Persona 6: Hospital Visitor - Robert Chen
-![persons1](images/6.png)
 
 ## 4. Use Cases 
 
@@ -98,15 +99,6 @@ will provide precise location data to ensure accurate navigation.
 7. User follows the line, which adjusts in real-time as they move
 8. System provides notifications for turns and level changes
 9. System confirms arrival when user reaches the gate
-
-**Alternative Flows:**
-- User needs to find a restroom or restaurant en route
-    1. User pauses navigation and selects "Find Nearby"
-    2. User selects desired amenity category
-    3. System suggests options and allows selection
-    4. User selects a temporary destination
-    5. System calculates new route that includes the stop
-    6. Navigation resumes with updated path
 
 **Postconditions:**
 - User arrives at intended destination
@@ -131,17 +123,9 @@ will provide precise location data to ensure accurate navigation.
 8. System provides distance updates and directional guidance
 9. User arrives at the store
 
-**Alternative Flows:**
-- Store is closed or not found
-    1. System notifies user that store is closed or unavailable
-    2. System suggests alternatives in similar category
-    3. User selects an alternative destination
-    4. Navigation proceeds to new destination
-
 **Postconditions:**
-- User arrives at store
-- Navigation session is stored in history
-- Relevant store offers may be displayed (if integrated)
+- User arrives at store.
+- Navigation session is stored in history.
 
 #### UC-3: Accessible Route Navigation
 **Primary Actor:** Accessibility User (Elena)
@@ -161,40 +145,36 @@ will provide precise location data to ensure accurate navigation.
 8. System provides advance notice of elevators, ramps, and potential obstacles
 9. User successfully navigates to destination
 
-**Alternative Flows:**
-- No fully accessible route available
-    1. System notifies user of limitations in available routes
-    2. System suggests alternatives with minimal accessibility challenges
-    3. System provides detailed information about specific obstacles
-    4. User decides whether to proceed or choose different destination
-
 **Postconditions:**
 - User arrives at destination via accessible route
 - System logs route effectiveness for accessibility
 - User can provide feedback on route accessibility
 
-### 4.2 Additional Use Cases
-
-#### UC-4: Venue Management
-**Primary Actor:** Venue Administrator (David)
+#### UC-4: Hospital Visitor Navigation
+**Primary Actor:** Hospital Visitor (Robert Chen)
 **Preconditions:**
-- Administrator has access to management dashboard
-- Beacon infrastructure is deployed
-- System has base map of venue
+- User has installed the application
+- Hospital has deployed beacon infrastructure
+- Visitor has basic patient room information
 
 **Main Flow:**
-1. Administrator logs into management portal
-2. System displays venue overview and analytics dashboard
-3. Administrator views heatmap of user traffic
-4. Administrator identifies congestion points or underutilized areas
-5. Administrator updates point of interest information
-6. System applies changes to live navigation database
-7. Administrator views usage metrics and success rates
+1. Visitor arrives at hospital parking area and opens the application
+2. System detects user's location and displays hospital overview
+3. Visitor enters patient information (room number)
+4. Visitor selects "Navigate to Patient Room"
+5. System calculates optimal route from current location, including entry point selection
+6. System activates AR view showing floor line to follow
+7. System guides visitor through building entry, security checkpoints, and elevator/stair usage
+8. Visitor follows the guided path with clear indicators for building transitions
+9. System provides estimated arrival time and notifies visitor upon reaching the correct room
 
 **Postconditions:**
-- Venue information is updated
-- Analytics data is refreshed
-- Administrator can export reports
+- Visitor successfully locates patient room
+- System creates a "frequent route" for easy access during future visits
+- Navigation history allows quick return to previously visited locations
+
+
+### 4.2 Additional Use Cases
 
 #### UC-5: Multi-Destination Planning
 **Primary Actor:** Mall Shopper (Marcus)
@@ -218,30 +198,6 @@ will provide precise location data to ensure accurate navigation.
 - System logs complete journey
 - User can save route for future visits
 
-#### UC-6: Hospital Visitor Navigation
-**Primary Actor:** Hospital Visitor (Robert Chen)
-**Preconditions:**
-- User has installed the application
-- Hospital has deployed beacon infrastructure
-- Visitor has basic patient room information
-
-**Main Flow:**
-1. Visitor arrives at hospital parking area and opens the application
-2. System detects user's location and displays hospital overview
-3. Visitor enters patient information (name or room number)
-4. System verifies information and identifies the correct patient room location
-5. Visitor selects "Navigate to Patient Room"
-6. System calculates optimal route from current location, including entry point selection
-7. System activates AR view showing floor line to follow
-8. System guides visitor through building entry, security checkpoints, and elevator/stair usage
-9. Visitor follows the guided path with clear indicators for building transitions
-10. System provides estimated arrival time and notifies visitor upon reaching the correct room
-
-**Postconditions:**
-- Visitor successfully locates patient room
-- System creates a "frequent route" for easy access during future visits
-- Visitor can save other important locations (preferred parking area, cafeteria, etc.)
-- Navigation history allows quick return to previously visited locations
 
 ## 5. User Stories <a name="user-stories"></a>
 
@@ -255,23 +211,13 @@ will provide precise location data to ensure accurate navigation.
     - As a shopper, I want to find specific stores or services within a large mall without checking physical directories.
     - As a mall visitor, I want to find the closest exit from my current location.
 
-3. **Conference/Event Navigation**
-    - As a conference attendee, I want to find specific meeting rooms or exhibitor booths efficiently.
-    - As an event organizer, I want to help attendees navigate our venue to improve their experience.
-
-4. **Hospital/Healthcare Facility Navigation**
+3. **Hospital/Healthcare Facility Navigation**
     - As a patient or visitor, I want to find specific departments or rooms within a hospital complex.
-    - As a healthcare provider, I want to help patients navigate our facility to reduce stress and missed appointments.
 
 ### 5.2 Secondary User Stories
 
 1. **Special Needs Users**
     - As a user with mobility challenges, I want clear guidance that takes into account accessibility routes.
-    - As a user with visual impairments, I want audio guidance synchronized with visual cues.
-
-2. **Venue Administrators**
-    - As a venue administrator, I want to update navigation information when our layout changes.
-    - As a venue owner, I want insights into traffic patterns and popular destinations within my venue.
 
 ## 6. Functional Requirements 
 
