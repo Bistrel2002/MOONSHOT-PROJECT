@@ -224,20 +224,20 @@ will provide precise location data to ensure accurate navigation.
 ### 6.1 Core Functional Requirements
 
 #### FR-1: User Location Detection
-- The system shall determine the user's precise indoor location using Bluetooth beacon technology.
-- The system shall update the user's position in real-time (minimum refresh rate of 1 Hz).
-- The system shall achieve positioning accuracy of at least 2 meters in areas with proper beacon coverage.
+- The system determine the user's precise indoor location using Bluetooth beacon technology.
+- The system update the user's position in real-time (minimum refresh rate of 1 Hz).
+- The system achieve positioning accuracy of at least 0.7 meters in areas with proper beacon coverage.
 
 #### FR-2: Destination Selection
-- The system shall display a searchable directory of available destinations within the venue.
-- The system shall allow users to select destinations from categories (e.g., Restaurants, Stores, Services).
-- The system shall support saving favorite or frequently visited destinations.
+- Display a searchable directory of available destinations within the venue.
+- Users can select destinations from categories (Restaurants, Stores, Services).
+- The system support saving favorite or frequently visited destinations.
 
 #### FR-3: AR Navigation Guidance
-- The system shall display a continuous directional line on the floor leading from the user's current position to their destination.
-- The system shall adjust the displayed path in real-time as the user moves.
-- The system shall provide visual cues for turns, elevators, escalators, and other navigation decision points.
-- The system shall display distance to destination and estimated arrival time.
+- The system displays a continuous directional line on the floor leading from the user's current position to their destination.
+- Adjust the displayed path in real-time as the user moves.
+- Provide visual cues for turns, elevators, escalators, and other navigation decision points.
+- The system display distance to destination and estimated arrival time.
 
 #### FR-4: Multi-floor Navigation
 - The system shall guide users between different floors using appropriate vertical transportation (stairs, elevators, escalators).
@@ -245,9 +245,8 @@ will provide precise location data to ensure accurate navigation.
 - The system shall automatically detect floor changes based on beacon data.
 
 #### FR-5: Route Customization
-- The system shall offer route preferences (e.g., shortest path, accessible path).
-- The system shall allow users to avoid specific areas or types of areas.
-- The system shall support multi-destination routing (e.g., visiting multiple stores in a mall).
+- Offering route preferences (e.g., shortest path, accessible path).
+- Allowing users to avoid specific areas or types of areas.
 
 ### 6.2 Additional Functional Requirements
 
@@ -264,16 +263,12 @@ will provide precise location data to ensure accurate navigation.
 - The system shall support customization of navigation preferences.
 - The system shall remember frequently visited locations.
 
-#### FR-9: Sharing and Social Features
-- The system shall allow users to share their location with others.
-- The system shall support meeting point designation for groups.
-
-#### FR-10: Accessibility Features
+#### FR-9: Accessibility Features
 - The system shall provide voice guidance synchronized with visual guidance.
 - The system shall support high-contrast modes for visibility.
 - The system shall prioritize accessible routes for users who indicate mobility requirements.
 
-## 7. Non-Functional Requirements <a name="non-functional-requirements"></a>
+## 7. Non-Functional Requirements
 
 ### 7.1 Usability Requirements
 
@@ -307,21 +302,19 @@ will provide precise location data to ensure accurate navigation.
 
 #### NFR-5: Availability
 - The core navigation system shall be available 99.9% of the time when within beacon coverage.
-- Scheduled maintenance shall be performed during low-usage periods.
 - Beacon battery replacement shall be staggered to prevent simultaneous failure.
 - System updates shall not disrupt active navigation sessions.
 
 #### NFR-6: Fault Tolerance
 - The system shall continue to function with degraded accuracy if up to 30% of beacons are non-functional.
 - The system shall provide fallback navigation options (map view) if AR capabilities are unavailable.
-- Local caching shall ensure basic functionality during temporary server outages.
 - The system shall automatically recover from intermittent connectivity issues.
 
 ### 7.3 Performance Requirements
 
 #### NFR-7: Response Time
-- The application shall launch and be ready for navigation within 3 seconds on target devices.
-- Route calculation shall complete within 2 seconds of destination selection.
+- The application shall launch and be ready for navigation within at most 10 seconds on target devices.
+- Route calculation shall complete within 3 seconds of destination selection.
 - AR overlay shall render within 100ms of camera frame capture.
 - Position updates shall be processed within 200ms of receiving beacon signals.
 - UI interactions shall respond within 150ms to maintain perception of immediacy.
@@ -341,24 +334,17 @@ will provide precise location data to ensure accurate navigation.
 
 ### 7.4 Supportability Requirements
 
-#### NFR-10: Maintainability
-- The codebase shall maintain a minimum test coverage of 80%.
-- The system shall use modular design with clear separation of concerns.
-- Infrastructure shall support blue-green deployment for updates.
-- Code documentation shall follow industry standard formats.
-- Technical debt shall be regularly assessed and addressed.
-
-#### NFR-11: Compatibility
+#### NFR-10: Compatibility
 - The mobile application shall support Android 10.0 and newer (initially).
 - The mobile application shall support iOS 14.0 and newer (future release).
 - The application shall function on devices with minimum specifications: 2GB RAM, Quad-core 2.0 GHz processor.
 - The application shall adapt to different screen sizes from 4.7" to 12.9".
 - The AR components shall be compatible with ARCore 1.20+ and ARKit 4.0+ (future release).
 
-#### NFR-12: Localization
+#### NFR-11: Localization
 - The user interface shall support easy translation to multiple languages.
 - Date, time, and measurement formats shall adapt to local conventions.
-- The application shall initially support English, Spanish, French, German, and Mandarin.
+- The application shall initially support English, French.
 - Text expansion in translations shall not break UI layouts.
 - The system shall support right-to-left languages in future updates.
 
@@ -366,7 +352,6 @@ will provide precise location data to ensure accurate navigation.
 
 #### NFR-13: Data Protection
 - All personally identifiable information shall be encrypted using industry-standard encryption (minimum AES-256).
-- User location data shall be anonymized when used for analytics.
 - Location history shall be stored on the device with optional cloud backup.
 - Users shall have the ability to clear all personal data from the application.
 - Compliance with GDPR, CCPA, and other relevant privacy regulations shall be maintained.
@@ -374,8 +359,6 @@ will provide precise location data to ensure accurate navigation.
 #### NFR-14: Authentication
 - User accounts shall require strong password policies.
 - The system shall support multi-factor authentication for administrative access.
-- Session tokens shall expire after 30 days of inactivity.
-- Failed login attempts shall be limited to 5 consecutive failures before temporary lockout.
 - OAuth 2.0 integration shall be supported for social login options.
 
 #### NFR-15: Security Testing
