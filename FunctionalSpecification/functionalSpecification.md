@@ -199,7 +199,7 @@ will provide precise location data to ensure accurate navigation.
 - User can save route for future visits
 
 
-## 5. User Stories <a name="user-stories"></a>
+## 5. User Stories
 
 ### 5.1 Primary User Stories
 
@@ -368,7 +368,7 @@ will provide precise location data to ensure accurate navigation.
 - API endpoints shall be protected against common attacks (SQL injection, XSS, CSRF).
 - Security vulnerabilities shall be addressed with critical priority.
 
-## 8. System Architecture <a name="system-architecture"></a>
+## 8. System Architecture
 
 ### 8.1 High-Level Architecture
 The system will follow a client-server architecture with the following components:
@@ -413,10 +413,10 @@ The system will follow a client-server architecture with the following component
 +----------------------------------+        +----------------------------------+
 |   Infrastructure Components      |        |        External Services         |
 |                                  |        |                                  |
-|  +------------+  +------------+  |        |  +------------+  +------------+  |
-|  | Bluetooth  |  |   Cloud    |  |        |  |  Payment   |  |   Social   |  |
-|  |  Beacons   |  |  Storage   |  |        |  |  Gateway   |  |   Media    |  |
-|  +------------+  +------------+  |        |  +------------+  +------------+  |
+|  +------------+  +------------+  |        |    +------------+                |
+|  | Bluetooth  |  |   Cloud    |  |        |    |   Social   |                |
+|  |  Beacons   |  |  Storage   |  |        |    |   Media    |                |
+|  +------------+  +------------+  |        |    +------------+                |
 |                                  |        |                                  |
 |  +------------+  +------------+  |        |  +------------+  +------------+  |
 |  |   CDN      |  | Database   |  |        |  | Third-party|  | Feedback   |  |
@@ -425,7 +425,7 @@ The system will follow a client-server architecture with the following component
 +----------------------------------+        +----------------------------------+
 ```
 
-## 9. Technical Components <a name="technical-components"></a>
+## 9. Technical Components
 
 ### 9.1 Mobile Application Components
 
@@ -451,10 +451,10 @@ The system will follow a client-server architecture with the following component
 #### 9.1.3 Bluetooth Beacon Integration
 - **Beacon SDK**
     - Purpose: Detects and interacts with Bluetooth beacons
-    - Supported Protocols:
-        - iBeacon
-        - Eddystone
-        - AltBeacon
+    - Supported SDK Protocols:
+        - iBeacon for iOS
+        - Eddystone for Android
+        - AltBeacon for both iOS/Android
     - Key Features:
         - Background scanning
         - Distance estimation
@@ -485,7 +485,6 @@ The system will follow a client-server architecture with the following component
 - **Authentication System**
     - User registration and login
     - Profile management
-    - Preference storage
     - Session management
 
 #### 9.2.2 Venue Data Management
@@ -495,36 +494,16 @@ The system will follow a client-server architecture with the following component
     - Beacon configuration
     - Path network definition
 
-#### 9.2.3 Analytics Engine
-- **Usage Analytics**
-    - Traffic pattern analysis
-    - Heatmapping
-    - User journey tracking
-    - Performance monitoring
-
-#### 9.2.4 API Gateway
+#### 9.2.3 API Gateway
 - **RESTful API Services**
     - Authentication endpoints
-    - Venue data endpoints
-    - Analytics endpoints
-    - Administrative endpoints
 
 ### 9.3 Infrastructure Components
 
-#### 9.3.1 Bluetooth Beacon Network
-- **Hardware Specifications**
-    - Beacon type: BLE 4.0 or higher
-    - Battery life: 18+ months
-    - Signal range: 10-30 meters (adjustable)
-    - Broadcast interval: 100-1000ms (configurable)
+- [Bluetooth Beacon Specification](MBM01%20Ultra-Long%20Range%20Beacon.pdf)
 
-- **Deployment Requirements**
-    - Density: 1 beacon per 15m² (approximately)
-    - Mounting height: 2.5-3m from floor
-    - Power source: Battery or fixed power depending on location
-    - Maintenance access: Required for battery replacement
 
-## 10. User Interface Design <a name="user-interface-design"></a>
+## 10. User Interface Design
 
 ### 10.1 Core Screens
 
