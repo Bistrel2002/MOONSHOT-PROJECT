@@ -1,4 +1,4 @@
-#Moonshot
+# Moonshot
 
 I am excited to present to you a moonshot project aimed at creating indoor navigation through innovative technology.
 
@@ -6,10 +6,9 @@ I am excited to present to you a moonshot project aimed at creating indoor navig
 
 <aside>
 ⚠️ One year ago, when I was coming to France, my first plane stopped at CASABLANCA(Airport) in Morocco, I was unable to find myself and know where precisely I was supposed to go, I got helped by a Woman who was sitting right beside me in the first plane, secondly, last summer holidays I was at Rennes, and I encountered a similar problem when I entered inside a mall, I was looking for a McDo but I was unable to know where precisely it was located in the mall, and finally I left the place and went back home. This problem of indoor navigation I thought it was just a problem for me but, after questioning family members and friends almost all of them had issues with indoor navigation. My project aims to tackle this challenge by implementing a cutting-edge navigation solution that seamlessly integrates with existing infrastructure while providing intuitive and precise user guidance.
-
 </aside>
 
-# Solution:
+# Solution
 
 ### Line-Based Floor Navigation with AR Integration.
 
