@@ -125,8 +125,8 @@ flowchart TB
     VMS <--> CDN
     
     classDef client fill:000,stroke:#000,stroke-width:2px
-    classDef server fill:#0bb,stroke:#333,stroke-width:2px
-    classDef infra fill:#b4b,stroke:#333,stroke-width:2px
+    classDef server fill:#0bb,stroke:#333,stroke-width:2px,color:#000;
+    classDef infra fill:#b4b,stroke:#333,stroke-width:2px,color:#000;
     
     class AR,POS,UI,DATA client
     class API,AUTH,VMS,NAV,ANALYTICS server
@@ -285,41 +285,41 @@ flowchart TD
 ```mermaid
 flowchart TD
     A[Start Positioning System] --> B[Implement Beacon SDK]
-    style A fill:#f24,stroke:#333,stroke-width:2px
-    style B fill:#ff4,stroke:#333,stroke-width:2px
+    style A fill:#f24,stroke:#333,stroke-width:2px,color:#000;
+    style B fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
 
     B --> C[Configure Background Scanning]
     C --> D[Implement Beacon Region Monitoring]
-    style C fill:#ff4,stroke:#333,stroke-width:2px
-    style D fill:#ff4,stroke:#333,stroke-width:2px
+    style C fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+    style D fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
 
     D --> E[Develop Trilateration Engine]
-    style E fill:#c2b,stroke:#333,stroke-width:2px
+    style E fill:#c2b,stroke:#333,stroke-width:2px,color:#000;
 
     E --> F[Estimate Distance using RSSI]
     F --> G[Apply Kalman Filtering]
     G --> H[Calculate Position Confidence Score]
-    style F fill:#ff4,stroke:#333,stroke-width:2px
-    style G fill:#ff4,stroke:#333,stroke-width:2px
-    style H fill:#ff4,stroke:#333,stroke-width:2px
+    style F fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+    style G fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+    style H fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
 
     H --> I[Design Floor Detection Algorithm]
-    style I fill:#c2b,stroke:#333,stroke-width:2px
+    style I fill:#c2b,stroke:#333,stroke-width:2px,color:#000;
 
     I --> J[Implement Hysteresis Filtering]
     J --> K[Map Beacon IDs to Floor Numbers]
-    style J fill:#ff4,stroke:#333,stroke-width:2px
-    style K fill:#ff4,stroke:#333,stroke-width:2px
+    style J fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+    style K fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
 
     K --> L[Update Position Data]
-    style L fill:#3b8,stroke:#333,stroke-width:2px
+    style L fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
 
     L --> M{Positioning Active?}
-    style M fill:#bf,stroke:#333,stroke-width:2px
+    style M fill:#bf,stroke:#333,stroke-width:2px,color:#fff;
 
     M -- Yes --> E
     M -- No --> N[End Positioning System]
-    style N fill:#f24,stroke:#333,stroke-width:2px
+    style N fill:#f24,stroke:#333,stroke-width:2px,color:#000;
 
 
 ```
@@ -407,148 +407,14 @@ graph TD
    - Create database schema for user profiles
    - Implement CRUD operations for profile management
    - Design data access patterns optimized for read operations
-   - Develop synchronization mechanism for offline profile changes
 
 ### 4.2 Venue Data Management
 
-1. **CMS Implementation**
+1. **CMS(Content Management System) Implementation**
    - Develop an admin interface for venue management
    - Create import/export functionality for floor plans (supporting SVG format)
    - Implement POI management with categorization and search capabilities
    - Design beacon configuration interface with validation rules
-
-```javascript
-// Venue Data Model Schema - MongoDB Schema Design
-
-const venueSchema = {
-  _id: ObjectId,
-  name: String,
-  description: String,
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    postalCode: String,
-    country: String,
-    coordinates: {
-      latitude: Number,
-      longitude: Number
-    }
-  },
-  operatingHours: [{
-    day: String,
-    open: String,
-    close: String
-  }],
-  contact: {
-    phone: String,
-    email: String,
-    website: String
-  },
-  metadata: {
-    createdAt: Date,
-    updatedAt: Date,
-    publishedAt: Date,
-    status: String // draft, published, archived
-  },
-  floors: [{
-    _id: ObjectId,
-    name: String,
-    level: Number,
-    floorPlanUrl: String,
-    floorPlanSvg: String,
-    dimensions: {
-      width: Number,
-      height: Number,
-      unit: String
-    },
-    scale: Number,
-    anchor: {
-      x: Number,
-      y: Number,
-      latitude: Number,
-      longitude: Number
-    },
-    orientation: Number,
-    pathNodes: [{
-      _id: ObjectId,
-      type: String, // junction, poi, elevator, stair, etc.
-      coordinates: {
-        x: Number,
-        y: Number
-      },
-      connections: [{
-        nodeId: ObjectId,
-        distance: Number,
-        accessibility: {
-          wheelchair: Boolean,
-          visuallyImpaired: Boolean,
-          hearingImpaired: Boolean
-        },
-        attributes: {
-          trafficLevel: Number,
-          isEmergencyRoute: Boolean
-        }
-      }]
-    }],
-    beacons: [{
-      _id: ObjectId,
-      uuid: String,
-      major: Number,
-      minor: Number,
-      name: String,
-      coordinates: {
-        x: Number,
-        y: Number
-      },
-      batteryLevel: Number,
-      lastChecked: Date,
-      status: String // active, inactive, maintenance
-    }],
-    pointsOfInterest: [{
-      _id: ObjectId,
-      name: String,
-      description: String,
-      category: String,
-      subcategory: String,
-      coordinates: {
-        x: Number,
-        y: Number
-      },
-      icon: String,
-      metadata: {
-        popularity: Number,
-        tags: [String]
-      }
-    }]
-  }]
-};
-
-const poiCategorySchema = {
-  _id: ObjectId,
-  name: String,
-  icon: String,
-  color: String,
-  subcategories: [{
-    name: String,
-    icon: String
-  }]
-};
-
-const routeTemplateSchema = {
-  _id: ObjectId,
-  venueId: ObjectId,
-  name: String,
-  description: String,
-  type: String, // guided tour, emergency, etc.
-  waypoints: [{
-    poiId: ObjectId,
-    order: Number,
-    estimatedDuration: Number
-  }]
-};
-
-```
 
 2. **Data Synchronization**
    - Create a differential update system to minimize data transfer
@@ -556,139 +422,106 @@ const routeTemplateSchema = {
    - Develop a notification system for client applications when updates are available
    - Design a caching strategy for venue data
 
-### 4.3 Analytics Service
 
-1. **Data Collection**
-   - Implement anonymous usage tracking
-   - Design event-based logging system for navigation sessions
-   - Create aggregation pipelines for traffic analysis
-   - Develop heatmap generation for venue utilization
+```mermaid
+   flowchart TD
+   A[Start Backend Services] --> B[User Management Service]
+   A --> C[Venue Data Management]
+   style A fill:#f24,stroke:#333,stroke-width:2px,color:#000;
+   style B fill:#cc,stroke:#333,stroke-width:2px
+   style C fill:#cc,stroke:#333,stroke-width:2px
 
-2. **Reporting Engine**
-   - Create dashboards for venue administrators
-   - Implement scheduled report generation
-   - Design visualization components for traffic patterns
-   - Develop API endpoints for custom analytics queries
+%% User Management Service %%
+   B --> D[Authentication System]
+   D --> E[Implement OAuth 2.0]
+   D --> F[Secure Password Storage]
+   D --> G[JWT Session Management]
+   D --> H[API Endpoints]
+   style D fill:#c2b,stroke:#333,stroke-width:2px,color:#000;
+   style E fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style F fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style G fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style H fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
 
-````svg
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
-  <!-- Dashboard Background -->
-  <rect width="800" height="600" fill="#f8f9fa" rx="5" ry="5"/>
-  
-  <!-- Header -->
-  <rect x="0" y="0" width="800" height="60" fill="#4a6fd8" rx="5" ry="5"/>
-  <text x="20" y="38" font-family="Arial" font-size="24" font-weight="bold" fill="white">LOC-INDOOR Analytics Dashboard</text>
-  
-  <!-- Navigation Menu -->
-  <rect x="0" y="60" width="160" height="540" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
-  <text x="20" y="90" font-family="Arial" font-size="14" fill="#333333" font-weight="bold">Navigation</text>
-  <rect x="10" y="100" width="140" height="30" fill="#e8eeff" rx="3" ry="3"/>
-  <text x="20" y="120" font-family="Arial" font-size="12" fill="#4a6fd8">Overview</text>
-  <text x="20" y="150" font-family="Arial" font-size="12" fill="#666666">Traffic Analysis</text>
-  <text x="20" y="180" font-family="Arial" font-size="12" fill="#666666">Heat Maps</text>
-  <text x="20" y="210" font-family="Arial" font-size="12" fill="#666666">User Journeys</text>
-  <text x="20" y="240" font-family="Arial" font-size="12" fill="#666666">POI Analytics</text>
-  <text x="20" y="270" font-family="Arial" font-size="12" fill="#666666">System Status</text>
-  
-  <!-- Main Content -->
-  <rect x="170" y="70" width="620" height="100" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" rx="5" ry="5"/>
-  <text x="190" y="100" font-family="Arial" font-size="18" fill="#333333" font-weight="bold">Venue Traffic Overview</text>
-  
-  <!-- KPI Cards -->
-  <rect x="190" y="120" width="120" height="40" fill="#e8eeff" rx="3" ry="3"/>
-  <text x="200" y="140" font-family="Arial" font-size="10" fill="#666666">TOTAL VISITORS</text>
-  <text x="200" y="155" font-family="Arial" font-size="16" fill="#333333" font-weight="bold">8,942</text>
-  
-  <rect x="320" y="120" width="120" height="40" fill="#e8eeff" rx="3" ry="3"/>
-  <text x="330" y="140" font-family="Arial" font-size="10" fill="#666666">AVG. VISIT DURATION</text>
-  <text x="330" y="155" font-family="Arial" font-size="16" fill="#333333" font-weight="bold">32 min</text>
-  
-  <rect x="450" y="120" width="120" height="40" fill="#e8eeff" rx="3" ry="3"/>
-  <text x="460" y="140" font-family="Arial" font-size="10" fill="#666666">PEAK HOURS</text>
-  <text x="460" y="155" font-family="Arial" font-size="16" fill="#333333" font-weight="bold">12-2 PM</text>
-  
-  <rect x="580" y="120" width="120" height="40" fill="#e8eeff" rx="3" ry="3"/>
-  <text x="590" y="140" font-family="Arial" font-size="10" fill="#666666">NAVIGATION SESSIONS</text>
-  <text x="590" y="155" font-family="Arial" font-size="16" fill="#333333" font-weight="bold">5,327</text>
-  
-  <!-- Traffic Chart -->
-  <rect x="170" y="180" width="400" height="220" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" rx="5" ry="5"/>
-  <text x="190" y="210" font-family="Arial" font-size="16" fill="#333333" font-weight="bold">Hourly Traffic</text>
-  
-  <!-- Chart Lines -->
-  <polyline points="190,350 210,340 230,300 250,320 270,310 290,290 310,280 330,260 350,280 370,290 390,310 410,330 430,340 450,330 470,320 490,330 510,320 530,335 550,350" fill="none" stroke="#4a6fd8" stroke-width="2"/>
-  
-  <!-- Chart Axis -->
-  <line x1="190" y1="350" x2="570" y2="350" stroke="#cccccc" stroke-width="1"/>
-  <line x1="190" y1="350" x2="190" y2="230" stroke="#cccccc" stroke-width="1"/>
-  
-  <!-- Hour Labels -->
-  <text x="210" y="365" font-family="Arial" font-size="8" fill="#666666">9AM</text>
-  <text x="250" y="365" font-family="Arial" font-size="8" fill="#666666">10AM</text>
-  <text x="290" y="365" font-family="Arial" font-size="8" fill="#666666">11AM</text>
-  <text x="330" y="365" font-family="Arial" font-size="8" fill="#666666">12PM</text>
-  <text x="370" y="365" font-family="Arial" font-size="8" fill="#666666">1PM</text>
-  <text x="410" y="365" font-family="Arial" font-size="8" fill="#666666">2PM</text>
-  <text x="450" y="365" font-family="Arial" font-size="8" fill="#666666">3PM</text>
-  <text x="490" y="365" font-family="Arial" font-size="8" fill="#666666">4PM</text>
-  <text x="530" y="365" font-family="Arial" font-size="8" fill="#666666">5PM</text>
-  
-  <!-- Popular POIs -->
-  <rect x="580" y="180" width="210" height="220" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" rx="5" ry="5"/>
-  <text x="600" y="210" font-family="Arial" font-size="16" fill="#333333" font-weight="bold">Popular POIs</text>
-  
-  <!-- POI List -->
-  <rect x="600" y="230" width="170" height="20" fill="#e8eeff" rx="2" ry="2"/>
-  <text x="610" y="245" font-family="Arial" font-size="12" fill="#333333">Main Entrance</text>
-  <text x="730" y="245" font-family="Arial" font-size="12" fill="#4a6fd8" font-weight="bold">1,453</text>
-  
-  <rect x="600" y="260" width="170" height="20" fill="#f8f9fa" rx="2" ry="2"/>
-  <text x="610" y="275" font-family="Arial" font-size="12" fill="#333333">Food Court</text>
-  <text x="730" y="275" font-family="Arial" font-size="12" fill="#4a6fd8" font-weight="bold">1,128</text>
-  
-  <rect x="600" y="290" width="170" height="20" fill="#e8eeff" rx="2" ry="2"/>
-  <text x="610" y="305" font-family="Arial" font-size="12" fill="#333333">Electronics (Floor 2)</text>
-  <text x="730" y="305" font-family="Arial" font-size="12" fill="#4a6fd8" font-weight="bold">952</text>
-  
-  <rect x="600" y="320" width="170" height="20" fill="#f8f9fa" rx="2" ry="2"/>
-  <text x="610" y="335" font-family="Arial" font-size="12" fill="#333333">Customer Service</text>
-  <text x="730" y="335" font-family="Arial" font-size="12" fill="#4a6fd8" font-weight="bold">847</text>
-  
-  <rect x="600" y="350" width="170" height="20" fill="#e8eeff" rx="2" ry="2"/>
-  <text x="610" y="365" font-family="Arial" font-size="12" fill="#333333">Restrooms (Floor 1)</text>
-  <text x="730" y="365" font-family="Arial" font-size="12" fill="#4a6fd8" font-weight="bold">723</text>
-  
-  <!-- Heatmap -->
-  <rect x="170" y="410" width="620" height="180" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" rx="5" ry="5"/>
-  <text x="190" y="440" font-family="Arial" font-size="16" fill="#333333" font-weight="bold">Traffic Heatmap</text>
-  
-  <!-- Simplified Floor Plan -->
-  <rect x="190" y="450" width="580" height="120" fill="#f8f9fa" stroke="#cccccc" stroke-width="1"/>
-  
-  <!-- Heatmap Overlay (Gradient Areas) -->
-  <circle cx="250" cy="480" r="40" fill="#ff0000" opacity="0.2"/>
-  <circle cx="350" cy="510" r="30" fill="#ff0000" opacity="0.3"/>
-  <circle cx="450" cy="490" r="35" fill="#ff0000" opacity="0.4"/>
-  <circle cx="550" cy="520" r="25" fill="#ff0000" opacity="0.3"/>
-  <circle cx="650" cy="480" r="30" fill="#ff0000" opacity="0.2"/>
-  
-  <!-- Legend -->
-  <text x="190" y="590" font-family="Arial" font-size="10" fill="#666666">Low Traffic</text>
-  <rect x="250" y="582" width="20" height="10" fill="#ff0000" opacity="0.2"/>
-  <rect x="280" y="582" width="20" height="10" fill="#ff0000" opacity="0.3"/>
-  <rect x="310" y="582" width="20" height="10" fill="#ff0000" opacity="0.4"/>
-  <text x="340" y="590" font-family="Arial" font-size="10" fill="#666666">High Traffic</text>
-</svg>
-````
+   E --> E1[Support Social Logins]
+   F --> F1[Use bcrypt with Salt]
+   G --> G1[Generate JWT for Sessions]
+   H --> H1[User Registration]
+   H --> H2[Login]
+   H --> H3[Password Reset]
+   style E1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style F1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style G1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style H1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style H2 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style H3 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
 
+   B --> I[Profile Management]
+   I --> J[Database Schema]
+   I --> K[CRUD Operations]
+   I --> L[Optimize Data Access]
+   style I fill:#c2b,stroke:#333,stroke-width:2px,color:#000;
+   style J fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style K fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style L fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+
+   J --> J1[User Profiles]
+   K --> K1[Create, Read, Update, Delete]
+   L --> L1[Optimize for Read Operations]
+   style J1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style K1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style L1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+
+%% Venue Data Management %%
+   C --> M[CMS Implementation]
+   M --> N[Admin Interface]
+   M --> O[Import/Export Functionality]
+   M --> P[POI Management]
+   M --> Q[Beacon Configuration]
+   style M fill:#c2b,stroke:#333,stroke-width:2px,color:#000;
+   style N fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style O fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style P fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style Q fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+
+   N --> N1[Venue Management]
+   O --> O1[Support SVG Format]
+   P --> P1[Categorization and Search]
+   Q --> Q1[Validation Rules]
+   style N1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style O1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style P1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style Q1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+
+   C --> R[Data Synchronization]
+   R --> S[Differential Update System]
+   R --> T[Version Control]
+   R --> U[Notification System]
+   R --> V[Caching Strategy]
+   style R fill:#c2b,stroke:#333,stroke-width:2px,color:#000;
+   style S fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style T fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style U fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+   style V fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
+
+   S --> S1[Minimize Data Transfer]
+   T --> T1[Support Rollbacks]
+   U --> U1[Notify Client Applications]
+   V --> V1[Cache Venue Data]
+   style S1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style T1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style U1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+   style V1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
+
+```
 
 ## 5. Infrastructure Components Implementation
 
 ### 5.1 Bluetooth Beacon Deployment
 
 1. **Beacon Selection**
-    - Select beacons based on battery life, signal stability, and transmission range
-    - Ensure compatibility with both iBeacon and Eddystone protocols
+    - Use the [MBM01 Ultra-Long Range Beacon](../FunctionalSpecification/MBM01%20Ultra-Long%20Range%20Beacon.pdf)
+    - Ensure compatibility with both AltBeacon protocols
     - Verify firmware update capabilities
     - Test signal consistency in various environmental conditions
 
@@ -699,9 +532,7 @@ const routeTemplateSchema = {
     - Develop a beacon testing and validation process
 
 3. **Beacon Management**
-    - Implement a beacon health monitoring system
     - Create a unique identification scheme for beacons (including floor information)
-    - Design a battery replacement schedule based on usage patterns
     - Develop a beacon firmware update process
 
 ### 5.2 Cloud Infrastructure Implementation
@@ -710,7 +541,6 @@ const routeTemplateSchema = {
     - Implement PostgreSQL for relational data (user profiles, analytics)
     - Utilize MongoDB for venue data (maps, POIs, path networks)
     - Create appropriate indexing strategy for query optimization
-    - Implement database sharding for high-traffic venues
 
 2. **API Gateway**
     - Develop RESTful API with OpenAPI specification
@@ -725,7 +555,7 @@ const routeTemplateSchema = {
     - Create fallback mechanisms for CDN failures
 
 ## 6. Positioning Algorithm Implementation
-
+     
 ### 6.1 Trilateration Algorithm
 
 1. **Signal Processing**
@@ -737,7 +567,6 @@ const routeTemplateSchema = {
 2. **Position Calculation**
     - Implement weighted trilateration using 3+ beacons
     - Create confidence scoring based on beacon geometry and signal quality
-    - Develop position history tracking for movement prediction
     - Implement dead reckoning for areas with limited beacon coverage
 
 3. **Kalman Filter Implementation**
@@ -751,12 +580,10 @@ const routeTemplateSchema = {
 1. **Graph Construction**
     - Create a directed weighted graph representation of walkable paths
     - Implement node attributes for special locations (elevators, stairs)
-    - Design edge attributes for path properties (width, accessibility)
     - Develop a graph serialization format for efficient storage and transmission
 
 2. **Routing Algorithm**
     - Implement Dijkstra's algorithm for shortest path calculation
-    - Create custom cost functions for different user preferences
     - Develop A* algorithm implementation for improved performance
     - Design route caching strategy for common destinations
 
@@ -765,6 +592,77 @@ const routeTemplateSchema = {
     - Create special handling for elevators and escalators
     - Design path visualization for floor changes
     - Develop floor transition detection and guidance
+
+```mermaid
+flowchart TD
+   A[Start Path Finding] --> B[Graph Construction]
+   style A fill:#f9f,stroke:#333,stroke-width:2px,color:#000;
+   style B fill:#cfc,stroke:#333,stroke-width:2px,color:#000;
+
+%% Graph Construction %%
+   B --> C[Create Directed Weighted Graph]
+   B --> D[Implement Node Attributes]
+   B --> E[Design Edge Attributes]
+   B --> F[Develop Graph Serialization]
+   style C fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style D fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style E fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style F fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+
+   C --> C1[Walkable Paths]
+   D --> D1[Special Locations]
+   E --> E1[Path Properties]
+   F --> F1[Efficient Storage]
+   style C1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style D1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style E1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style F1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+
+%% Routing Algorithm %%
+   B --> G[Routing Algorithm]
+   style G fill:#bbf,stroke:#333,stroke-width:2px,color:#000;
+
+   G --> H[Implement Dijkstra's Algorithm]
+   G --> I[Create Custom Cost Functions]
+   G --> J[Develop A* Algorithm]
+   G --> K[Design Route Caching]
+   style H fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style I fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style J fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style K fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+
+   H --> H1[Shortest Path Calculation]
+   I --> I1[User Preferences]
+   J --> J1[Improved Performance]
+   K --> K1[Common Destinations]
+   style H1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style I1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style J1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style K1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+
+%% Multi-floor Pathfinding %%
+   B --> L[Multi-floor Pathfinding]
+   style L fill:#bbf,stroke:#333,stroke-width:2px,color:#000;
+
+   L --> M[Vertical Connection Nodes]
+   L --> N[Special Handling for Elevators]
+   L --> O[Path Visualization]
+   L --> P[Floor Transition Detection]
+   style M fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style N fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style O fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+   style P fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+
+   M --> M1[Floor Transitions]
+   N --> N1[Elevators and Escalators]
+   O --> O1[Floor Changes]
+   P --> P1[Real-time Guidance]
+   style M1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style N1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style O1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+   style P1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
+
+```
 
 ## 7. User Interface Implementation
 
@@ -801,50 +699,26 @@ const routeTemplateSchema = {
 1. **Camera View Integration**
     - Implement camera preview with proper aspect ratio handling
     - Create camera permission handling with fallback options
-    - Design orientation changes handling
-    - Develop AR session management with pause/resume functionality
+    - Design orientation changes handling.
 
 2. **Navigation Overlay**
     - Implement line rendering on the floor with proper perspective
-    - Create distance and ETA indicators
+    - Create distance and ETA(Estimated Time of Arrival) indicators
     - Design turn notifications and decision point guidance
     - Develop floor change indicators for multi-floor navigation
 
 3. **Information Display**
     - Implement heads-up display for navigation information
-    - Create notification system for nearby POIs
+    - Create notification system for nearby destinations
     - Design accessibility information display
-    - Develop contextual help system
 
 ## 8. Accessibility Implementation
-
-### 8.1 Visual Accessibility
-
-1. **High Contrast Mode**
-    - Implement alternative color schemes for color-blind users
-    - Create large text mode with simplified UI
-    - Design high contrast navigation lines with customizable appearance
-    - Develop screen reader compatibility for all UI elements
-
-2. **Reduced Motion**
-    - Implement static alternatives to animations
-    - Create simplified visual cues for direction
-    - Design reduced update frequency for sensitive users
-    - Develop alternative navigation modes for users with motion sensitivity
-
-### 8.2 Mobility Accessibility
+    
+### 8.1 Mobility Accessibility
 
 1. **Route Preferences**
     - Implement elevator-only route options
     - Create wider path preference for wheelchair users
-    - Design route avoidance for stairs and escalators
-    - Develop custom routing cost functions based on mobility profile
-
-2. **Assistance Features**
-    - Implement voice guidance synchronized with visual cues
-    - Create haptic feedback for direction changes
-    - Design emergency assistance location feature
-    - Develop accessibility information for venues and POIs
 
 ## 9. Integration Implementation
 
@@ -1066,36 +940,8 @@ const routeTemplateSchema = {
     - Create load balancing for distributed deployment
     - Develop performance benchmarks for capacity planning
 
-## 16. Documentation
 
-### 16.1 Development Documentation
-
-1. **API Documentation**
-    - Create comprehensive API reference
-    - Implement OpenAPI specification
-    - Design interactive API playground
-    - Develop code examples for common operations
-
-2. **Architecture Documentation**
-    - Create system architecture diagrams
-    - Implement component interaction documentation
-    - Design data flow documentation
-    - Develop decision record for architectural choices
-
-### 16.2 Operational Documentation
-
-1. **Deployment Guides**
-    - Create step-by-step deployment instructions
-    - Implement environment setup documentation
-    - Design troubleshooting guides
-    - Develop rollback procedures
-
-2. **Maintenance Procedures**
-    - Implement routine maintenance documentation
-    - Create emergency response procedures
-    - Design backup and recovery documentation
-    - Develop performance tuning guidelines
 
 ## 17. Conclusion
 
-This technical specification document provides the detailed implementation guidance needed to develop the LOC-INDOOR system. Each section outlines the specific approach to be taken for different components of the system, ensuring that developers have clear direction on how to implement the features described in the functional specification. The document aims to be comprehensive while avoiding excessive code examples, focusing instead on the technical approach and implementation strategy.
+This technical specification document provides the detailed implementation guidance needed to develop the LOC-INDOOR system. Each section outlines the specific approach to be taken for different components of the system, ensuring to have a clear direction on how to implement the features described in the functional specification. The document aims to be comprehensive while avoiding code examples, focusing instead on the technical approach and implementation strategy.
