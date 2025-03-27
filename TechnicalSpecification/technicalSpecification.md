@@ -411,7 +411,6 @@ graph TD
 ### 4.2 Venue Data Management
 
 1. **CMS(Content Management System) Implementation**
-   - Develop an admin interface for venue management
    - Create import/export functionality for floor plans (supporting SVG format)
    - Implement POI management with categorization and search capabilities
    - Design beacon configuration interface with validation rules
@@ -559,7 +558,7 @@ graph TD
 ### 6.1 Trilateration Algorithm
 
 1. **Signal Processing**
-    - Implement RSSI to distance conversion using environmental calibration
+    - Implement RSSI(Received Signal Strength Indicator) to distance conversion using environmental calibration 
     - Create signal strength filtering to remove outliers
     - Develop signal smoothing using exponential moving average
     - Design adaptive signal processing based on movement patterns
@@ -571,9 +570,9 @@ graph TD
 
 3. **Kalman Filter Implementation**
     - Design a state transition model for user movement
-    - Implement measurement update using beacon signals
-    - Create adaptive noise parameters based on signal quality
-    - Develop a convergence detection algorithm for stable positioning
+    - Implement measurement update using beacon signals for position correction
+    - Create adaptive noise parameters based on signal quality to improve accuracy
+    - Develop a convergence detection algorithm for stable positioning 
 
 ### 6.2 Path Finding Implementation
 
@@ -672,18 +671,16 @@ flowchart TD
     - Design progressive permission requests with clear explanations
     - Create interactive tutorial explaining AR navigation concepts
     - Implement account creation and login screens
-    - Develop preference setup for accessibility options
 
 2. **Venue Selection**
     - Implement nearby venue detection
     - Create venue search functionality with filters
-    - Design venue information display with details and operating hours
     - Implement venue favorites and recent visits
 
 ### 7.2 Destination Selection
 
 1. **Search Implementation**
-    - Create search index for POIs with autocomplete
+    - Create search index for POIs with autocomplete 
     - Implement fuzzy matching for search terms
     - Design category-based browsing interface
     - Develop recent and favorite destinations display
@@ -710,93 +707,197 @@ flowchart TD
 3. **Information Display**
     - Implement heads-up display for navigation information
     - Create notification system for nearby destinations
-    - Design accessibility information display
 
-## 8. Accessibility Implementation
-    
-### 8.1 Mobility Accessibility
+### 7.4 Color palette
 
-1. **Route Preferences**
-    - Implement elevator-only route options
-    - Create wider path preference for wheelchair users
+**Primary Colors:**
+1. **Blue (#007BFF):**
+   - **Usage:** Main color for buttons, links, and highlights.
+   - **Purpose:** Represents action, trust, and reliability.
 
-## 9. Integration Implementation
+2. **Purple (#6A0DAD):**
+   - **Usage:** Backgrounds and secondary buttons.
+   - **Purpose:** Adds a sense of luxury and sophistication.
 
-### 9.1 Map Integration
+3. **Light Blue (#87CEEB):**
+   - **Usage:** Backgrounds and secondary elements.
+   - **Purpose:** Provides a calming and approachable feel.
+
+**Secondary Colors:**
+1. **White (#FFFFFF):**
+   - **Usage:** Text and background for contrast.
+   - **Purpose:** Ensures readability and clean design.
+
+2. **Gray (#A9A9A9):**
+   - **Usage:** Text, icons, and dividers.
+   - **Purpose:** Neutral color for balance and hierarchy.
+
+3. **Purple/Blue (#6A0DAD/#007BFF):**
+   - **Usage:** Gradient color for AR path display.
+   - **Purpose:** Draws attention and guides the user.
+
+#### UI Elements
+
+1. **Buttons:**
+   - **Primary Button:** Blue (#007BFF) with white text.
+   - **Secondary Button:** Purple (#6A0DAD) with white text.
+   - **Action Button:** Orange (#FFA500) with white text.
+
+2. **Backgrounds:**
+   - **Main Background:** Light Blue (#87CEEB).
+   - **Secondary Background:** White (#FFFFFF).
+   - **Overlay Background:** Purple (#6A0DAD) with gradient, 60% opacity.
+
+3. **Text:**
+   - **Primary Text:** Gray (#A9A9A9).
+   - **Secondary Text:** White (#FFFFFF) on colored backgrounds.
+
+4. **Icons:**
+   - **Color:** Gray (#A9A9A9) or White (#FFFFFF) depending on the background.
+
+5. **AR Path Display:**
+   - **Path Line:** Blue (#007BFF) with gradient effect.
+
+#### Example Screens
+
+- **Login/Sign In:**
+   - Background: Light Blue (#87CEEB) / white(#FFFFFF).
+   - Buttons: Blue (#007BFF).
+   - Text: Gray (#A9A9A9).
+
+- **AR Display:**
+   - Path Line: Blue (#007BFF) with gradient effect.
+
+## 8. Integration Implementation
+
+### 8.1 Map Integration
 
 1. **Floor Plan Processing**
-    - Develop SVG parser for floor plans
-    - Create coordinate system transformation
+    - Develop SVG parser for floor plans to extract walls, rooms, and paths from SVG files floor plans
+    - Create coordinate system transformation to match the real world
     - Implement layer extraction for different map elements
-    - Design POI placement validation
+    - Design POI placement validation to prevent misplaced landmarks that could mislead users.
 
 2. **Path Network Generation**
     - Implement automatic path network generation from floor plans
-    - Create manual path editing tools for venue administrators
     - Design path validation ensuring complete connectivity
     - Develop multi-floor connection validation
 
-### 9.2 External System Integration
+### 8.2 External System Integration
 
 1. **Venue Management Systems**
     - Create API adapters for popular venue management systems
-    - Implement data synchronization protocols
+    - Implement data synchronization protocols to ensure data consistency
     - Design conflict resolution for concurrent updates
-    - Develop webhooks for real-time updates
+    - Develop webhooks for real-time updates that notify the mobile app of changes
 
-2. **Social Media Integration**
-    - Implement sharing functionality for locations
-    - Create venue check-in options
-    - Design social features for favorite places
-    - Develop friend location sharing with privacy controls
+```mermaid
+flowchart TD
+%% Main Integration Process
+A[LOC-INDOOR Integration Implementation] --> B[Map Integration]
+A --> C[External System Integration]
 
-## 10. Security Implementation
+    %% Map Integration Subprocess
+    subgraph "Map Integration Process"
+        B1[Floor Plan Processing]
+        B2[Path Network Generation]
+        
+        B1 --> B1A[SVG Parser Development]
+        B1 --> B1B[Coordinate System Transformation]
+        B1 --> B1C[Layer Extraction]
+        B1 --> B1D[POI Placement Validation]
+        
+        B2 --> B2A[Automatic Path Network Generation]
+        B2 --> B2B[Path Connectivity Validation]
+        B2 --> B2C[Multi-floor Connection Validation]
+    end
 
-### 10.1 Data Security
+    %% External System Integration Subprocess
+    subgraph "External System Integration Process"
+        C1[Venue Management Systems Integration]
+        C2[Data Synchronization]
+        
+        C1 --> C1A[API Adapter Creation]
+        C1 --> C1B[Venue Management System Compatibility]
+        
+        C2 --> C2A[Synchronization Protocols]
+        C2 --> C2B[Conflict Resolution]
+        C2 --> C2C[Real-time Update Webhooks]
+    end
+
+    %% Validation and Quality Checks
+    D[Integration Validation] --> B
+    D --> C
+
+    %% Decision Points and Outcomes
+    E{Integration Successful?} -->|Yes| F[Deploy Integration]
+    E -->|No| G[Refine Integration Process]
+
+    %% Relationships and Flow
+    B1A -.-> B2A
+    B1B -.-> B2A
+    B1C -.-> B2B
+    B1D -.-> B2C
+    
+    C1A -.-> C2A
+    C1B -.-> C2B
+
+    %% Styling
+    style C1 color:#000;
+    style C2 color:#000;
+    style B1 color:#000;
+    style B2 color:#000;
+    classDef process fill:#f9f,stroke:#333,stroke-width:2px, color:#000;
+    classDef subprocess fill:#bbf,stroke:#333,stroke-width:2px, color:#000;
+    classDef validation fill:#bfb,stroke:#333,stroke-width:2px,color:#000;
+    classDef decision fill:#ff9,stroke:#333,stroke-width:2px,color:#000;
+
+    class A,B,C process;
+    class B1,B2,C1,C2 subprocess;
+    class D validation;
+    class E decision;
+````
+
+## 9. Security Implementation
+
+### 9.1 Data Security
 
 1. **Encryption Implementation**
-    - Utilize AES-256 for sensitive data storage
-    - Implement TLS 1.3 for all network communications
-    - Create secure key management with proper rotation
+    - Utilize AES-256(Advanced Encryption Standard with a 256-bit key) for sensitive data storage
+    - Implement TLS 1.3(Transport Layer Security) for all network communications to encrypts data during transmission between the mobile app and the server.
+    - Create secure key management with proper rotation to prevent unauthorized decryption.
     - Design end-to-end encryption for sensitive user data
 
 2. **Privacy Controls**
-    - Implement data minimization principles
-    - Create privacy settings with granular controls
-    - Design data retention policies with automatic cleanup
-    - Develop anonymization for analytics data
+    - Implement data minimization principles to collect and store the minimum amount of user data needed for the app to function.
 
-### 10.2 Beacon Security
+### 9.2 Beacon Security
 
 1. **Anti-Spoofing Measures**
-    - Implement beacon authentication mechanism
-    - Create rotating identifiers for beacons
+    - Implement beacon authentication mechanism by using cryptographic signatures to verify that the beacon is genuine.
     - Design signal validation to detect anomalies
     - Develop intrusion detection for beacon networks
 
 2. **Secure Provisioning**
-    - Implement secure beacon registration process
-    - Create beacon ownership verification
-    - Design secure firmware update process
-    - Develop tamper detection for physical beacons
+    - Implement secure beacon registration process to verify them before they start transmitting.
+    - Design secure firmware update process for security fixes, so updates should be encrypted and signed.
+    - Develop tamper detection for physical beacons to detect unauthorized access or tampering with the beacon hardware.
 
-## 11. Testing Implementation
+## 10. Testing Implementation
 
-### 11.1 Test Environment Setup
+### 10.1 Test Environment Setup
 
 1. **Beacon Testing Lab**
-    - Create controlled environment with known beacon positions
-    - Implement signal strength measurement tools
-    - Design automated testing for positioning accuracy
+    - Create controlled environment with known beacon positions to test the signal strength and accuracy before deploying them in the real world.
+    - Implement signal strength measurement tools to measure and validate the performance of the beacons.
+    - Design automated testing for positioning accuracy that compares the expected location with the calculated position based on beacon signals.
     - Develop environmental variation simulation
 
 2. **Simulated Navigation**
-    - Implement virtual user movement for testing
-    - Create scripted navigation scenarios
     - Design edge case testing for complex venues
     - Develop performance benchmarking tools
 
-### 11.2 Testing Methodologies
+### 10.2 Testing Methodologies
 
 1. **Unit Testing**
     - Implement automated tests for core algorithms
@@ -808,17 +909,16 @@ flowchart TD
     - Implement end-to-end testing scenarios
     - Create real-world testing protocols
     - Design A/B testing for UI variations
-    - Develop load testing for backend services
+    - Develop load testing for backend services by simulating multiple users accessing the system simultaneously.
 
 3. **User Testing**
-    - Create usability testing protocols
+    - Create usability testing protocols to evaluate the user experience of the app.
     - Implement analytics collection during beta testing
-    - Design feedback mechanisms for testers
     - Develop iterative improvement process based on user feedback
 
-## 12. Deployment Strategy
+## 11. Deployment Strategy
 
-### 12.1 Mobile Application Deployment
+### 11.1 Mobile Application Deployment
 
 1. **Release Pipeline**
     - Create staged rollout strategy for app stores
@@ -832,81 +932,55 @@ flowchart TD
     - Design backward compatibility for API changes
     - Develop forced update mechanism for critical issues
 
-### 12.2 Backend Deployment
+### 11.2 Backend Deployment
 
 1. **Infrastructure as Code**
-    - Implement Terraform for cloud infrastructure management
-    - Create Docker containers for service components
-    - Design Kubernetes deployment for scalability
-    - Develop blue/green deployment strategy for zero downtime
+    - Implement Terraform for cloud infrastructure management to automate the provisioning of cloud resources.
+    - Create Docker containers for service components to ensure consistent deployment across different environments.
 
 2. **Monitoring and Alerting**
-    - Implement comprehensive logging with structured format
-    - Create performance monitoring dashboards
-    - Design alerting thresholds with appropriate escalation
-    - Develop automated recovery procedures where possible
+    - Implement comprehensive logging with structured format to capture relevant information.
+    - Create performance monitoring dashboards to visualize system performance metrics.
+    - Develop automated recovery procedures where possible to handle common issues without manual intervention.
 
-### 12.3 Beacon Infrastructure Deployment
+### 11.3 Beacon Infrastructure Deployment
 
 1. **Site Survey**
-    - Create venue measurement and mapping process
-    - Implement signal propagation modeling
-    - Design optimal beacon placement algorithm
-    - Develop installation guidelines and documentation
+    - Create venue measurement and mapping process that includes measuring the dimensions of the venue and creating a detailed map of the area.
+    - Implement signal propagation modeling to predict beacon coverage and identify potential dead zones.
+    - Design optimal beacon placement algorithm to determine the best locations for placing beacons based on the venue layout and signal propagation characteristics.
 
 2. **Deployment Validation**
-    - Implement beacon coverage testing
-    - Create positioning accuracy verification
-    - Design beacon health monitoring
-    - Develop maintenance schedules and procedures
+    - Implement beacon coverage testing to ensure that the beacons are providing adequate coverage throughout the venue.
+    - Design beacon health monitoring to track the status of the beacons and detect any issues that may arise.
+    - Develop maintenance schedules and procedures to ensure that the beacons are regularly checked and maintained to prevent any issues from occurring.
 
-## 13. Performance Optimization
+## 12. Performance Optimization
 
-### 13.1 Mobile Application Optimization
+### 12.1 Mobile Application Optimization
 
 1. **Battery Usage**
-    - Implement adaptive beacon scanning based on movement
-    - Create efficient rendering for AR components
-    - Design background processing limitations
+    - Implement adaptive beacon scanning based on movement 
+    - Create efficient rendering for AR components 
+    - Design background processing limitations 
     - Develop power usage monitoring and optimization
 
 2. **Memory Management**
     - Implement resource pooling for frequently used objects
-    - Create dynamic asset loading based on vicinity
-    - Design efficient data structures for positioning
+    - Design efficient data structures for positioning to efficiently store beacons positions.
     - Develop memory usage monitoring and alerts
 
-### 13.2 Backend Optimization
+### 12.2 Backend Optimization
 
-1. **Database Performance**
-    - Implement query optimization with proper indexing
-    - Create read replicas for high-traffic scenarios
-    - Design data partitioning strategy
-    - Develop query caching with appropriate invalidation
+1. **API Optimization**
+    - Implement response compression to speed up data transfer
+    - Create efficient serialization formats to minimize data size
+    - Design connection pooling and reuse to reduce latency and improve performance under load.
+    - Develop API response caching with CDN integration to reduce server load and improve response times.
 
-2. **API Optimization**
-    - Implement response compression
-    - Create efficient serialization formats
-    - Design connection pooling and reuse
-    - Develop API response caching with CDN integration
+## 13. Support
 
-## 14. Maintenance and Support
-
-### 14.1 System Monitoring
-
-1. **Performance Monitoring**
-    - Implement real-time performance dashboards
-    - Create automated performance testing
-    - Design performance degradation alerts
-    - Develop trend analysis for capacity planning
-
-2. **Health Monitoring**
-    - Implement service health checks
-    - Create beacon network monitoring
-    - Design system status dashboard for operations team
-    - Develop proactive maintenance alerts
-
-### 14.2 User Support
+### 13.2 User Support
 
 1. **Help System**
     - Implement in-app help documentation
@@ -916,32 +990,35 @@ flowchart TD
 
 2. **Feedback Management**
     - Implement in-app feedback collection
-    - Create issue tracking and resolution process
-    - Design automated response for common issues
-    - Develop feature request management system
+  
 
-## 15. Future Expansion Considerations
+## 14. Future Expansion Considerations
 
 1. **Platform Expansion**
-    - Prepare code structure for iOS implementation
-    - Design cross-platform component architecture
-    - Create platform-specific optimizations
-    - Develop shared codebase management strategy
+    - Prepare code structure for iOS implementation 
+    - Design cross-platform component architecture to ensure that the code can be reused across different platforms.
+    - Create platform-specific optimizations to ensure that the app performs well on each platform.
+    - Develop shared codebase management strategy to ensure that the code is maintainable and easy to work with across different platforms.
 
 2. **Feature Expansion**
-    - Design architecture for multi-destination planning
-    - Implement framework for augmented POI information
-    - Create integration points for additional services
-    - Develop extensible plugin architecture for future features
+   - Design architecture for multi-destination planning to allow users to plan routes with multiple stops.
+   - Create issue tracking and resolution process to ensure that any issues that arise are tracked and resolved in a timely manner.
+   - Design automated response for common issues to provide users with quick solutions to common problems.
+   - Implement voice guidance synchronized with visual cues so that users can receive audio instructions that match the visual navigation cues.
+   - Create haptic feedback for direction changes to provide users with tactile feedback when they need to change direction.
+   - Develop accessibility information for venues and POIs 
+   - Implement static alternatives to animations to ensure that the app is accessible to users with disabilities.
+   - Design high contrast navigation lines with customizable appearance
+   - Create large text mode with simplified UI
+   - Develop screen reader compatibility for all UI elements
+   - Design route avoidance for stairs and escalators
+   - Develop custom routing cost functions based on mobility profile
+   - Implement elevator-only route options
+   - Create wider path preference for wheelchair users
+   - Develop preference setup for accessibility options
+   - Design venue information display with details and operating hours
 
-3. **Scalability Planning**
-    - Design database sharding strategy for growth
-    - Implement horizontal scaling for backend services
-    - Create load balancing for distributed deployment
-    - Develop performance benchmarks for capacity planning
 
-
-
-## 17. Conclusion
+## 16. Conclusion
 
 This technical specification document provides the detailed implementation guidance needed to develop the LOC-INDOOR system. Each section outlines the specific approach to be taken for different components of the system, ensuring to have a clear direction on how to implement the features described in the functional specification. The document aims to be comprehensive while avoiding code examples, focusing instead on the technical approach and implementation strategy.
