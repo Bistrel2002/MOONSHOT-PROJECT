@@ -10,6 +10,58 @@
 ## Table of content
 
 <!-- TOC -->
+* [Technical Specification of LOC-INDOOR (Indoor Localisation)](#technical-specification-of-loc-indoor-indoor-localisation)
+  * [Table of content](#table-of-content)
+  * [Line-Based Floor Navigation with AR Integration](#line-based-floor-navigation-with-ar-integration)
+  * [1. Introduction](#1-introduction)
+    * [1.1 System Overview](#11-system-overview)
+    * [1.2 Development Scope](#12-development-scope)
+  * [2. System Architecture Implementation](#2-system-architecture-implementation)
+    * [2.1 Client-Server Architecture Overview](#21-client-server-architecture-overview)
+    * [2.2 Architectural Implementation Flow](#22-architectural-implementation-flow)
+    * [2.3 Required Components and Technologies](#23-required-components-and-technologies)
+  * [3. Mobile Application Implementation](#3-mobile-application-implementation)
+    * [3.1 Development Environment Setup](#31-development-environment-setup)
+    * [3.2 AR Navigation Implementation](#32-ar-navigation-implementation)
+    * [3.3 Positioning System Implementation](#33-positioning-system-implementation)
+    * [3.4 Map Rendering Implementation](#34-map-rendering-implementation)
+  * [4. Backend Services Implementation](#4-backend-services-implementation)
+    * [4.1 User Management Service](#41-user-management-service)
+    * [4.2 Venue Data Management](#42-venue-data-management)
+  * [5. Infrastructure Components Implementation](#5-infrastructure-components-implementation)
+    * [5.1 Bluetooth Beacon Deployment](#51-bluetooth-beacon-deployment)
+    * [5.2 Cloud Infrastructure Implementation](#52-cloud-infrastructure-implementation)
+  * [6. Positioning Algorithm Implementation](#6-positioning-algorithm-implementation)
+    * [6.1 Trilateration Algorithm](#61-trilateration-algorithm)
+    * [6.2 Path Finding Implementation](#62-path-finding-implementation)
+  * [7. User Interface Implementation](#7-user-interface-implementation)
+    * [7.1 Onboarding Flow](#71-onboarding-flow)
+    * [7.2 Destination Selection](#72-destination-selection)
+    * [7.3 AR Navigation View](#73-ar-navigation-view)
+    * [7.4 Color palette](#74-color-palette)
+      * [UI Elements](#ui-elements)
+      * [Example Screens](#example-screens)
+  * [8. Integration Implementation](#8-integration-implementation)
+    * [8.1 Map Integration](#81-map-integration)
+    * [8.2 External System Integration](#82-external-system-integration)
+  * [9. Security Implementation](#9-security-implementation)
+    * [9.1 Data Security](#91-data-security)
+    * [9.2 Beacon Security](#92-beacon-security)
+  * [10. Testing Implementation](#10-testing-implementation)
+    * [10.1 Test Environment Setup](#101-test-environment-setup)
+    * [10.2 Testing Methodologies](#102-testing-methodologies)
+  * [11. Deployment Strategy](#11-deployment-strategy)
+    * [11.1 Mobile Application Deployment](#111-mobile-application-deployment)
+    * [11.2 Backend Deployment](#112-backend-deployment)
+    * [11.3 Beacon Infrastructure Deployment](#113-beacon-infrastructure-deployment)
+  * [12. Performance Optimization](#12-performance-optimization)
+    * [12.1 Mobile Application Optimization](#121-mobile-application-optimization)
+    * [12.2 Backend Optimization](#122-backend-optimization)
+  * [13. Support](#13-support)
+    * [13.2 User Support](#132-user-support)
+  * [14. Future Expansion Considerations](#14-future-expansion-considerations)
+  * [16. Conclusion](#16-conclusion)
+<!-- TOC -->
 
 
 </details>
@@ -28,8 +80,6 @@
 **Author**: Tsangue Vivien Bistrel
 </div>
 
-
-# Technical Specification Document: LOC-INDOOR (Indoor Localisation)
 
 ## 1. Introduction
 
