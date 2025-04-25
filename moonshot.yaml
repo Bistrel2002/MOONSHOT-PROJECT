@@ -1,0 +1,46 @@
+name: Unity Android CI
+
+on:
+  push:
+    branches:
+      - code
+      - main
+  pull_request:
+    branches:
+      - code
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Unity
+      uses: game-ci/unity-builder@v2
+      with:
+        unityVersion: 2023.2.20f1
+
+    - name: Build project for Android
+      uses: game-ci/unity-builder@v2
+      with:
+        targetPlatform: Android
+
+  test:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Unity
+      uses: game-ci/unity-builder@v2
+      with:
+        unityVersion: 2023.2.20f1
+
+    - name: Run tests
+      uses: game-ci/unity-test-runner@v2
+      with:
+        targetPlatform: Android
