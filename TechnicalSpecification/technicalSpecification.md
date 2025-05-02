@@ -77,7 +77,7 @@
 
 **Last Updated**: March 14, 2025
 
-**Author**: Tsangue Vivien Bistrel
+**Author**: TSANGUE VIVIEN BISTREL
 </div>
 
 
