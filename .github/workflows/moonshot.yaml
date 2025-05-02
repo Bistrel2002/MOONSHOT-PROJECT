@@ -22,6 +22,17 @@ jobs:
         fail_on_error: true
         files: "**/*.md"
 
+    - name: Check for Unity License
+      run: |
+        if [ -z "$UNITY_LICENSE" ]; then
+          echo "UNITY_LICENSE secret is not set. Please add your Unity license file as a secret named UNITY_LICENSE." && exit 1
+        else
+          echo "UNITY_LICENSE secret found."
+        fi
+      shell: bash
+      env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
     - name: Cache Unity
       uses: actions/cache@v3 #  Cache Unity files to speed up builds
       with:
@@ -33,6 +44,8 @@ jobs:
       with:
         unityVersion: 2023.2.20f1
         targetPlatform: Android 
+      env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }} # Pass the license secret to the build step
     
     - name: Upload APK
       uses: actions/upload-artifact@v4 # Upload the built APK as an artifact
