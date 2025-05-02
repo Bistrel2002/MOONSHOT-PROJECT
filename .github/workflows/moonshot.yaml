@@ -34,7 +34,7 @@ jobs:
         targetPlatform: Android 
     
     - name: Upload APK
-      uses: actions/upload-artifact@v3 # Upload the built APK as an artifact
+      uses: actions/upload-artifact@v4 # Upload the built APK as an artifact
       with:
         name: build-android 
         path: build/Android/*.apk 
