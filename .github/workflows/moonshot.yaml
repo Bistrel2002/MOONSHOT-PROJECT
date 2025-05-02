@@ -15,11 +15,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4 
 
+    - name: Download Google Vale Style
+      run: |
+        mkdir -p .github/styles
+        cd .github/styles
+        git clone --depth=1 https://github.com/errata-ai/Google.git
+      shell: bash
+
     - name: Vale Linter
-      uses: errata-ai/vale-action@v2.0.0 #  Run Vale linter for Markdown style and grammar
+      uses: errata-ai/vale-action@v2.0.0
       with:
-        styles: "Google" # Use the Google style guide
-        files: "**/*.md" # Check all Markdown files
+        styles: .github/styles
+        files: "**/*.md"
 
     - name: Cache Unity
       uses: actions/cache@v3 #  Cache Unity files to speed up builds
