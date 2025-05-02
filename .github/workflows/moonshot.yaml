@@ -1,0 +1,40 @@
+name: Unity Android CI
+
+on:
+  push:
+    branches: [main, code, documents]
+  pull_request:
+    branches: [main, code, documents] 
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3 
+
+    - name: Vale Linter
+      uses: errata-ai/vale-action@v2.0.0 #  Run Vale linter for Markdown style and grammar
+      with:
+        styles: "Google" # Use the Google style guide
+        files: "**/*.md" # Check all Markdown files
+
+    - name: Cache Unity
+      uses: actions/cache@v3 #  Cache Unity files to speed up builds
+      with:
+        path: ~/.cache/unity3d 
+        key: UnityCache
+
+    - name: Build project for Android
+      uses: game-ci/unity-builder@v2 
+      with:
+        unityVersion: 2023.2.20f1
+        targetPlatform: Android 
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v3 # Upload the built APK as an artifact
+      with:
+        name: build-android 
+        path: build/Android/*.apk 
