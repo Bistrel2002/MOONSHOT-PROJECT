@@ -42,7 +42,7 @@ jobs:
     - name: Build project for Android
       uses: game-ci/unity-builder@v2 
       with:
-        unityVersion: 2023.2.20f1
+        unityVersion: 6000.0.48f1
         targetPlatform: Android 
       env:
         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }} # Pass the license secret to the build step
