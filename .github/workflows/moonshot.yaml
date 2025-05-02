@@ -15,6 +15,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4 
 
+    - name: Cache Library folder
+      uses: actions/cache@v3
+      with:
+        path: Library
+        key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'ProjectSettings/**') }}
+        restore-keys: |
+          Library-${{ runner.os }}-
+
     - name: Vale Linter
       uses: errata-ai/vale-action@reviewdog
       with:
@@ -39,6 +47,14 @@ jobs:
         path: ~/.cache/unity3d 
         key: UnityCache
 
+    - name: Cache Library folder
+      uses: actions/cache@v3
+      with:
+        path: Library
+        key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'ProjectSettings/**') }}
+        restore-keys: |
+          Library-${{ runner.os }}-
+
     - name: Build project for Android
       uses: game-ci/unity-builder@v4
       with:
@@ -46,6 +62,8 @@ jobs:
         targetPlatform: Android 
       env:
         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
     - name: Upload APK
       uses: actions/upload-artifact@v4 # Upload the built APK as an artifact
