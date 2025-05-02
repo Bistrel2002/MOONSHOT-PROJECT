@@ -40,7 +40,7 @@ jobs:
         key: UnityCache
 
     - name: Build project for Android
-      uses: game-ci/unity-builder@v2 
+      uses: game-ci/unity-builder@v4
       with:
         unityVersion: 6000.0.43f1
         targetPlatform: Android 
