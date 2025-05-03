@@ -41,12 +41,6 @@ jobs:
       env:
         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
-    - name: Ensure Unity Cache Directory Exists
-      run: |
-        mkdir -p /root/.cache/unity3d
-        chmod -R 777 /root/.cache/unity3d
-      shell: bash
-
     - name: Cache Unity
       uses: actions/cache@v3
       with:
