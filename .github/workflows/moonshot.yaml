@@ -41,32 +41,30 @@ jobs:
       env:
         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
+    - name: Ensure Unity Cache Directory Exists
+      run: |
+        mkdir -p /root/.cache/unity3d
+        chmod -R 777 /root/.cache/unity3d
+      shell: bash
+
     - name: Cache Unity
-      uses: actions/cache@v3 #  Cache Unity files to speed up builds
+      uses: actions/cache@v3
       with:
         path: ~/.cache/unity3d 
         key: UnityCache
 
-    - name: Cache Library folder
-      uses: actions/cache@v3
-      with:
-        path: Library
-        key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'ProjectSettings/**') }}
-        restore-keys: |
-          Library-${{ runner.os }}-
-
     - name: Build project for Android
       uses: game-ci/unity-builder@v4
       with:
-        unityVersion: 6000.0.43f1
-        targetPlatform: Android 
+        unityVersion: 2021.3.16f1 # Use a valid Unity version
+        targetPlatform: Android
       env:
         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
         UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
     - name: Upload APK
-      uses: actions/upload-artifact@v4 # Upload the built APK as an artifact
+      uses: actions/upload-artifact@v4
       with:
         name: build-android 
         path: build/Android/*.apk 
