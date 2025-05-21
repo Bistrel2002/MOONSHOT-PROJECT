@@ -11,7 +11,7 @@ public class newIndoorNav : MonoBehaviour
     [SerializeField] private ARTrackedImageManager m_TrackedImageManager;
     [SerializeField] private GameObject trackedImagePrefab;
     [SerializeField] private LineRenderer lineRenderer;
-    
+
     [Header("Line Renderer Settings")]
     [SerializeField] private Material lineMaterial;
     [SerializeField] private Color lineColor = new Color(0f, 1f, 0f, 1f); // Bright green (00FF00)
@@ -105,7 +105,7 @@ public class newIndoorNav : MonoBehaviour
             m_TrackedImageManager.trackablesChanged.AddListener(OnTrackablesChanged);
         }
     }
-
+    
     private void OnDisable()
     {
         if (m_TrackedImageManager != null)
@@ -118,10 +118,10 @@ public class newIndoorNav : MonoBehaviour
     {
         foreach (var newImage in eventArgs.added)
         {
-            navigationBase = GameObject.Instantiate(trackedImagePrefab);
+           navigationBase = GameObject.Instantiate(trackedImagePrefab);
 
-            navigationTargets.Clear();
-            navigationTargets = navigationBase.transform.GetComponentsInChildren<NavigationTarget>().ToList();
+           navigationTargets.Clear();
+           navigationTargets = navigationBase.transform.GetComponentsInChildren<NavigationTarget>().ToList();
             navMeshSurface = navigationBase.GetComponentInChildren<NavMeshSurface>();
             
             Debug.Log("Navigation base created. Targets: " + navigationTargets.Count);
@@ -134,7 +134,7 @@ public class newIndoorNav : MonoBehaviour
             if (navigationBase != null)
             {
                 navigationBase.transform.SetPositionAndRotation(updatedImage.transform.position, Quaternion.Euler(0, updatedImage.transform.rotation.eulerAngles.y, 0));
-            }
+        }
         }
         
         foreach (var removedImage in eventArgs.removed)
