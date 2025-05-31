@@ -99,39 +99,318 @@ public class MinewBeaconManager : MonoBehaviour
     
     private void InitializeMinewSDK()
     {
+        LogMessage("=== Starting Minew SDK Initialization ===");
+        
         try
         {
-            LogMessage("Initializing Minew Beacon SDK...");
-            
-            // Get Unity Player and current activity
+            LogMessage("Step 1: Getting Unity Player class...");
             unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            LogMessage("✅ Unity Player class obtained");
+        }
+        catch (System.Exception e)
+        {
+            LogError($"❌ Failed to get Unity Player class: {e.Message}");
+            return;
+        }
+        
+        try
+        {
+            LogMessage("Step 2: Getting current activity...");
             currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             
-            // Get MTCentralManager instance
+            if (currentActivity == null)
+            {
+                LogError("❌ Failed to get Unity current activity - currentActivity is null");
+                return;
+            }
+            LogMessage("✅ Unity activity obtained successfully");
+        }
+        catch (System.Exception e)
+        {
+            LogError($"❌ Exception getting current activity: {e.Message}");
+            return;
+        }
+        
+        try
+        {
+            LogMessage("Step 3: Loading MTCentralManager class...");
             AndroidJavaClass mtCentralManagerClass = new AndroidJavaClass("com.minew.beaconplus.sdk.MTCentralManager");
+            
+            if (mtCentralManagerClass == null)
+            {
+                LogError("❌ Failed to load MTCentralManager class - class is null");
+                return;
+            }
+            LogMessage("✅ MTCentralManager class loaded successfully");
+            
+            LogMessage("Step 4: Calling MTCentralManager.getInstance()...");
             mtCentralManager = mtCentralManagerClass.CallStatic<AndroidJavaObject>("getInstance", currentActivity);
             
-            if (mtCentralManager != null)
+            if (mtCentralManager == null)
             {
-                LogMessage("MTCentralManager initialized successfully");
-                
-                // Start the service
-                mtCentralManager.Call("startService");
-                
-                // Check Bluetooth status
-                CheckBluetoothStatus();
-                
-                isInitialized = true;
+                LogError("❌ MTCentralManager.getInstance() returned null");
+                LogError("   Possible causes:");
+                LogError("   - Missing permissions");
+                LogError("   - Bluetooth service unavailable");
+                LogError("   - SDK requires additional setup");
+                return;
             }
-            else
+            LogMessage("✅ MTCentralManager instance obtained successfully");
+            
+        }
+        catch (System.Exception e)
+        {
+            LogError($"❌ Exception in MTCentralManager setup: {e.Message}");
+            LogError($"   Stack trace: {e.StackTrace}");
+            LogError("   This usually means:");
+            LogError("   - MTBeaconPlus.aar not properly integrated");
+            LogError("   - Missing dependencies"); 
+            LogError("   - Wrong SDK version");
+            OnError?.Invoke(e.Message);
+            return;
+        }
+        
+        try
+        {
+            LogMessage("Step 5: Setting up listener...");
+            SetupMTCentralManagerListener();
+            LogMessage("✅ Listener setup completed");
+        }
+        catch (System.Exception e)
+        {
+            LogError($"❌ Failed to setup listener: {e.Message}");
+            // Continue anyway, maybe scanning can work without listener
+        }
+        
+        try
+        {
+            LogMessage("Step 6: Starting MTCentralManager service...");
+            mtCentralManager.Call("startService");
+            LogMessage("✅ MTCentralManager service started");
+        }
+        catch (System.Exception e)
+        {
+            LogError($"❌ Failed to start service: {e.Message}");
+            // Continue anyway, maybe service is already running
+        }
+        
+        try
+        {
+            LogMessage("Step 7: Checking Bluetooth status...");
+            CheckBluetoothStatus();
+            LogMessage("✅ Bluetooth status check completed");
+        }
+        catch (System.Exception e)
+        {
+            LogError($"❌ Failed to check Bluetooth: {e.Message}");
+            // Continue anyway
+        }
+        
+        isInitialized = true;
+        LogMessage("🎉 SDK initialization completed successfully!");
+        LogMessage("=== End SDK Initialization ===");
+    }
+    
+    private void SetupMTCentralManagerListener()
+    {
+        try
+        {
+            LogMessage("Setting up MTCentralManager listener...");
+            
+            // Create a listener using AndroidJavaProxy
+            // This allows us to implement the Java interface from Unity
+            MTCentralManagerListenerProxy listenerProxy = new MTCentralManagerListenerProxy(this);
+            
+            // Set the listener on MTCentralManager
+            mtCentralManager.Call("setMTCentralManagerListener", listenerProxy);
+            
+            LogMessage("MTCentralManager listener set successfully");
+        }
+        catch (System.Exception e)
+        {
+            LogError($"Failed to set up MTCentralManager listener: {e.Message}");
+        }
+    }
+    
+    // This method will be called by our listener proxy when peripherals are detected
+    public void OnPeripheralsDetected(AndroidJavaObject[] peripherals)
+    {
+        try
+        {
+            LogMessage($"OnPeripheralsDetected called with {peripherals.Length} peripherals");
+            
+            List<MinewBeaconData> newBeacons = new List<MinewBeaconData>();
+            
+            foreach (AndroidJavaObject peripheral in peripherals)
             {
-                LogError("Failed to get MTCentralManager instance");
+                MinewBeaconData beaconData = ProcessMTPeripheral(peripheral);
+                if (beaconData != null)
+                {
+                    newBeacons.Add(beaconData);
+                }
+            }
+            
+            // Update our detected beacons list
+            UpdateBeaconsList(newBeacons);
+            
+        }
+        catch (System.Exception e)
+        {
+            LogError($"Error processing detected peripherals: {e.Message}");
+        }
+    }
+    
+    private MinewBeaconData ProcessMTPeripheral(AndroidJavaObject mtPeripheral)
+    {
+        try
+        {
+            // Get the MTFrameHandler from the MTPeripheral
+            AndroidJavaObject frameHandler = mtPeripheral.Get<AndroidJavaObject>("mMTFrameHandler");
+            
+            if (frameHandler == null)
+            {
+                LogMessage("MTFrameHandler is null for peripheral");
+                return null;
+            }
+            
+            // Extract basic beacon information
+            string mac = frameHandler.Call<string>("getMac");
+            string name = frameHandler.Call<string>("getName");
+            int rssi = frameHandler.Call<int>("getRssi");
+            int battery = frameHandler.Call<int>("getBattery");
+            long lastUpdate = frameHandler.Call<long>("getLastUpdate");
+            
+            if (string.IsNullOrEmpty(mac))
+            {
+                LogMessage("Peripheral has no MAC address, skipping");
+                return null;
+            }
+            
+            LogMessage($"Processing peripheral: MAC={mac}, Name={name}, RSSI={rssi}");
+            
+            // Get advertisement frames
+            AndroidJavaObject advFrames = frameHandler.Call<AndroidJavaObject>("getAdvFrames");
+            
+            FrameData frameData = ProcessAdvFrames(advFrames);
+            
+            // Create beacon data object
+            MinewBeaconData beaconData = new MinewBeaconData(mac, name, rssi, battery, frameData.uuid, frameData.major, frameData.minor);
+            
+            return beaconData;
+            
+        }
+        catch (System.Exception e)
+        {
+            LogError($"Error processing MTPeripheral: {e.Message}");
+            return null;
+        }
+    }
+    
+    private struct FrameData
+    {
+        public string uuid;
+        public int major;
+        public int minor;
+        
+        public FrameData(string uuid, int major, int minor)
+        {
+            this.uuid = uuid;
+            this.major = major;
+            this.minor = minor;
+        }
+    }
+    
+    private FrameData ProcessAdvFrames(AndroidJavaObject advFrames)
+    {
+        string uuid = "";
+        int major = 0;
+        int minor = 0;
+        
+        if (advFrames == null)
+        {
+            LogMessage("AdvFrames is null, returning empty frame data");
+            return new FrameData(uuid, major, minor);
+        }
+        
+        try
+        {
+            // The advFrames should be an ArrayList<MinewFrame>
+            int frameCount = advFrames.Call<int>("size");
+            LogMessage($"Processing {frameCount} advertisement frames");
+            
+            for (int i = 0; i < frameCount; i++)
+            {
+                AndroidJavaObject frame = advFrames.Call<AndroidJavaObject>("get", i);
+                
+                if (frame != null)
+                {
+                    // Check frame type
+                    AndroidJavaObject frameType = frame.Call<AndroidJavaObject>("getFrameType");
+                    string frameTypeName = frameType.Call<string>("name");
+                    
+                    LogMessage($"Frame {i}: Type = {frameTypeName}");
+                    
+                    if (frameTypeName == "FrameiBeacon")
+                    {
+                        // This is an iBeacon frame, extract UUID, Major, Minor
+                        uuid = frame.Call<string>("getUuid");
+                        major = frame.Call<int>("getMajor");
+                        minor = frame.Call<int>("getMinor");
+                        
+                        LogMessage($"iBeacon found: UUID={uuid}, Major={major}, Minor={minor}");
+                        break; // We found an iBeacon frame, that's what we need
+                    }
+                }
             }
         }
         catch (System.Exception e)
         {
-            LogError($"Error initializing Minew SDK: {e.Message}");
-            OnError?.Invoke(e.Message);
+            LogMessage($"Error processing advertisement frames: {e.Message}");
+        }
+        
+        return new FrameData(uuid, major, minor);
+    }
+    
+    private void UpdateBeaconsList(List<MinewBeaconData> newBeacons)
+    {
+        try
+        {
+            // Clear the old list
+            var previousBeacons = new Dictionary<string, MinewBeaconData>();
+            foreach (var beacon in detectedBeacons)
+            {
+                previousBeacons[beacon.mac] = beacon;
+            }
+            
+            detectedBeacons.Clear();
+            
+            // Add new beacons and trigger events
+            foreach (var beacon in newBeacons)
+            {
+                if (beacon.rssi >= rssiFilterThreshold) // Apply RSSI filter
+                {
+                    detectedBeacons.Add(beacon);
+                    
+                    if (previousBeacons.ContainsKey(beacon.mac))
+                    {
+                        // Existing beacon updated
+                        OnBeaconUpdated?.Invoke(beacon);
+                    }
+                    else
+                    {
+                        // New beacon detected
+                        OnBeaconDetected?.Invoke(beacon);
+                        LogMessage($"New beacon detected: {beacon.name} (MAC: {beacon.mac}, RSSI: {beacon.rssi})");
+                    }
+                }
+            }
+            
+            LogMessage($"Updated beacon list: {detectedBeacons.Count} beacons");
+            
+        }
+        catch (System.Exception e)
+        {
+            LogError($"Error updating beacons list: {e.Message}");
         }
     }
     
@@ -239,12 +518,9 @@ public class MinewBeaconManager : MonoBehaviour
         
         try
         {
-            LogMessage("Updating beacon data...");
+            // With the proper listener in place, we mainly need to verify scanning status
+            // The real beacon detection happens in the OnPeripheralsDetected callback
             
-            // Create a simple beacon data retrieval approach
-            // Since Unity-Android Java interop is complex for listeners, we'll use a polling approach
-            
-            // Get scanning status
             bool currentScanStatus = mtCentralManager.Call<bool>("isScanning");
             if (currentScanStatus != isScanning)
             {
@@ -252,69 +528,18 @@ public class MinewBeaconManager : MonoBehaviour
                 LogMessage($"Scan status updated: {isScanning}");
             }
             
-            // For demonstration purposes, let's create some test beacon data
-            // In a real implementation, you would need to:
-            // 1. Get the peripheral list from MTCentralManager
-            // 2. Process each peripheral's MTFrameHandler
-            // 3. Extract beacon data from advertisement frames
+            // Log current status for debugging
+            LogMessage($"Scanning active: {isScanning}, Detected beacons: {detectedBeacons.Count}");
             
-            // This is a simplified test implementation
-            ProcessTestBeaconData();
+            if (isScanning && detectedBeacons.Count == 0)
+            {
+                LogMessage("Scanner is active but no beacons detected yet. Check: beacon power, distance (<10m), permissions");
+            }
             
         }
         catch (System.Exception e)
         {
-            LogError($"Error updating beacons: {e.Message}");
-        }
-    }
-    
-    private void ProcessTestBeaconData()
-    {
-        // This is a test method - replace with actual MTCentralManager peripheral processing
-        // For now, we'll simulate finding a beacon to test the system
-        
-        if (Time.time > 10.0f && detectedBeacons.Count == 0) // Add test beacon after 10 seconds
-        {
-            MinewBeaconData testBeacon = new MinewBeaconData(
-                "AA:BB:CC:DD:EE:FF", 
-                "Test MBM01 Beacon", 
-                -65, 
-                85, 
-                "550e8400-e29b-41d4-a716-446655440000", 
-                1, 
-                100
-            );
-            
-            detectedBeacons.Add(testBeacon);
-            OnBeaconDetected?.Invoke(testBeacon);
-            LogMessage($"Test beacon added: {testBeacon.name}");
-        }
-        
-        // Update existing beacon RSSI (simulate movement)
-        foreach (var beacon in detectedBeacons)
-        {
-            // Simulate RSSI fluctuation
-            int oldRssi = beacon.rssi;
-            beacon.rssi = oldRssi + UnityEngine.Random.Range(-3, 4);
-            beacon.estimatedDistance = CalculateDistance(beacon.rssi);
-            
-            OnBeaconUpdated?.Invoke(beacon);
-        }
-    }
-    
-    private float CalculateDistance(int rssi)
-    {
-        if (rssi == 0) return -1.0f;
-        
-        // Simple distance estimation based on RSSI
-        float ratio = rssi * 1.0f / -59; // -59 dBm is typical RSSI at 1 meter
-        if (ratio < 1.0)
-        {
-            return Mathf.Pow(ratio, 10);
-        }
-        else
-        {
-            return (0.89976f) * Mathf.Pow(ratio, 7.7095f) + 0.111f;
+            LogError($"Error in UpdateDetectedBeacons: {e.Message}");
         }
     }
     
@@ -504,6 +729,43 @@ public class MinewBeaconManager : MonoBehaviour
             {
                 StartCoroutine(DelayedStartScanning(1.0f));
             }
+        }
+    }
+}
+
+// Android Java Proxy class to implement MTCentralManagerListener
+public class MTCentralManagerListenerProxy : AndroidJavaProxy
+{
+    private MinewBeaconManager beaconManager;
+    
+    public MTCentralManagerListenerProxy(MinewBeaconManager manager) : base("com.minew.beaconplus.sdk.interfaces.MTCentralManagerListener")
+    {
+        beaconManager = manager;
+    }
+    
+    // This method will be called by the MTCentralManager when peripherals are scanned
+    public void onScanedPeripheral(AndroidJavaObject peripherals)
+    {
+        try
+        {
+            if (peripherals != null && beaconManager != null)
+            {
+                // Convert the List<MTPeripheral> to an array
+                int count = peripherals.Call<int>("size");
+                AndroidJavaObject[] peripheralArray = new AndroidJavaObject[count];
+                
+                for (int i = 0; i < count; i++)
+                {
+                    peripheralArray[i] = peripherals.Call<AndroidJavaObject>("get", i);
+                }
+                
+                // Call our beacon manager to process the peripherals
+                beaconManager.OnPeripheralsDetected(peripheralArray);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[MTCentralManagerListenerProxy] Error in onScanedPeripheral: {e.Message}");
         }
     }
 }

@@ -17,7 +17,7 @@ public class BeaconTestController : MonoBehaviour
         // Find beacon manager if not assigned
         if (beaconManager == null)
         {
-            beaconManager = FindObjectOfType<MinewBeaconManager>();
+            beaconManager = FindFirstObjectByType<MinewBeaconManager>();
         }
         
         if (beaconManager != null)
