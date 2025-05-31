@@ -1,0 +1,19 @@
+Beacon Permissions for Unity Player Settings:
+
+If you need to manually add these permissions to Unity's auto-generated manifest,
+you can use Unity's Player Settings → Publishing Settings → Custom Main Manifest
+or add them programmatically.
+
+Required Permissions:
+- android.permission.ACCESS_COARSE_LOCATION
+- android.permission.ACCESS_FINE_LOCATION  
+- android.permission.BLUETOOTH
+- android.permission.BLUETOOTH_ADMIN
+- android.permission.BLUETOOTH_SCAN
+- android.permission.BLUETOOTH_CONNECT
+
+Required Services:
+- com.minew.beaconplus.sdk.ConnectService
+
+Required Receivers:
+- com.minew.beaconplus.sdk.receivers.BluetoothChangedReceiver 
