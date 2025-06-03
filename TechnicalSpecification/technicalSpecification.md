@@ -5,65 +5,51 @@
 
 <details>
 <summary>Contents</summary>
-<!-- TOC -->
 
-## Table of content
-
-<!-- TOC -->
-* [Technical Specification of LOC-INDOOR (Indoor Localisation)](#technical-specification-of-loc-indoor-indoor-localisation)
-  * [Table of content](#table-of-content)
-  * [Line-Based Floor Navigation with AR Integration](#line-based-floor-navigation-with-ar-integration)
-  * [1. Introduction](#1-introduction)
-    * [1.1 System Overview](#11-system-overview)
-    * [1.2 Development Scope](#12-development-scope)
-  * [2. System Architecture Implementation](#2-system-architecture-implementation)
-    * [2.1 Client-Server Architecture Overview](#21-client-server-architecture-overview)
-    * [2.2 Architectural Implementation Flow](#22-architectural-implementation-flow)
-    * [2.3 Required Components and Technologies](#23-required-components-and-technologies)
-  * [3. Mobile Application Implementation](#3-mobile-application-implementation)
-    * [3.1 Development Environment Setup](#31-development-environment-setup)
-    * [3.2 AR Navigation Implementation](#32-ar-navigation-implementation)
-    * [3.3 Positioning System Implementation](#33-positioning-system-implementation)
-    * [3.4 Map Rendering Implementation](#34-map-rendering-implementation)
-  * [4. Backend Services Implementation](#4-backend-services-implementation)
-    * [4.1 User Management Service](#41-user-management-service)
-    * [4.2 Venue Data Management](#42-venue-data-management)
-  * [5. Infrastructure Components Implementation](#5-infrastructure-components-implementation)
-    * [5.1 Bluetooth Beacon Deployment](#51-bluetooth-beacon-deployment)
-    * [5.2 Cloud Infrastructure Implementation](#52-cloud-infrastructure-implementation)
-  * [6. Positioning Algorithm Implementation](#6-positioning-algorithm-implementation)
-    * [6.1 Trilateration Algorithm](#61-trilateration-algorithm)
-    * [6.2 Path Finding Implementation](#62-path-finding-implementation)
-  * [7. User Interface Implementation](#7-user-interface-implementation)
-    * [7.1 Onboarding Flow](#71-onboarding-flow)
-    * [7.2 Destination Selection](#72-destination-selection)
-    * [7.3 AR Navigation View](#73-ar-navigation-view)
-    * [7.4 Color palette](#74-color-palette)
-      * [UI Elements](#ui-elements)
-      * [Example Screens](#example-screens)
-  * [8. Integration Implementation](#8-integration-implementation)
-    * [8.1 Map Integration](#81-map-integration)
-    * [8.2 External System Integration](#82-external-system-integration)
-  * [9. Security Implementation](#9-security-implementation)
-    * [9.1 Data Security](#91-data-security)
-    * [9.2 Beacon Security](#92-beacon-security)
-  * [10. Testing Implementation](#10-testing-implementation)
-    * [10.1 Test Environment Setup](#101-test-environment-setup)
-    * [10.2 Testing Methodologies](#102-testing-methodologies)
-  * [11. Deployment Strategy](#11-deployment-strategy)
-    * [11.1 Mobile Application Deployment](#111-mobile-application-deployment)
-    * [11.2 Backend Deployment](#112-backend-deployment)
-    * [11.3 Beacon Infrastructure Deployment](#113-beacon-infrastructure-deployment)
-  * [12. Performance Optimization](#12-performance-optimization)
-    * [12.1 Mobile Application Optimization](#121-mobile-application-optimization)
-    * [12.2 Backend Optimization](#122-backend-optimization)
-  * [13. Support](#13-support)
-    * [13.2 User Support](#132-user-support)
-  * [14. Future Expansion Considerations](#14-future-expansion-considerations)
-  * [16. Conclusion](#16-conclusion)
-<!-- TOC -->
-
-
+## Table of Contents
+- [Technical Specification of LOC-INDOOR](#technical-specification-of-loc-indoor)
+  - [1. Introduction](#1-introduction)
+    - [1.1 System Overview](#11-system-overview)
+    - [1.2 Development Scope](#12-development-scope)
+  - [2. System Architecture Implementation](#2-system-architecture-implementation)
+    - [2.1 Client-Server Architecture Overview](#21-client-server-architecture-overview)
+    - [2.2 Architectural Implementation Flow](#22-architectural-implementation-flow)
+    - [2.3 Required Components and Technologies](#23-required-components-and-technologies)
+  - [3. Mobile Application Implementation](#3-mobile-application-implementation)
+    - [3.1 Development Environment Setup](#31-development-environment-setup)
+    - [3.2 AR Navigation Implementation](#32-ar-navigation-implementation)
+    - [3.3 Positioning System Implementation](#33-positioning-system-implementation)
+    - [3.4 Map Rendering Implementation](#34-map-rendering-implementation)
+  - [4. Backend Services Implementation](#4-backend-services-implementation)
+    - [4.1 User Management Service](#41-user-management-service)
+    - [4.2 Venue Data Management](#42-venue-data-management)
+  - [5. Infrastructure Components Implementation](#5-infrastructure-components-implementation)
+    - [5.1 Bluetooth Beacon Deployment](#51-bluetooth-beacon-deployment)
+    - [5.2 Cloud Infrastructure Implementation](#52-cloud-infrastructure-implementation)
+  - [6. Positioning Algorithm Implementation](#6-positioning-algorithm-implementation)
+    - [6.1 Trilateration Algorithm](#61-trilateration-algorithm)
+    - [6.2 Path Finding Implementation](#62-path-finding-implementation)
+  - [7. User Interface Implementation](#7-user-interface-implementation)
+    - [7.1 Onboarding Flow](#71-onboarding-flow)
+    - [7.2 Destination Selection](#72-destination-selection)
+    - [7.3 AR Navigation View](#73-ar-navigation-view)
+    - [7.4 Color palette](#74-color-palette)
+  - [8. Integration Implementation](#8-integration-implementation)
+    - [8.1 Map Integration](#81-map-integration)
+    - [8.2 External System Integration](#82-external-system-integration)
+  - [9. Security Implementation](#9-security-implementation)
+    - [9.1 Data Security](#91-data-security)
+    - [9.2 Beacon Security](#92-beacon-security)
+  - [10. Testing Implementation](#10-testing-implementation)
+    - [10.1 Test Environment Setup](#101-test-environment-setup)
+    - [10.2 Testing Methodologies](#102-testing-methodologies)
+  - [11. Performance Optimization](#11-performance-optimization)
+    - [11.1 Mobile Application Optimization](#111-mobile-application-optimization)
+    - [11.2 Backend Optimization](#112-backend-optimization)
+  - [12. Support](#12-support)
+    - [12.2 User Support](#122-user-support)
+  - [13. Future Expansion Considerations](#13-future-expansion-considerations)
+  - [14. Conclusion](#14-conclusion)
 </details>
 
 <div align="center">
@@ -75,7 +61,7 @@
 
 **Document Version**: 1.1
 
-**Last Updated**: March 14, 2025
+**Last Updated**: June 4, 2025
 
 **Author**: TSANGUE VIVIEN BISTREL
 </div>
@@ -189,7 +175,8 @@ The different technologies with their roles and responsibilities in the LOC-INDO
 
 
 - **Unity and C#**: Mobile application development with AR capabilities.
-- **Node.js and Express**: Backend services for handling requests and APIs.
+- **Node.js**: Backend services for handling requests and APIs.
+- **React**: Front-end services for user profile.
 - **MongoDB and PostgreSQL**: Data storage for venues and users.
 - **Bluetooth Beacons**: Indoor positioning.
 - **AWS S3 and CloudFront**: Storage and delivery of static content.
@@ -204,7 +191,7 @@ Each technology plays a crucial role in ensuring the LOC-INDOOR project is robus
 ### 3.1 Development Environment Setup
 
 1. Install Unity 2023.1 or later with AR Foundation package
-2. Configure Android SDK (minimum API level 29)
+2. Configure Android SDK (minimum API level 24)
 3. Set up version control with Git, including branching strategy
 4. Implement CI/CD pipeline using GitHub Actions or similar service
 
@@ -377,7 +364,7 @@ flowchart TD
 ### 3.4 Map Rendering Implementation
 
 1. **Vector Map Rendering**
-   - Develop a 2D map renderer that supports SVG-based floor plans
+   - Develop a 3D map renderer
    - Implement efficient rendering for large and complex maps
    - Create a coordinate system transformation between physical and map coordinates
    - Support multi-floor visualization with floor selection UI
@@ -591,17 +578,7 @@ graph TD
     - Utilize MongoDB for venue data (maps, POIs, path networks)
     - Create appropriate indexing strategy for query optimization
 
-2. **API Gateway**
-    - Develop RESTful API with OpenAPI specification
-    - Implement rate limiting and request throttling
-    - Create comprehensive API documentation
-    - Design API versioning strategy
 
-3. **Content Delivery Network**
-    - Configure CDN for static assets (map tiles, images)
-    - Implement regional edge caching for faster asset delivery
-    - Design cache invalidation strategy for updated content
-    - Create fallback mechanisms for CDN failures
 
 ## 6. Positioning Algorithm Implementation
      
@@ -823,7 +800,6 @@ flowchart TD
 ### 8.1 Map Integration
 
 1. **Floor Plan Processing**
-    - Develop SVG parser for floor plans to extract walls, rooms, and paths from SVG files floor plans
     - Create coordinate system transformation to match the real world
     - Implement layer extraction for different map elements
     - Design POI placement validation to prevent misplaced landmarks that could mislead users.
@@ -836,10 +812,8 @@ flowchart TD
 ### 8.2 External System Integration
 
 1. **Venue Management Systems**
-    - Create API adapters for popular venue management systems
-    - Implement data synchronization protocols to ensure data consistency
-    - Design conflict resolution for concurrent updates
-    - Develop webhooks for real-time updates that notify the mobile app of changes
+    - Create API adapters for popular venue management systems.
+    - Implement data synchronization protocols to ensure data consistency.
 
 ```mermaid
 flowchart TD
@@ -872,7 +846,6 @@ A --> C[External System Integration]
         
         C2 --> C2A[Synchronization Protocols]
         C2 --> C2B[Conflict Resolution]
-        C2 --> C2C[Real-time Update Webhooks]
     end
 
     %% Validation and Quality Checks
@@ -906,16 +879,14 @@ A --> C[External System Integration]
     class B1,B2,C1,C2 subprocess;
     class D validation;
     class E decision;
-````
+```
 
 ## 9. Security Implementation
 
 ### 9.1 Data Security
 
 1. **Encryption Implementation**
-    - Utilize AES-256(Advanced Encryption Standard with a 256-bit key) for sensitive data storage
-    - Implement TLS 1.3(Transport Layer Security) for all network communications to encrypts data during transmission between the mobile app and the server.
-    - Create secure key management with proper rotation to prevent unauthorized decryption.
+    - Implement TLS 1.3(Transport Layer Security) for all network communications to encrypt data during transmission between the mobile app and the server.
     - Design end-to-end encryption for sensitive user data
 
 2. **Privacy Controls**
@@ -923,23 +894,15 @@ A --> C[External System Integration]
 
 ### 9.2 Beacon Security
 
-1. **Anti-Spoofing Measures**
-    - Implement beacon authentication mechanism by using cryptographic signatures to verify that the beacon is genuine.
-    - Design signal validation to detect anomalies
-    - Develop intrusion detection for beacon networks
-
-2. **Secure Provisioning**
-    - Implement secure beacon registration process to verify them before they start transmitting.
-    - Design secure firmware update process for security fixes, so updates should be encrypted and signed.
-    - Develop tamper detection for physical beacons to detect unauthorized access or tampering with the beacon hardware.
+The Beacon SDK comes with all the security features already implemented by the manufacturer.
 
 ## 10. Testing Implementation
 
 ### 10.1 Test Environment Setup
 
 1. **Beacon Testing Lab**
-    - Create controlled environment with known beacon positions to test the signal strength and accuracy before deploying them in the real world.
-    - Implement signal strength measurement tools to measure and validate the performance of the beacons.
+    - Create a controlled environment with known beacon positions to test the signal strength and accuracy before deploying them in the real world.
+    - Configure signal strength to measure and validate the performance of the beacons.
     - Design automated testing for positioning accuracy that compares the expected location with the calculated position based on beacon signals.
     - Develop environmental variation simulation
 
@@ -959,107 +922,55 @@ A --> C[External System Integration]
     - Implement end-to-end testing scenarios
     - Create real-world testing protocols
     - Design A/B testing for UI variations
-    - Develop load testing for backend services by simulating multiple users accessing the system simultaneously.
+    - Develop load testing for backend services by simultaneously simulating multiple users accessing the system.
 
 3. **User Testing**
-    - Create usability testing protocols to evaluate the user experience of the app.
+    - Create usability testing protocols to evaluate the app's user experience.
     - Implement analytics collection during beta testing
-    - Develop iterative improvement process based on user feedback
+    - Develop an iterative improvement process based on user feedback
 
-## 11. Deployment Strategy
+## 11. Performance Optimization
 
-### 11.1 Mobile Application Deployment
-
-1. **Release Pipeline**
-    - Create staged rollout strategy for app stores
-    - Implement feature flags for controlled feature releases
-    - Design beta testing program with TestFlight and Google Play Beta
-    - Develop automated build and submission process
-
-2. **Version Management**
-    - Implement semantic versioning strategy
-    - Create update notification system
-    - Design backward compatibility for API changes
-    - Develop forced update mechanism for critical issues
-
-### 11.2 Backend Deployment
-
-1. **Infrastructure as Code**
-    - Implement Terraform for cloud infrastructure management to automate the provisioning of cloud resources.
-    - Create Docker containers for service components to ensure consistent deployment across different environments.
-
-2. **Monitoring and Alerting**
-    - Implement comprehensive logging with structured format to capture relevant information.
-    - Create performance monitoring dashboards to visualize system performance metrics.
-    - Develop automated recovery procedures where possible to handle common issues without manual intervention.
-
-### 11.3 Beacon Infrastructure Deployment
-
-1. **Site Survey**
-    - Create venue measurement and mapping process that includes measuring the dimensions of the venue and creating a detailed map of the area.
-    - Implement signal propagation modeling to predict beacon coverage and identify potential dead zones.
-    - Design optimal beacon placement algorithm to determine the best locations for placing beacons based on the venue layout and signal propagation characteristics.
-
-2. **Deployment Validation**
-    - Implement beacon coverage testing to ensure that the beacons are providing adequate coverage throughout the venue.
-    - Design beacon health monitoring to track the status of the beacons and detect any issues that may arise.
-    - Develop maintenance schedules and procedures to ensure that the beacons are regularly checked and maintained to prevent any issues from occurring.
-
-## 12. Performance Optimization
-
-### 12.1 Mobile Application Optimization
+### 11.1 Mobile Application Optimization
 
 1. **Battery Usage**
-    - Implement adaptive beacon scanning based on movement 
     - Create efficient rendering for AR components 
     - Design background processing limitations 
     - Develop power usage monitoring and optimization
 
-2. **Memory Management**
-    - Implement resource pooling for frequently used objects
-    - Design efficient data structures for positioning to efficiently store beacons positions.
-    - Develop memory usage monitoring and alerts
-
-### 12.2 Backend Optimization
+### 11.2 Backend Optimization
 
 1. **API Optimization**
     - Implement response compression to speed up data transfer
-    - Create efficient serialization formats to minimize data size
     - Design connection pooling and reuse to reduce latency and improve performance under load.
     - Develop API response caching with CDN integration to reduce server load and improve response times.
 
-## 13. Support
+## 12. Support
 
-### 13.2 User Support
+### 12.2 User Support
 
 1. **Help System**
     - Implement in-app help documentation
     - Create contextual help based on user actions
-    - Design video tutorials for common tasks
-    - Develop chatbot assistance for troubleshooting
 
-2. **Feedback Management**
-    - Implement in-app feedback collection
-  
-
-## 14. Future Expansion Considerations
+## 13. Future Expansion Considerations
 
 1. **Platform Expansion**
     - Prepare code structure for iOS implementation 
-    - Design cross-platform component architecture to ensure that the code can be reused across different platforms.
+    - Design a cross-platform component architecture to ensure that the code can be reused across different platforms.
     - Create platform-specific optimizations to ensure that the app performs well on each platform.
-    - Develop shared codebase management strategy to ensure that the code is maintainable and easy to work with across different platforms.
+    - Develop a shared codebase management strategy to ensure that the code is maintainable and easy to work with across different platforms.
 
 2. **Feature Expansion**
    - Design architecture for multi-destination planning to allow users to plan routes with multiple stops.
-   - Create issue tracking and resolution process to ensure that any issues that arise are tracked and resolved in a timely manner.
-   - Design automated response for common issues to provide users with quick solutions to common problems.
+   - Create an issue tracking and resolution process to ensure that any issues that arise are tracked and resolved in a timely manner.
+   - Design an automated response for common issues to provide users with quick solutions to common problems.
    - Implement voice guidance synchronized with visual cues so that users can receive audio instructions that match the visual navigation cues.
    - Create haptic feedback for direction changes to provide users with tactile feedback when they need to change direction.
    - Develop accessibility information for venues and POIs 
    - Implement static alternatives to animations to ensure that the app is accessible to users with disabilities.
    - Design high contrast navigation lines with customizable appearance
-   - Create large text mode with simplified UI
+   - Create a large text mode with a simplified UI
    - Develop screen reader compatibility for all UI elements
    - Design route avoidance for stairs and escalators
    - Develop custom routing cost functions based on mobility profile
@@ -1069,6 +980,6 @@ A --> C[External System Integration]
    - Design venue information display with details and operating hours
 
 
-## 16. Conclusion
+## 14. Conclusion
 
 This technical specification document provides the detailed implementation guidance needed to develop the LOC-INDOOR system. Each section outlines the specific approach to be taken for different components of the system, ensuring to have a clear direction on how to implement the features described in the functional specification. The document aims to be comprehensive while avoiding code examples, focusing instead on the technical approach and implementation strategy.
