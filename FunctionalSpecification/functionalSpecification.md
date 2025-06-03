@@ -23,20 +23,18 @@
       - [Persona 2: Mall Shopper - Marcus Johnson](#persona-2-mall-shopper---marcus-johnson)
       - [Persona 3: Accessibility User - Elena Vasquez](#persona-3-accessibility-user---elena-vasquez)
       - [Persona 4: Hospital Visitor - Robert Chen](#persona-4-hospital-visitor---robert-chen)
-    - [3.2 Secondary Personas](#32-secondary-personas)
-      - [Persona 5: Venue Administrator - David Wilson](#persona-5-venue-administrator---david-wilson)
+
       - [Persona 6: First-time Visitor - Mei Chen](#persona-6-first-time-visitor---mei-chen)
-  - [4. Use Cases](#4-use-cases)
-    - [4.1 Core Use Cases](#41-core-use-cases)
+  - [4. User Stories](#4-user-stories)
+  - [5. Use Cases](#5-use-cases)
+    - [5.1 Core Use Cases](#51-core-use-cases)
       - [UC-1: Airport Navigation](#uc-1-airport-navigation)
       - [UC-2: Shopping Mall Navigation](#uc-2-shopping-mall-navigation)
       - [UC-3: Accessible Route Navigation](#uc-3-accessible-route-navigation)
       - [UC-4: Hospital Visitor Navigation](#uc-4-hospital-visitor-navigation)
-    - [4.2 Additional Use Cases](#42-additional-use-cases)
+    - [5.2 Additional Use Cases](#52-additional-use-cases)
       - [UC-5: Multi-Destination Planning](#uc-5-multi-destination-planning)
-  - [5. User Stories](#5-user-stories)
-    - [5.1 Primary User Stories](#51-primary-user-stories)
-    - [5.2 Secondary User Stories](#52-secondary-user-stories)
+
   - [6. Functional Requirements](#6-functional-requirements)
     - [6.1 Core Functional Requirements](#61-core-functional-requirements)
       - [FR-1: User Location Detection](#fr-1-user-location-detection)
@@ -92,28 +90,22 @@
     - [10.2 UI Components](#102-ui-components)
       - [10.2.1 Information Displays](#1021-information-displays)
       - [10.2.3 Search and Filter Components](#1023-search-and-filter-components)
-    - [10.3 UI Flow Diagrams](#103-ui-flow-diagrams)
-      - [10.3.1 Main Navigation Flow](#1031-main-navigation-flow)
-      - [10.3.2 Multi-destination Flow](#1032-multi-destination-flow)
-  - [11. Data Flow](#11-data-flow)
-    - [11.1 User Location Data Flow](#111-user-location-data-flow)
-    - [11.2 Navigation Data Flow](#112-navigation-data-flow)
-    - [11.3 Venue Data Flow](#113-venue-data-flow)
-  - [12. Integration Requirements](#12-integration-requirements)
-    - [12.1 Map Integration](#121-map-integration)
-      - [12.1.1-Floor Plan Format Requirements](#1211-floor-plan-format-requirements)
-      - [12.1.2 Path Network Requirements](#1212-path-network-requirements)
-    - [12.2 External System Integration](#122-external-system-integration)
-      - [12.2.1 Venue Management Systems](#1221-venue-management-systems)
-  - [13. Performance Requirements ](#13-performance-requirements-)
-    - [13.1 Positioning Accuracy](#131-positioning-accuracy)
-    - [13.2 Response Time](#132-response-time)
-    - [13.3 Resource Utilization](#133-resource-utilization)
-    - [13.4 Scalability](#134-scalability)
-  - [14. Security Considerations](#14-security-considerations)
-    - [14.1 Data Security](#141-data-security)
-    - [14.2 Beacon Security](#142-beacon-security)
-    - [14.3 Application Security](#143-application-security)
+    - [10.3 Technology](#103-technology)
+  - [11. Integration Requirements](#12-integration-requirements)
+    - [11.1 Map Integration](#121-map-integration)
+      - [11.1.1-Floor Plan Format Requirements](#1211-floor-plan-format-requirements)
+      - [11.1.2 Path Network Requirements](#1212-path-network-requirements)
+    - [11.2 External System Integration](#122-external-system-integration)
+      - [11.2.1 Venue Management Systems](#1221-venue-management-systems)
+  - [12. Performance Requirements ](#13-performance-requirements-)
+    - [12.1 Positioning Accuracy](#131-positioning-accuracy)
+    - [12.2 Response Time](#132-response-time)
+    - [12.3 Resource Utilization](#133-resource-utilization)
+    - [12.4 Scalability](#134-scalability)
+  - [13. Security Considerations](#14-security-considerations)
+    - [13.1 Data Security](#141-data-security)
+    - [13.2 Beacon Security](#142-beacon-security)
+    - [13.3 Application Security](#143-application-security)
   - [Glossary - Indoor Navigation System with AR Integration](#glossary---indoor-navigation-system-with-ar-integration)
     - [A](#a)
     - [B](#b)
@@ -154,7 +146,8 @@
 This functional specification document outlines the detailed requirements and system design for an indoor navigation application that utilizes Augmented Reality (AR) and Bluetooth beacon technology. The system aims to solve the challenge of navigating complex indoor environments by providing intuitive, visual guidance through a mobile application.
 
 ### 1.2 Project Scope
-The project encompasses the development of a mobile application for Android (with plans to expand to iOS) that provides real-time, line-based navigation guidance in indoor spaces where traditional GPS is ineffective. The system will utilize Bluetooth beacons for positioning and Augmented Reality to overlay directional guidance on the user's view of the physical environment.
+The project encompasses the development of a mobile application for Android (with plans to expand to iOS) that provides real-time, line-based navigation guidance in indoor spaces where traditional GPS is ineffective. The system will utilize Bluetooth beacons for positioning and Augmented Reality to overlay directional guidance on the user's view of the physical environment. The beacons are placed at specific locations in the building, moreover, they come with their SDK, containing all the desired functionalities. While the basic concept of indoor navigation with beacons exists, our app uses augmented reality to show a clear line on the real floor, guiding people step by step inside buildings. Unlike apps that only use maps or arrows, this is much easier to follow, especially in big places like malls, hospitals, or airports. We use beacons to ensure the line stays in the right place and works well. This makes the navigation more accurate and useful in many different locations.
+
 
 ### 1.3 Intended Audience
 - Development team
@@ -165,21 +158,24 @@ The project encompasses the development of a mobile application for Android (wit
 ## 2. Project Overview <a name="project-overview"></a>
 
 ### 2.1 Problem Statement
-Users frequently struggle with navigation in complex indoor environments such as airports, shopping malls, 
-hospitals and large public buildings. Traditional navigation solutions that rely on GPS are ineffective 
-in these spaces.
+Users frequently struggle with navigation in complex indoor environments such as airports, shopping malls, hospitals, and large public buildings, This is because the satellite can not detect someone's position inside a building because of walls. Traditional navigation solutions that rely on GPS are ineffective in these spaces.
 
 ### 2.2 Solution Description
-The solution will implement a marker-based floor navigation system with AR 
-overlays, inspired by racing video games like Forza Horizon. When users 
-select a destination within a venue, the application will display a directional 
-line on the floor through their device's camera view, guiding them seamlessly to 
-their chosen location. Bluetooth beacons strategically placed throughout the venue 
-will provide precise location data to ensure accurate navigation.
+The solution will implement a marker-based floor navigation system with AR overlays, inspired by racing video games like Forza Horizon in Unity. When users 
+select a destination within a venue, the application will display a directional line on the floor through their device's camera view, guiding them seamlessly to 
+their chosen location. Bluetooth beacons strategically placed throughout the venue will provide precise location data to ensure accurate navigation. The question is why choosing this technology, after a great reflection I find out that other solution make use of 2D view indoor navigation, but since I wanted something more user friendly, The decision of implemening it in Unity AR was the best option.
+
+- Unity has AR Foundation, a cross-platform framework that supports both ARKit (iOS) and ARCore (Android).
+- Unity is generally lighter and better optimized for mobile devices, especially low to mid-range smartphones.
+- For indoor AR navigation (which needs smooth performance), Unity is less resource-intensive than Unreal Engine.
+- Unity has a large ecosystem with many ready-to-use plugins for:
+  - Bluetooth beacon integration.
+  - Indoor positioning.
+  - 2D/3D floor plans.
+  - AR UI tools.
+
 
 ## 3. User Personas
-
-### 3.1 Primary Personas
 
 #### Persona 1: Traveler - Sarah Thompson
 ![persons1](images/1.png)
@@ -193,18 +189,28 @@ will provide precise location data to ensure accurate navigation.
 #### Persona 4: Hospital Visitor - Robert Chen
 ![persons1](images/6.png)
 
-
-### 3.2 Secondary Personas
-
-#### Persona 5: Venue Administrator - David Wilson
-![persons1](images/4.png)
-
 #### Persona 6: First-time Visitor - Mei Chen
 ![persons1](images/5.png)
 
-## 4. Use Cases 
+## 4. User Stories
 
-### 4.1 Core Use Cases
+1. **Airport Navigation**
+    - As a traveler in an unfamiliar airport, I want to easily find my connecting gate so that I don't miss my flight.
+    - As a passenger arriving at an airport, I want to find the nearest restroom, restaurant, or baggage claim area quickly.
+
+2. **Shopping Mall Navigation**
+    - As a shopper, I want to find specific stores or services within a large mall without checking physical directories.
+    - As a mall visitor, I want to find the closest exit from my current location.
+
+3. **Hospital/Healthcare Facility Navigation**
+    - As a patient or visitor, I want to find specific departments or rooms within a hospital complex.
+
+4. **Special Needs Users**
+    - As a user with mobility challenges, I want clear guidance that takes into account accessibility routes.
+
+## 5. Use Cases 
+
+### 5.1 Core Use Cases
 
 #### UC-1: Airport Navigation
 **Primary Actor:** Traveler (Sarah)
@@ -298,7 +304,7 @@ will provide precise location data to ensure accurate navigation.
 - Navigation history allows quick return to previously visited locations
 
 
-### 4.2 Additional Use Cases
+### 5.2 Additional Use Cases
 
 #### UC-5: Multi-Destination Planning
 **Primary Actor:** Mall Shopper (Marcus)
@@ -322,26 +328,6 @@ will provide precise location data to ensure accurate navigation.
 - System logs complete journey
 - User can save route for future visits
 
-
-## 5. User Stories
-
-### 5.1 Primary User Stories
-
-1. **Airport Navigation**
-    - As a traveler in an unfamiliar airport, I want to easily find my connecting gate so that I don't miss my flight.
-    - As a passenger arriving at an airport, I want to find the nearest restroom, restaurant, or baggage claim area quickly.
-
-2. **Shopping Mall Navigation**
-    - As a shopper, I want to find specific stores or services within a large mall without checking physical directories.
-    - As a mall visitor, I want to find the closest exit from my current location.
-
-3. **Hospital/Healthcare Facility Navigation**
-    - As a patient or visitor, I want to find specific departments or rooms within a hospital complex.
-
-### 5.2 Secondary User Stories
-
-1. **Special Needs Users**
-    - As a user with mobility challenges, I want clear guidance that takes into account accessibility routes.
 
 ## 6. Functional Requirements 
 
@@ -388,7 +374,6 @@ will provide precise location data to ensure accurate navigation.
 - The system shall remember frequently visited locations.
 
 #### FR-9: Accessibility Features
-- The system shall provide voice guidance synchronized with visual guidance.
 - The system shall support high-contrast modes for visibility.
 - The system shall prioritize accessible routes for users who indicate mobility requirements.
 
@@ -521,10 +506,10 @@ The system will follow a client-server architecture with the following component
 +----------------------------------+        +----------------------------------+
 |       Mobile Application         |        |        Backend Services          |
 |                                  |        |                                  |
-|  +------------+  +------------+  |        |  +------------+  +------------+  |
-|  |    AR      |  | Bluetooth  |  |        |  |   User     |  |   Venue    |  |
-|  | Navigation |  | Positioning|  |        |  | Management |  |    Data    |  |
-|  +------------+  +------------+  |        |  +------------+  +------------+  |
+|  +------------+  +------------+  |        |  +------------+                  |
+|  |    AR      |  | Bluetooth  |  |        |  |   User     |                  |
+|  | Navigation |  | Positioning|  |        |  | Management |                  |
+|  +------------+  +------------+  |        |  +------------+                  |
 |                                  |        |                                  |
 |  +------------+  +------------+  |        |  +------------+  +------------+  |
 |  |    Map     |  |    UI      |  |<------>|  | Analytics  |  |    API     |  |
@@ -554,7 +539,7 @@ The system will follow a client-server architecture with the following component
 ### 9.1 Mobile Application Components
 
 #### 9.1.1 AR Development Platform
-- **Unity AR Foundation**
+- **[Unity AR Foundation](https://unity.com/solutions/xr/ar)**  ![](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Unity_2021.svg/100px-Unity_2021.svg.png)
     - Purpose: Provides a unified interface for building AR applications for both Android and iOS
     - Key Features:
         - Camera access and management
@@ -573,7 +558,7 @@ The system will follow a client-server architecture with the following component
         - Optimization for mobile devices
 
 #### 9.1.3 Bluetooth Beacon Integration
-- **Beacon SDK**
+- **[Beacon SDK](https://www.minew.com/product/mbm01-ultra-long-range-beacon/)**
     - Purpose: Detects and interacts with Bluetooth beacons
     - Supported SDK Protocols:
         - iBeacon for iOS
@@ -595,7 +580,7 @@ The system will follow a client-server architecture with the following component
         - Floor detection
 
 #### 9.1.5 Map Rendering
-- **2D/3D Map Engine**
+- **3D Map Engine**
     - Purpose: Displays venue maps and integrates with AR components
     - Key Features:
         - Multi-floor visualization
@@ -671,71 +656,21 @@ The system will follow a client-server architecture with the following component
 - Category filters
 - Accessibility filters
 
-### 10.3 UI Flow Diagrams
+### 10.3 Technology
+- React will be used for the front-end developement
 
-#### 10.3.1 Main Navigation Flow
 
-```
-App Launch → Login section → Destination Selection → 
-AR Navigation Setup → Active Navigation → Destination Arrival
-```
+## 11. Integration Requirements
 
-#### 10.3.2 Multi-destination Flow
+### 11.1 Map Integration
 
-```
-Active Navigation → Add Additional Destination → 
-Optimize Route → Continue Navigation → Destination 1 Arrival → 
-Navigation to Destination 2 → Destination 2 Arrival
-```
-
-## 11. Data Flow
-
-### 11.1 User Location Data Flow
-
-1. Bluetooth beacons broadcast identifier and signal strength
-2. Mobile application detects beacon signals
-3. Positioning algorithm calculates user position based on multiple beacon signals
-4. Position data is processed through smoothing algorithms
-5. AR components use position data to render guidance
-6. User movement updates trigger recalculation of position and guidance
-
-### 11.2 Navigation Data Flow
-
-1. User selects destination
-2. Application requests optimal route from backend
-3. Backend calculates route based on current position and destination
-4. Route data is sent to mobile application
-5. AR components render route as floor line
-6. Position updates trigger route rendering updates
-7. Navigation completes when user reaches destination
-
-### 11.3 Venue Data Flow
-
-1. Venue administrators create and update venue data (maps, POIs, etc.)
-2. Data is stored in backend databases
-3. Mobile application requests venue data on demand
-4. Venue data is cached locally for offline use
-5. Updates to venue data trigger synchronization when online
-
-## 12. Integration Requirements
-
-### 12.1 Map Integration
-
-#### 12.1.1-Floor Plan Format Requirements
-- Vector-based format (SVG preferred)
-- Layer structure for different floor elements
+#### 11.1.1-Floor Plan Format Requirements
 - Coordinate system alignment with physical space
 - POI annotation support
 
-#### 12.1.2 Path Network Requirements
-- Node-edge graph structure
-- Weighted edges for distance calculation
-- Attribute support for accessibility information
-- Connection points between floors
+### 11.2 External System Integration
 
-### 12.2 External System Integration
-
-#### 12.2.1 Venue Management Systems
+#### 11.2.1 Venue Management Systems
 - API integration with existing venue CMS
 - Data synchronization protocols
 - Event notification system
@@ -743,44 +678,44 @@ Navigation to Destination 2 → Destination 2 Arrival
 
 ## 13. Performance Requirements <a name="performance-requirements"></a>
 
-### 13.1 Positioning Accuracy
+### 12.1 Positioning Accuracy
 - Horizontal accuracy: ±1 meters in areas with proper beacon coverage
 - Floor detection accuracy: 99% in areas with proper beacon coverage
 - Position update rate: minimum 1 Hz, target 5 Hz
 
-### 13.2 Response Time
+### 12.2 Response Time
 - Initial route calculation: <3 seconds
 - Route update after position change: <500ms
 - AR rendering latency: <100ms
 - UI responsiveness: <200ms for user interactions
 
-### 13.3 Resource Utilization
+### 12.3 Resource Utilization
 - Memory usage: <200MB during active navigation
 - CPU usage: <30% of device capability
-- Battery impact: <15% per hour of active navigation
+- Battery impact: <15% per hour of active navigation on an Android phone version 11 and above
 - Data usage: <10MB for initial venue download, <1MB per hour during navigation
 
-### 13.4 Scalability
+### 12.4 Scalability
 - Support for venues up to 200,000 square meters
 - Support for up to 1,000 POIs per venue
 - Support for up to 500 beacons per venue
 - Concurrent users: up to 2,000 per venue
 
-## 14. Security Considerations
+## 13. Security Considerations
 
-### 14.1 Data Security
+### 13.1 Data Security
 - End-to-end encryption for all network communications
 - Secure storage of user credentials and preferences
 - Anonymous tracking of navigation data
 - Compliance with GDPR and other relevant privacy regulations
 
-### 14.2 Beacon Security
+### 13.2 Beacon Security
 - Prevention of beacon spoofing
 - Rotating beacon identifiers
 - Secure beacon deployment and registration
 - Access control for beacon management
 
-### 14.3 Application Security
+### 13.3 Application Security
 - Secure API authentication
 - Input validation and sanitization
 - Protection against common mobile vulnerabilities
