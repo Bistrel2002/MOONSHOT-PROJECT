@@ -54,8 +54,8 @@ The purpose of this project is to develop a mobile application that provides rea
 
 3. Documentation
    - Technical documentation
+   - Functional documentation
    - User guides
-   - API documentation
    - Deployment guides
 
 4. Training Materials
@@ -65,9 +65,9 @@ The purpose of this project is to develop a mobile application that provides rea
 
 ## Project Timeline
 - **Phase 1 (Months 1-2)**: Requirements gathering and system design
-- **Phase 2 (Months 3-4)**: Core development and testing
-- **Phase 3 (Months 5-6)**: Pilot deployment and refinement
-- **Phase 4 (Month 7)**: Full release and documentation
+- **Phase 2 (Months 3-9)**: Core development and testing
+- **Phase 3 (Months 10-12)**: Pilot deployment and refinement
+- **Phase 4 (Month 13)**: Full release and documentation
 
 
 ## Success Criteria

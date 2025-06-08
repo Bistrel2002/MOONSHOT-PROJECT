@@ -7,7 +7,10 @@
 <summary>Contents</summary>
 
 ## Table of Contents
-- [Technical Specification of LOC-INDOOR](#technical-specification-of-loc-indoor)
+
+- [Technical Specification of LOC-INDOOR (Indoor Localisation)](#technical-specification-of-loc-indoor-indoor-localisation)
+  - [Table of Contents](#table-of-contents)
+  - [Line-Based Floor Navigation with AR Integration](#line-based-floor-navigation-with-ar-integration)
   - [1. Introduction](#1-introduction)
     - [1.1 System Overview](#11-system-overview)
     - [1.2 Development Scope](#12-development-scope)
@@ -33,7 +36,9 @@
     - [7.1 Onboarding Flow](#71-onboarding-flow)
     - [7.2 Destination Selection](#72-destination-selection)
     - [7.3 AR Navigation View](#73-ar-navigation-view)
-    - [7.4 Color palette](#74-color-palette)
+    - [7.4 Color Palette](#74-color-palette)
+      - [UI Elements](#ui-elements)
+      - [Example Screens](#example-screens)
   - [8. Integration Implementation](#8-integration-implementation)
     - [8.1 Map Integration](#81-map-integration)
     - [8.2 External System Integration](#82-external-system-integration)
@@ -44,12 +49,13 @@
     - [10.1 Test Environment Setup](#101-test-environment-setup)
     - [10.2 Testing Methodologies](#102-testing-methodologies)
   - [11. Performance Optimization](#11-performance-optimization)
-    - [11.1 Mobile Application Optimization](#111-mobile-application-optimization)
-    - [11.2 Backend Optimization](#112-backend-optimization)
+    - [11.1 Backend Optimization](#111-backend-optimization)
   - [12. Support](#12-support)
-    - [12.2 User Support](#122-user-support)
+    - [12.1 User Support](#121-user-support)
   - [13. Future Expansion Considerations](#13-future-expansion-considerations)
   - [14. Conclusion](#14-conclusion)
+
+
 </details>
 
 <div align="center">
@@ -182,7 +188,7 @@ The different technologies with their roles and responsibilities in the LOC-INDO
 - **AWS S3 and CloudFront**: Storage and delivery of static content.
 - **GitHub Actions**: Automated CI/CD pipelines.
 - **RESTful API and WebSockets**: Communication and real-time updates.
-- **JWT and AWS Infrastructure**: Security and scalability.
+- **JWT and AWS Infrastructure**: Security.
 
 Each technology plays a crucial role in ensuring the LOC-INDOOR project is robust, scalable, and provides a seamless user experience.
 
@@ -306,7 +312,6 @@ flowchart TD
 1. **Beacon SDK Integration**
    - Implement the selected Beacon SDK (supporting AltBeacon)
    - Configure background scanning parameters to balance accuracy and battery life
-   - Implement beacon region monitoring for seamless transitions
 
 2. **Trilateration Engine**
    - Develop a positioning algorithm using signal strength from multiple beacons
@@ -448,15 +453,11 @@ graph TD
 ### 4.2 Venue Data Management
 
 1. **CMS(Content Management System) Implementation**
-   - Create import/export functionality for floor plans (supporting SVG format)
-   - Implement POI management with categorization and search capabilities
    - Design beacon configuration interface with validation rules
 
 2. **Data Synchronization**
    - Create a differential update system to minimize data transfer
    - Implement version control for venue data to support rollbacks
-   - Develop a notification system for client applications when updates are available
-   - Design a caching strategy for venue data
 
 
 ```mermaid
@@ -509,10 +510,6 @@ graph TD
    style L1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
 
 %% Venue Data Management %%
-   C --> M[CMS Implementation]
-   M --> N[Admin Interface]
-   M --> O[Import/Export Functionality]
-   M --> P[POI Management]
    M --> Q[Beacon Configuration]
    style M fill:#c2b,stroke:#333,stroke-width:2px,color:#000;
    style N fill:#ff4,stroke:#333,stroke-width:2px,color:#000;
@@ -542,8 +539,6 @@ graph TD
 
    S --> S1[Minimize Data Transfer]
    T --> T1[Support Rollbacks]
-   U --> U1[Notify Client Applications]
-   V --> V1[Cache Venue Data]
    style S1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
    style T1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
    style U1 fill:#3b8,stroke:#333,stroke-width:2px,color:#000;
@@ -557,7 +552,6 @@ graph TD
 
 1. **Beacon Selection**
     - Use the [MBM01 Ultra-Long Range Beacon](../FunctionalSpecification/MBM01%20Ultra-Long%20Range%20Beacon.pdf)
-    - Ensure compatibility with both AltBeacon protocols
     - Verify firmware update capabilities
     - Test signal consistency in various environmental conditions
 
@@ -584,22 +578,12 @@ graph TD
      
 ### 6.1 Trilateration Algorithm
 
-1. **Signal Processing**
-    - Implement RSSI(Received Signal Strength Indicator) to distance conversion using environmental calibration 
-    - Create signal strength filtering to remove outliers
-    - Develop signal smoothing using exponential moving average
-    - Design adaptive signal processing based on movement patterns
+1. **Position Calculation**
+    - Implement weighted trilateration using 3+ beacons.
 
-2. **Position Calculation**
-    - Implement weighted trilateration using 3+ beacons
-    - Create confidence scoring based on beacon geometry and signal quality
-    - Implement dead reckoning for areas with limited beacon coverage
-
-3. **Kalman Filter Implementation**
-    - Design a state transition model for user movement
-    - Implement measurement update using beacon signals for position correction
-    - Create adaptive noise parameters based on signal quality to improve accuracy
-    - Develop a convergence detection algorithm for stable positioning 
+2. **Kalman Filter Implementation**
+    - Implement measurement update using beacon signals for position correction.
+    - Develop a convergence detection algorithm for stable positioning.
 
 ### 6.2 Path Finding Implementation
 
@@ -611,7 +595,6 @@ graph TD
 2. **Routing Algorithm**
     - Implement Dijkstra's algorithm for shortest path calculation
     - Develop A* algorithm implementation for improved performance
-    - Design route caching strategy for common destinations
 
 3. **Multi-floor Pathfinding**
     - Implement vertical connection nodes for floor transitions
@@ -660,7 +643,6 @@ flowchart TD
    H --> H1[Shortest Path Calculation]
    I --> I1[User Preferences]
    J --> J1[Improved Performance]
-   K --> K1[Common Destinations]
    style H1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
    style I1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
    style J1 fill:#9f9,stroke:#333,stroke-width:2px,color:#000;
@@ -709,14 +691,8 @@ flowchart TD
 1. **Search Implementation**
     - Create search index for POIs with autocomplete 
     - Implement fuzzy matching for search terms
-    - Design category-based browsing interface
+    - Design category-based browsing interface(Rooms, Restaurant, Halls, Services, Shops)
     - Develop recent and favorite destinations display
-
-2. **Map Interaction**
-    - Implement tap-to-select POI functionality
-    - Create map panning and zooming with gesture control
-    - Design multi-floor selection interface
-    - Develop POI details display with actionable information
 
 ### 7.3 AR Navigation View
 
@@ -727,15 +703,13 @@ flowchart TD
 
 2. **Navigation Overlay**
     - Implement line rendering on the floor with proper perspective
-    - Create distance and ETA(Estimated Time of Arrival) indicators
-    - Design turn notifications and decision point guidance
     - Develop floor change indicators for multi-floor navigation
 
 3. **Information Display**
     - Implement heads-up display for navigation information
     - Create notification system for nearby destinations
 
-### 7.4 Color palette
+### 7.4 Color Palette
 
 **Primary Colors:**
 1. **Blue (#007BFF):**
@@ -802,7 +776,6 @@ flowchart TD
 1. **Floor Plan Processing**
     - Create coordinate system transformation to match the real world
     - Implement layer extraction for different map elements
-    - Design POI placement validation to prevent misplaced landmarks that could mislead users.
 
 2. **Path Network Generation**
     - Implement automatic path network generation from floor plans
@@ -826,10 +799,8 @@ A --> C[External System Integration]
         B1[Floor Plan Processing]
         B2[Path Network Generation]
         
-        B1 --> B1A[SVG Parser Development]
         B1 --> B1B[Coordinate System Transformation]
         B1 --> B1C[Layer Extraction]
-        B1 --> B1D[POI Placement Validation]
         
         B2 --> B2A[Automatic Path Network Generation]
         B2 --> B2B[Path Connectivity Validation]
@@ -903,7 +874,6 @@ The Beacon SDK comes with all the security features already implemented by the m
 1. **Beacon Testing Lab**
     - Create a controlled environment with known beacon positions to test the signal strength and accuracy before deploying them in the real world.
     - Configure signal strength to measure and validate the performance of the beacons.
-    - Design automated testing for positioning accuracy that compares the expected location with the calculated position based on beacon signals.
     - Develop environmental variation simulation
 
 2. **Simulated Navigation**
@@ -926,19 +896,11 @@ The Beacon SDK comes with all the security features already implemented by the m
 
 3. **User Testing**
     - Create usability testing protocols to evaluate the app's user experience.
-    - Implement analytics collection during beta testing
     - Develop an iterative improvement process based on user feedback
 
 ## 11. Performance Optimization
 
-### 11.1 Mobile Application Optimization
-
-1. **Battery Usage**
-    - Create efficient rendering for AR components 
-    - Design background processing limitations 
-    - Develop power usage monitoring and optimization
-
-### 11.2 Backend Optimization
+### 11.1 Backend Optimization
 
 1. **API Optimization**
     - Implement response compression to speed up data transfer
@@ -947,7 +909,7 @@ The Beacon SDK comes with all the security features already implemented by the m
 
 ## 12. Support
 
-### 12.2 User Support
+### 12.1 User Support
 
 1. **Help System**
     - Implement in-app help documentation

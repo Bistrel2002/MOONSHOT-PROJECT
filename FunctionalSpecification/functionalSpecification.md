@@ -7,6 +7,7 @@
 <summary>Contents 📝 </summary>
 
 ## Table of contents
+
 - [Functional Specification of LOC-INDOOR (Indoor Localisation)](#functional-specification-of-loc-indoor-indoor-localisation)
   - [Table of contents](#table-of-contents)
   - [Line-Based Floor Navigation with AR Integration](#line-based-floor-navigation-with-ar-integration)
@@ -14,17 +15,15 @@
     - [1.1 Purpose](#11-purpose)
     - [1.2 Project Scope](#12-project-scope)
     - [1.3 Intended Audience](#13-intended-audience)
-  - [2. Project Overview ](#2-project-overview-)
+  - [2. Project Overview](#2-project-overview)
     - [2.1 Problem Statement](#21-problem-statement)
     - [2.2 Solution Description](#22-solution-description)
   - [3. User Personas](#3-user-personas)
-    - [3.1 Primary Personas](#31-primary-personas)
       - [Persona 1: Traveler - Sarah Thompson](#persona-1-traveler---sarah-thompson)
       - [Persona 2: Mall Shopper - Marcus Johnson](#persona-2-mall-shopper---marcus-johnson)
       - [Persona 3: Accessibility User - Elena Vasquez](#persona-3-accessibility-user---elena-vasquez)
       - [Persona 4: Hospital Visitor - Robert Chen](#persona-4-hospital-visitor---robert-chen)
-
-      - [Persona 6: First-time Visitor - Mei Chen](#persona-6-first-time-visitor---mei-chen)
+      - [Persona 5: First-time Visitor - Mei Chen](#persona-5-first-time-visitor---mei-chen)
   - [4. User Stories](#4-user-stories)
   - [5. Use Cases](#5-use-cases)
     - [5.1 Core Use Cases](#51-core-use-cases)
@@ -34,7 +33,6 @@
       - [UC-4: Hospital Visitor Navigation](#uc-4-hospital-visitor-navigation)
     - [5.2 Additional Use Cases](#52-additional-use-cases)
       - [UC-5: Multi-Destination Planning](#uc-5-multi-destination-planning)
-
   - [6. Functional Requirements](#6-functional-requirements)
     - [6.1 Core Functional Requirements](#61-core-functional-requirements)
       - [FR-1: User Location Detection](#fr-1-user-location-detection)
@@ -44,9 +42,8 @@
       - [FR-5: Route Customization](#fr-5-route-customization)
     - [6.2 Additional Functional Requirements](#62-additional-functional-requirements)
       - [FR-6: Offline Functionality](#fr-6-offline-functionality)
-      - [FR-7: Venue Information](#fr-7-venue-information)
-      - [FR-8: User Profile and Settings](#fr-8-user-profile-and-settings)
-      - [FR-9: Accessibility Features](#fr-9-accessibility-features)
+      - [FR-7: User Profile and Settings](#fr-7-user-profile-and-settings)
+      - [FR-8: Accessibility Features](#fr-8-accessibility-features)
   - [7. Non-Functional Requirements](#7-non-functional-requirements)
     - [7.1 Usability Requirements](#71-usability-requirements)
       - [NFR-1: User Interface](#nfr-1-user-interface)
@@ -64,9 +61,9 @@
       - [NFR-10: Compatibility](#nfr-10-compatibility)
       - [NFR-11: Localization](#nfr-11-localization)
     - [7.5 Security Requirements](#75-security-requirements)
-      - [NFR-13: Data Protection](#nfr-13-data-protection)
-      - [NFR-14: Authentication](#nfr-14-authentication)
-      - [NFR-15: Security Testing](#nfr-15-security-testing)
+      - [NFR-12: Data Protection](#nfr-12-data-protection)
+      - [NFR-13: Authentication](#nfr-13-authentication)
+      - [NFR-14: Security Testing](#nfr-14-security-testing)
   - [8. System Architecture](#8-system-architecture)
     - [8.1 High-Level Architecture](#81-high-level-architecture)
     - [8.2 Architectural Diagram](#82-architectural-diagram)
@@ -86,26 +83,24 @@
     - [10.1 Core Screens](#101-core-screens)
       - [10.1.1 Onboarding Screens](#1011-onboarding-screens)
       - [10.1.2 Destination Selection Screen](#1012-destination-selection-screen)
-      - [10.1.4 AR Navigation View](#1014-ar-navigation-view)
+      - [10.1.3 AR Navigation View](#1013-ar-navigation-view)
     - [10.2 UI Components](#102-ui-components)
       - [10.2.1 Information Displays](#1021-information-displays)
-      - [10.2.3 Search and Filter Components](#1023-search-and-filter-components)
+      - [10.2.2 Search and Filter Components](#1022-search-and-filter-components)
     - [10.3 Technology](#103-technology)
-  - [11. Integration Requirements](#12-integration-requirements)
-    - [11.1 Map Integration](#121-map-integration)
-      - [11.1.1-Floor Plan Format Requirements](#1211-floor-plan-format-requirements)
-      - [11.1.2 Path Network Requirements](#1212-path-network-requirements)
-    - [11.2 External System Integration](#122-external-system-integration)
-      - [11.2.1 Venue Management Systems](#1221-venue-management-systems)
-  - [12. Performance Requirements ](#13-performance-requirements-)
-    - [12.1 Positioning Accuracy](#131-positioning-accuracy)
-    - [12.2 Response Time](#132-response-time)
-    - [12.3 Resource Utilization](#133-resource-utilization)
-    - [12.4 Scalability](#134-scalability)
-  - [13. Security Considerations](#14-security-considerations)
-    - [13.1 Data Security](#141-data-security)
-    - [13.2 Beacon Security](#142-beacon-security)
-    - [13.3 Application Security](#143-application-security)
+  - [11. Integration Requirements](#11-integration-requirements)
+    - [11.1 Map Integration](#111-map-integration)
+      - [11.1.1 Floor Plan Format Requirements](#1111-floor-plan-format-requirements)
+    - [11.2 External System Integration](#112-external-system-integration)
+      - [11.2.1 Venue Management Systems](#1121-venue-management-systems)
+  - [12. Performance Requirements](#12-performance-requirements)
+    - [12.1 Positioning Accuracy](#121-positioning-accuracy)
+    - [12.2 Response Time](#122-response-time)
+    - [12.3 Resource Utilization](#123-resource-utilization)
+    - [12.4 Scalability](#124-scalability)
+  - [13. Security Considerations](#13-security-considerations)
+    - [13.1 Data Security](#131-data-security)
+    - [13.2 Application Security](#132-application-security)
   - [Glossary - Indoor Navigation System with AR Integration](#glossary---indoor-navigation-system-with-ar-integration)
     - [A](#a)
     - [B](#b)
@@ -125,6 +120,8 @@
     - [U](#u)
     - [V](#v)
     - [W](#w)
+
+
 </details>
 
 <div align = "center">
@@ -155,7 +152,7 @@ The project encompasses the development of a mobile application for Android (wit
 - Potential venue partners
 - Investors and funding partners
 
-## 2. Project Overview <a name="project-overview"></a>
+## 2. Project Overview
 
 ### 2.1 Problem Statement
 Users frequently struggle with navigation in complex indoor environments such as airports, shopping malls, hospitals, and large public buildings, This is because the satellite can not detect someone's position inside a building because of walls. Traditional navigation solutions that rely on GPS are ineffective in these spaces.
@@ -189,7 +186,7 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 #### Persona 4: Hospital Visitor - Robert Chen
 ![persons1](images/6.png)
 
-#### Persona 6: First-time Visitor - Mei Chen
+#### Persona 5: First-time Visitor - Mei Chen
 ![persons1](images/5.png)
 
 ## 4. User Stories
@@ -340,7 +337,7 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 
 #### FR-2: Destination Selection
 - Display a searchable directory of available destinations within the venue.
-- Users can select destinations from categories (Restaurants, Stores, Services).
+- Users can select destinations from categories (Restaurants, Stores, Services, Rooms).
 - The system support saving favorite or frequently visited destinations.
 
 #### FR-3: AR Navigation Guidance
@@ -361,19 +358,14 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 ### 6.2 Additional Functional Requirements
 
 #### FR-6: Offline Functionality
-- The system shall download venue maps for offline use when possible.
-- The system shall provide basic navigation functionality even when internet connectivity is limited.
+- The system shall provide navigation functionality even when internet connectivity is limited.
 
-#### FR-7: Venue Information
-- The system shall display relevant information about destinations (operating hours, descriptions, etc.).
-- The system shall provide notifications about nearby points of interest.
-
-#### FR-8: User Profile and Settings
+#### FR-7: User Profile and Settings
 - The system allow users to create and manage profiles.
 - The system support customization of navigation preferences.
 - The system shall remember frequently visited locations.
 
-#### FR-9: Accessibility Features
+#### FR-8: Accessibility Features
 - The system shall support high-contrast modes for visibility.
 - The system shall prioritize accessible routes for users who indicate mobility requirements.
 
@@ -399,7 +391,6 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 - First-time users shall be able to successfully navigate to a destination with 90% success rate within 5 minutes of initial app use.
 - The onboarding tutorial shall be completable in less than 2 minutes.
 - Error messages shall be clear and provide actionable guidance.
-- Help documentation shall be context-sensitive and accessible without leaving the current task.
 
 ### 7.2 Reliability Requirements
 
@@ -416,7 +407,6 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 
 #### NFR-6: Fault Tolerance
 - The system shall continue to function with degraded accuracy if up to 30% of beacons are non-functional.
-- The system shall provide fallback navigation options (map view) if AR capabilities are unavailable.
 - The system shall automatically recover from intermittent connectivity issues.
 
 ### 7.3 Performance Requirements
@@ -433,7 +423,7 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 - Battery consumption shall not exceed 15% per hour of active navigation.
 - Disk storage requirements shall not exceed 100MB excluding cached venue data.
 - CPU utilization shall remain below 30% during normal operation.
-- Network data usage shall not exceed 10MB per hour during active navigation.
+- Network data usage shall not exceed 10MB per hour.
 
 #### NFR-9: Scalability
 - The system architecture shall support up to 10,000 concurrent users per venue.
@@ -452,28 +442,26 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 
 #### NFR-11: Localization
 - The user interface shall support easy translation to multiple languages.
-- Date, time, and measurement formats shall adapt to local conventions.
 - The application shall initially support English, French.
 - Text expansion in translations shall not break UI layouts.
 - The system shall support right-to-left languages in future updates.
 
 ### 7.5 Security Requirements
 
-#### NFR-13: Data Protection
+#### NFR-12: Data Protection
 - All personally identifiable information shall be encrypted using industry-standard encryption (minimum AES-256).
 - Location history shall be stored on the device with optional cloud backup.
 - Users shall have the ability to clear all personal data from the application.
 - Compliance with GDPR, CCPA, and other relevant privacy regulations shall be maintained.
 
-#### NFR-14: Authentication
+#### NFR-13: Authentication
 - User accounts shall require strong password policies.
 - The system shall support multi-factor authentication for administrative access.
 - OAuth 2.0 integration shall be supported for social login options.
 
-#### NFR-15: Security Testing
+#### NFR-14: Security Testing
 - The application shall undergo penetration testing before each major release.
 - Automated security scanning shall be integrated into the CI/CD pipeline.
-- Beacon infrastructure shall be secured against spoofing attacks.
 - API endpoints shall be protected against common attacks (SQL injection, XSS, CSRF).
 - Security vulnerabilities shall be addressed with critical priority.
 
@@ -491,7 +479,6 @@ The system will follow a client-server architecture with the following component
 2. **Backend Services (Server)**
     - User Management
     - Venue Data Management
-    - Analytics Engine
     - API Gateway
 
 3. **Infrastructure Components**
@@ -516,22 +503,22 @@ The system will follow a client-server architecture with the following component
 |  |  Renderer  |  | Components |  |        |  |   Engine   |  |   Gateway  |  |
 |  +------------+  +------------+  |        |  +------------+  +------------+  |
 +----------------------------------+        +----------------------------------+
-                 ^                                            ^
-                 |                                            |
-                 v                                            v
-+----------------------------------+        +----------------------------------+
-|   Infrastructure Components      |        |        External Services         |
-|                                  |        |                                  |
-|  +------------+  +------------+  |        |    +------------+                |
-|  | Bluetooth  |  |   Cloud    |  |        |    |   Social   |                |
-|  |  Beacons   |  |  Storage   |  |        |    |   Media    |                |
-|  +------------+  +------------+  |        |    +------------+                |
-|                                  |        |                                  |
-|  +------------+  +------------+  |        |  +------------+  +------------+  |
-|  |   CDN      |  | Database   |  |        |  | Third-party|  | Feedback   |  |
-|  |            |  |  Systems   |  |        |  |    Maps    |  |  Systems   |  |
-|  +------------+  +------------+  |        |  +------------+  +------------+  |
-+----------------------------------+        +----------------------------------+
+                 ^                                            
+                 |                                            
+                 v                                            
++----------------------------------+        
+|   Infrastructure Components      |        
+|                                  |       
+|  +------------+  +------------+  |       
+|  | Bluetooth  |  |   Cloud    |  |       
+|  |  Beacons   |  |  Storage   |  |       
+|  +------------+  +------------+  |    
+|                                  |      
+|  +------------+  +------------+  |        
+|  |   CDN      |  | Database   |  |       
+|  |            |  |  Systems   |  |       
+|  +------------+  +------------+  |        
++----------------------------------+        
 ```
 
 ## 9. Technical Components
@@ -567,16 +554,12 @@ The system will follow a client-server architecture with the following component
     - Key Features:
         - Background scanning
         - Distance estimation
-        - Signal strength filtering
-        - Region monitoring
 
 #### 9.1.4 Positioning Algorithm
 - **Trilateration Engine**
     - Purpose: Calculates precise position based on beacon signals
     - Key Features:
-        - Signal strength to distance conversion
         - Multi-beacon triangulation
-        - Position smoothing (Kalman filtering)
         - Floor detection
 
 #### 9.1.5 Map Rendering
@@ -633,7 +616,7 @@ The system will follow a client-server architecture with the following component
 ![Navigation](images/HOME.png)
 
 
-#### 10.1.4 AR Navigation View
+#### 10.1.3 AR Navigation View
 - Camera view with AR overlay
 - Directional line on floor
 - Distance and ETA indicators
@@ -649,9 +632,8 @@ The system will follow a client-server architecture with the following component
 - Estimated time to arrival
 - Current floor indicator
 - Next direction indicator
-- Nearby POIs
 
-#### 10.2.3 Search and Filter Components
+#### 10.2.2 Search and Filter Components
 - Search bar with autocomplete
 - Category filters
 - Accessibility filters
@@ -664,7 +646,7 @@ The system will follow a client-server architecture with the following component
 
 ### 11.1 Map Integration
 
-#### 11.1.1-Floor Plan Format Requirements
+#### 11.1.1 Floor Plan Format Requirements
 - Coordinate system alignment with physical space
 - POI annotation support
 
@@ -676,10 +658,10 @@ The system will follow a client-server architecture with the following component
 - Event notification system
 
 
-## 13. Performance Requirements <a name="performance-requirements"></a>
+## 12. Performance Requirements
 
 ### 12.1 Positioning Accuracy
-- Horizontal accuracy: ±1 meters in areas with proper beacon coverage
+- Horizontal accuracy: ±0.7 meters in areas with proper beacon coverage
 - Floor detection accuracy: 99% in areas with proper beacon coverage
 - Position update rate: minimum 1 Hz, target 5 Hz
 
@@ -699,26 +681,19 @@ The system will follow a client-server architecture with the following component
 - Support for venues up to 200,000 square meters
 - Support for up to 1,000 POIs per venue
 - Support for up to 500 beacons per venue
-- Concurrent users: up to 2,000 per venue
+- Concurrent users: up to 1,000 per venue
 
 ## 13. Security Considerations
 
 ### 13.1 Data Security
 - End-to-end encryption for all network communications
 - Secure storage of user credentials and preferences
-- Anonymous tracking of navigation data
 - Compliance with GDPR and other relevant privacy regulations
 
-### 13.2 Beacon Security
-- Prevention of beacon spoofing
-- Rotating beacon identifiers
-- Secure beacon deployment and registration
-- Access control for beacon management
 
-### 13.3 Application Security
+### 13.2 Application Security
 - Secure API authentication
 - Input validation and sanitization
-- Protection against common mobile vulnerabilities
 
 
 ## Glossary - Indoor Navigation System with AR Integration

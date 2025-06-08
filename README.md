@@ -1,7 +1,6 @@
 # LOC-INDOOR: Indoor Navigation System
 
 ## Overview
-LOC-INDOOR is an advanced indoor navigation system built with Unity that uses Minew BeaconSET Plus beacons for precise indoor positioning and navigation. The system combines AR (Augmented Reality) technology with beacon-based positioning to provide accurate indoor navigation solutions.
 
 ## Features
 - 🎯 Real-time beacon detection using Minew BeaconSET Plus
@@ -105,4 +104,3 @@ This project is proprietary and confidential. All rights reserved.
 - Unity Technologies for the AR Foundation
 - Google for ARCore support
 
----
