@@ -70,8 +70,6 @@ LOC-INDOOR/
 
 ### Navigation
 1. The app will automatically detect nearby beacons
-2. AR arrows will guide you to your destination
-3. Real-time updates as you move through the space
 
 ## Troubleshooting
 
