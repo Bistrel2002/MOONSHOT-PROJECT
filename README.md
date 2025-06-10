@@ -2,6 +2,30 @@
 
 ## Overview
 
+**LOC-INDOOR** is an innovative indoor navigation application that combines **Augmented Reality (AR)** and **Bluetooth beacon technology** to provide real-time, line-based visual guidance for navigating complex indoor environments. This system addresses the fundamental challenge of indoor navigation where traditional GPS is ineffective.
+
+### What is LOC-INDOOR?
+
+LOC-INDOOR transforms indoor navigation by displaying a **directional line on the floor** through your device's camera view, similar to racing game waypoint systems. When users select a destination within a venue (such as airports, shopping malls, hospitals), the application renders a clear, animated path line that guides them step-by-step to their chosen location.
+
+### Key Innovation
+
+Unlike traditional indoor navigation solutions that rely on 2D maps or simple arrows, LOC-INDOOR uses **Unity AR Foundation** to overlay navigation guidance directly onto the real world. This creates an intuitive, easy-to-follow experience that eliminates confusion and reduces navigation time in complex indoor spaces.
+
+### How It Works
+
+1. **Beacon Positioning**: Strategically placed MBM01 Ultra-Long Range Bluetooth beacons throughout the venue provide precise indoor positioning (±0.7 meter accuracy)
+2. **AR Line Rendering**: The app displays a blue gradient line (#007BFF) on the floor using AR technology
+3. **Real-time Guidance**: As users move, the line updates dynamically, providing turn indicators, distance information, and multi-floor navigation support
+4. **Smart Destination Selection**: Users can search for points of interest by name or browse by categories (Restaurants, Shops, Services, Rooms)
+
+### Target Environments
+
+- **Airports**: Gate finding, baggage claim, restaurants, services
+- **Shopping Malls**: Store locations, food courts, exits, amenities  
+- **Hospitals**: Department navigation, patient rooms, facilities
+- **Large Public Buildings**: Conference centers, universities, government buildings
+
 ## Features
 - 🎯 Real-time beacon detection using Minew BeaconSET Plus
 - 📱 AR-based navigation interface
@@ -11,7 +35,7 @@
 - 🔄 Automatic beacon scanning and updates
 - 📱 Cross-platform support (Android)
 
-## Prerequisites
+## Prerequisites for the MVP(Minimum Viable Product)
 - Unity 2022.3 LTS or later
 - Android Studio (for Android development)
 - Minew BeaconSET Plus beacons
@@ -91,9 +115,6 @@ permission
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
-
-## License
-This project is proprietary and confidential. All rights reserved.
 
 
 ## Acknowledgments
