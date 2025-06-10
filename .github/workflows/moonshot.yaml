@@ -57,6 +57,9 @@ jobs:
         UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
         UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
+    - name: Run Vale with reviewdog
+      run: reviewdog -f=rdjsonl -name=vale -reporter=github-pr-check -fail-on-error=false -filter-mode=added -level=error
+
     - name: Check for libary folder
       run: |
         if [ -d "libary" ]; then
