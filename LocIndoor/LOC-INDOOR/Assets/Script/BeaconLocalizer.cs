@@ -2,7 +2,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-// This component must live on the same GameObject as your NavMeshAgent (e.g. the Player/Avatar).
 [RequireComponent(typeof(NavMeshAgent))]
 public class BeaconLocalizer : MonoBehaviour
 {
@@ -26,7 +25,7 @@ public class BeaconLocalizer : MonoBehaviour
 
     void Awake()
     {
-        // Replace deprecated API with version-safe call
+ 
 #if UNITY_2023_1_OR_NEWER
         _beacons = FindObjectsByType<VirtualBeacon>(FindObjectsSortMode.None);
 #else
@@ -77,7 +76,7 @@ public class BeaconLocalizer : MonoBehaviour
             }
         }
 
-        // Cheap exponential smoothing so the avatar does not jitter too much.
+        // Exponential smoothing so the avatar does not jitter too much.
         float k = 1f - Mathf.Exp(-Time.deltaTime / smoothingTime);
         _smoothedPosition = Vector3.Lerp(_smoothedPosition, rawEstimate, k);
 
@@ -149,10 +148,6 @@ public class BeaconLocalizer : MonoBehaviour
         return new Vector3(sumX / weightSum, transform.position.y, sumZ / weightSum);
     }
 
-    /// <summary>
-    /// Least-squares multilateration using all available beacons.
-    /// Works in 2-D (X-Z plane) and keeps current Y.
-    /// </summary>
     private Vector3 EstimateLeastSquares()
     {
         int n = _beacons.Length;
@@ -163,7 +158,6 @@ public class BeaconLocalizer : MonoBehaviour
         float r0 = _beacons[0].GetDistance(transform.position);
 
         // Build normal-equation matrices.
-        // A_T * A (2x2), A_T * b (2x1)
         float A11 = 0f, A12 = 0f, A22 = 0f;
         float B1 = 0f, B2 = 0f;
 
@@ -242,6 +236,6 @@ public class BeaconLocalizer : MonoBehaviour
         {
             avgNoise += beacon.noiseAmplitude;
         }
-        return (avgNoise / _beacons.Length) * 3f; // Estimated 3-sigma accuracy
+        return (avgNoise / _beacons.Length) * 3f; 
     }
 } 

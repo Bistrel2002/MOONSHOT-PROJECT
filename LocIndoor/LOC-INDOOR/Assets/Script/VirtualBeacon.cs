@@ -17,6 +17,6 @@ public class VirtualBeacon : MonoBehaviour
     {
         float trueDistance = Vector3.Distance(samplePosition, transform.position);
         float noisyDistance = trueDistance + Random.Range(-noiseAmplitude, noiseAmplitude);
-        return Mathf.Max(0.01f, noisyDistance); // keep strictly positive
+        return Mathf.Max(0.01f, noisyDistance);
     }
 } 
