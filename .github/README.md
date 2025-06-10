@@ -6,36 +6,35 @@ This directory contains the GitHub Actions workflows and Vale prose linting conf
 
 ## Vale Prose Linting
 
-Vale is configured to automatically check the writing quality of all Markdown files in the repository.
+Vale is configured to automatically check the writing quality of all Markdown files in the repository using built-in Vale rules.
 
 ### Configuration Files
 
-- **`.vale.ini`** - Main Vale configuration file
-- **`.github/styles/Vocab/LOC-INDOOR/accept.txt`** - Project-specific vocabulary
+- **`.vale.ini`** - Main Vale configuration file with built-in rules only
 
 ### What Vale Checks
 
-- **Writing Style** - Uses Microsoft Writing Style Guide
-- **Grammar** - Basic grammar and readability checks
-- **Technical Terms** - Recognizes project-specific terminology
-- **Markdown** - Specific rules for documentation files
+- **Basic Writing Quality** - Uses built-in Vale rules
+- **Technical Term Recognition** - Project-specific vocabulary included
+- **Markdown Formatting** - Basic markdown structure checks
+- **Code Block Handling** - Ignores code snippets and technical patterns
 
-### Custom Rules for Technical Documentation
+### Simplified Configuration
 
-The Vale configuration is tailored for technical documentation:
+The Vale setup uses only **built-in Vale rules** to avoid package dependency issues:
 
-- Allows technical jargon and acronyms
-- Recognizes code terms and file extensions
-- Permits first-person writing where appropriate
-- Flexible with passive voice in technical contexts
+- ✅ **No external packages required** - works out of the box
+- ✅ **Technical vocabulary included** - recognizes LOC-INDOOR terms
+- ✅ **Code-aware** - ignores file extensions, URLs, code blocks
+- ✅ **Lenient for technical docs** - disabled spelling and repetition checks
 
-### Vocabulary
+### Recognized Technical Terms
 
-The accepted vocabulary includes:
-- LOC-INDOOR specific terms (AR, beacons, Unity, etc.)
-- Technical acronyms (API, SDK, BLE, RSSI)
-- Platform names (Android, iOS, AWS, MongoDB)
-- Development terms (CI/CD, JSON, HTTP, WebSocket)
+The configuration includes vocabulary for:
+- **Project terms**: LOC-INDOOR, AR, beacons, Unity
+- **Technical acronyms**: API, SDK, BLE, RSSI, GPS, WiFi
+- **Platforms**: Android, iOS, AWS, MongoDB, PostgreSQL
+- **Development**: CI, CD, UI, UX, WCAG, MVP, POI, CRUD
 
 ### Running Vale Locally
 
@@ -47,9 +46,6 @@ brew install vale
 
 # Install Vale (Linux)
 wget -O- https://vale.sh/install.sh | bash
-
-# Sync style packages
-vale sync
 
 # Check all markdown files
 vale *.md
@@ -74,10 +70,19 @@ The Vale check will:
 **Error: "no .vale.ini file found"**
 - ✅ **Fixed**: `.vale.ini` is now present in the root directory
 
+**Error: "style 'Microsoft' does not exist"**
+- ✅ **Fixed**: Now using built-in Vale rules only
+
 **Error: "style packages not found"**
-- The GitHub Action automatically downloads required packages
-- For local development, run `vale sync` first
+- ✅ **Fixed**: No external packages required
 
 **False positives for technical terms**
-- Add new terms to `.github/styles/Vocab/LOC-INDOOR/accept.txt`
-- Terms should be one per line, case-sensitive 
+- Technical terms are included in the `.vale.ini` vocabulary list
+- Terms can be added directly to the `vocab` line in the configuration
+
+### Benefits of Simplified Setup
+
+- **Fast execution** - no package downloads needed
+- **Reliable** - no dependency issues
+- **Maintenance-free** - built-in rules are always available
+- **Technical-friendly** - configured specifically for software documentation 
