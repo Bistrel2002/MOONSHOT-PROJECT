@@ -1,0 +1,47 @@
+# Ignore Unity-generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]serSettings/
+MemoryCaptures/
+CrashReports/
+
+# Ignore IDE/editor configs
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore builds
+*.apk
+*.aab
+*.app
+*.xcworkspace
+*.xcuserdata
+*.xcodeproj
+
+# Git LFS rules (if using)
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.tga filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+
+# Always track these
+!Assets/
+!Packages/
+!ProjectSettings/

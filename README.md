@@ -148,4 +148,3 @@ For testing and development purposes, this project includes a Unity-based virtua
 4. **Go to the Scene view and watch the agent navigating** using simulated beacon positioning
 
 This simulation environment allows you to test indoor navigation concepts without requiring physical beacon hardware.
-

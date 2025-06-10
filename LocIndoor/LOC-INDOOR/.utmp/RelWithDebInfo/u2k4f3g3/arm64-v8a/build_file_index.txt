@@ -1,0 +1,2 @@
+/Users/vivienbistrel/Desktop/MOONSHOT-PROJECT/LocIndoor/LOC-INDOOR/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/CMakeLists.txt
+/Users/vivienbistrel/Desktop/MOONSHOT-PROJECT/LocIndoor/LOC-INDOOR/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/GameActivity/CMakeLists.txt

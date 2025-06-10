@@ -1,0 +1,2 @@
+-keep public class com.minew.beaconplus.sdk.**{*;}
+-keep public class no.nordicsemi.android.**{*;}
