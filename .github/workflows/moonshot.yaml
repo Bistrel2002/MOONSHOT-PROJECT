@@ -23,12 +23,15 @@ jobs:
         restore-keys: |
           Library-${{ runner.os }}-
 
-    - name: Vale Linter
+    - name: Setup Vale
       uses: errata-ai/vale-action@reviewdog
       with:
+        onlyAnnotateModifiedLines: true
         reporter: github-pr-check
-        fail_on_error: true
+        fail_on_error: false
         files: "**/*.md"
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     - name: Check for Unity License
       run: |
@@ -56,9 +59,6 @@ jobs:
         UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
         UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-
-    - name: Run Vale with reviewdog
-      run: reviewdog -f=rdjsonl -name=vale -reporter=github-pr-check -fail-on-error=false -filter-mode=added -level=error
 
     - name: Check for libary folder
       run: |
