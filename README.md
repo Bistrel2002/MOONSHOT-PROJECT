@@ -31,7 +31,11 @@ LOC-INDOOR/
 │   ├── Script/
 │   │   ├── MinewBeaconManager.cs         # Main beacon detection logic
 │   │   ├── BeaconDiagnosis.cs            # Beacon debugging interface
-│   │   ├── AndroidPermission.cs          # Camera, Bluetooth, and location permission
+│   │   ├── AndroidPermission.cs          # Camera, Bluetooth, and location 
+│   │   ├── BeaconLocalizer.cs            # Estimates player position from multiple beacons 
+│   │   ├── VirtualBeacon.cs              # Simulates a single BLE beacon device
+│   │   ├── DestinationNav.cs             # Handles room selection and navigation
+permission
 │   │   └── BeaconTestController.cs       # UI management
 │   └── Scenes/
 │       └── algosup.unity          
@@ -101,4 +105,31 @@ This project is proprietary and confidential. All rights reserved.
 - Minew Technology for the BeaconSET Plus SDK
 - Unity Technologies for the AR Foundation
 - Google for ARCore support
+
+## Virtual Simulation Environment
+
+For testing and development purposes, this project includes a Unity-based virtual simulation environment that mimics real beacon behavior without requiring physical hardware.
+
+### Running the Simulation
+
+#### Prerequisites for Simulation
+- Unity 2022.3 LTS or later
+- NavMesh Components (Window → Package Manager → AI Navigation)
+- TextMeshPro for UI elements
+
+#### Simulation Setup
+1. **Open the Unity project** in Unity Editor
+2. **Load the simulation scene**: `Assets/Scenes/locindoor.unity`
+3. **Verify virtual beacons are placed** in the scene (look for GameObjects with VirtualBeacon components).
+
+#### Running the Simulation
+1. **Press Play** in Unity Editor
+2. **Observe the beacon network visualization**:
+   - 🔵 Cyan spheres = Virtual beacon positions
+   - 🔴 Red wireframe = Actual agent position  
+   - 🟢 Green lines = Triangulation signals
+3. **Use the dropdown menu** to select destination rooms
+4. **Watch the agent navigate** using simulated beacon positioning
+
+This simulation environment allows you to test indoor navigation concepts without requiring physical beacon hardware.
 
