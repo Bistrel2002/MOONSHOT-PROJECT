@@ -132,19 +132,19 @@ their chosen location. Bluetooth beacons strategically placed throughout the ven
 #### 2.1.3 User Personas
 
 ##### Persona 1: Traveler - Sarah Thompson
-![persons1](/FunctionalSpecification/images/1.png)
+![persons1](FunctionalSpecification/images/1.png)
 
 ##### Persona 2: Mall Shopper - Marcus Johnson
-![persons1](/FunctionalSpecification/images/2.png)
+![persons1](FunctionalSpecification/images/2.png)
 
 ##### Persona 3: Accessibility User - Elena Vasquez
-![persons1](/FunctionalSpecification/images/3.png)
+![persons1](FunctionalSpecification/images/3.png)
 
 ##### Persona 4: Hospital Visitor - Robert Chen
-![persons1](/FunctionalSpecification/images/6.png)
+![persons1](FunctionalSpecification/images/6.png)
 
 ##### Persona 6: First-time Visitor - Mei Chen
-![persons1](/FunctionalSpecification/images/5.png)
+![persons1](FunctionalSpecification/images/5.png)
 
 #### 2.1.4 User Stories
 
@@ -562,7 +562,7 @@ The system will follow a client-server architecture with the following component
 - Permission requests (camera, location)
 - Basic tutorial on using AR navigation
 
-![](/FunctionalSpecification/images/LOGIN.png)
+![](FunctionalSpecification/images/LOGIN.png)
 
 ###### 10.1.2 Destination Selection Screen 
 - Searchable directory
@@ -570,7 +570,7 @@ The system will follow a client-server architecture with the following component
 - Favorites and recents
 - Destination details
 
-![Navigation](/FunctionalSpecification/images/HOME.png)
+![Navigation](FunctionalSpecification/images/HOME.png)
 
 
 ###### 10.1.4 AR Navigation View
@@ -579,7 +579,7 @@ The system will follow a client-server architecture with the following component
 - Distance and ETA indicators
 - Floor indicators for multi-floor navigation
 
-![Navigation](/FunctionalSpecification/images/AR.png)
+![Navigation](FunctionalSpecification/images/AR.png)
 
 
 ##### 10.2 UI Components
@@ -2265,7 +2265,7 @@ Each test case follows this standard format:
 #### 📋 Project Charter Information
 
 ##### Project Charter Link
-🔗 **Project Charter Document:** [link](/Management/projectCharter.md)
+🔗 **Project Charter Document:** [link](Management/projectCharter.md)
 
 #### 🎯 Key Performance Indicators (KPIs)
 
@@ -2471,11 +2471,11 @@ This month focused on finalizing core system functionality, advancing integratio
 - **Technical Milestones:** Planning → Setup → Core Implementation → Integration
 
 ###### Project Links
-- **[February Report](/Management/MonthlyReport/feb2025.md)**
-- **[March Report](/Management/MonthlyReport/mar2025.md)**
-- **[April Report](/Management/MonthlyReport/apr2025.md)**
-- **[May Report](/Management/MonthlyReport/may2025.md)**
-- **[June Report](/Management/MonthlyReport/jun2025.md)**
+- **[February Report](Management/MonthlyReport/feb2025.md)**
+- **[March Report](Management/MonthlyReport/mar2025.md)**
+- **[April Report](Management/MonthlyReport/apr2025.md)**
+- **[May Report](Management/MonthlyReport/may2025.md)**
+- **[June Report](Management/MonthlyReport/jun2025.md)**
 
 
 ### 7.2 Planned Future Developments 
