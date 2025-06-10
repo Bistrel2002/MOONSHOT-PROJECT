@@ -60,7 +60,7 @@ permission
 ### 3. Building the Project
 1. Open **File > Build Settings**
 2. Select Android platform
-3. Click "Build" or "Build and Run"
+3. Click "Build" or "Build and Run."
 
 ## Usage
 
@@ -86,11 +86,6 @@ permission
 2. **Build Errors**
    - Verify API levels in Unity Player Settings
    - Ensure all required plugins are present
-
-3. **AR Not Working**
-   - Verify ARCore is installed on device
-   - Check camera permissions
-   - Ensure good lighting conditions
 
 ## Contributing
 1. Fork the repository
@@ -129,7 +124,7 @@ For testing and development purposes, this project includes a Unity-based virtua
    - 🔴 Red wireframe = Actual agent position  
    - 🟢 Green lines = Triangulation signals
 3. **Use the dropdown menu** to select destination rooms
-4. **Watch the agent navigate** using simulated beacon positioning
+4. **Go to the Scene view and watch the agent navigating** using simulated beacon positioning
 
 This simulation environment allows you to test indoor navigation concepts without requiring physical beacon hardware.
 
