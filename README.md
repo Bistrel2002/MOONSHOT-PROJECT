@@ -137,6 +137,7 @@ For testing and development purposes, this project includes a Unity-based virtua
 1. **Open the Unity project** in Unity Editor
 2. **Load the simulation scene**: `Assets/Scenes/locindoor.unity`
 3. **Verify virtual beacons are placed** in the scene (look for GameObjects with VirtualBeacon components).
+4. **Toggle the visibility of all gizmos** if the map doesn't appear with a blue color surrounding the surface(Baked map).
 
 #### Running the Simulation
 1. **Press Play** in Unity Editor
