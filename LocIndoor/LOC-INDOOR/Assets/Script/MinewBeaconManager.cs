@@ -32,7 +32,6 @@ public class MinewBeaconData
         if (rssi == 0) return -1.0f;
         
         // Simple distance estimation based on RSSI
-        // This is an approximation and should be calibrated for your specific beacons
         float ratio = rssi * 1.0f / -59; // -59 dBm is typical RSSI at 1 meter
         if (ratio < 1.0)
         {

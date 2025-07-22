@@ -202,15 +202,15 @@ public class BeaconLocalizer : MonoBehaviour
         if (!debugDraw || _beacons == null) return;
         
         // Draw beacon network (green lines to show triangulation)
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.yellow;
         foreach (var b in _beacons)
         {
             Gizmos.DrawLine(b.transform.position, _smoothedPosition);
             
             // Draw beacon positions as spheres
-            Gizmos.color = Color.cyan;
+            Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(b.transform.position, 0.3f);
-            Gizmos.color = Color.green;
+            Gizmos.color = Color.yellow;
         }
         
         // Draw current GPS estimated position (yellow)
