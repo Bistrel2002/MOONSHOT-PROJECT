@@ -43,21 +43,13 @@ export default function RootLayout() {
       <Stack.Screen 
         name="ar-navigation" 
         options={{
-          headerShown: true,
-          title: 'AR Navigation',
-          headerStyle: { backgroundColor: '#1A237E' },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: 'bold' },
+          headerShown: false,
         }}
       />
       <Stack.Screen 
         name="history" 
         options={{
-          headerShown: true,
-          title: 'Navigation History',
-          headerStyle: { backgroundColor: '#1A237E' },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: 'bold' },
+          headerShown: false,
         }}
       />
     </Stack>

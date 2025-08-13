@@ -34,8 +34,6 @@ export default function ProfileScreen() {
   const userStats = {
     totalNavigations: 47,
     totalDistance: '2.3 km',
-    averageAccuracy: '98%',
-    favoriteLocation: 'Conference Room A',
   };
 
   const menuItems = [
@@ -45,13 +43,6 @@ export default function ProfileScreen() {
       subtitle: 'View your past navigations',
       icon: '📊',
       onPress: () => router.push('/history'),
-    },
-    {
-      id: 'favorites',
-      title: 'Favorite Locations',
-      subtitle: 'Manage your saved places',
-      icon: '❤️',
-      onPress: () => Alert.alert('Coming Soon', 'Favorites feature will be available soon!'),
     },
     {
       id: 'offline',
@@ -314,18 +305,6 @@ export default function ProfileScreen() {
                   subtitle="Total walked"
                 />
               </View>
-              <View style={styles.statsContainer}>
-                <StatCard 
-                  title="Accuracy" 
-                  value={userStats.averageAccuracy} 
-                  subtitle="Average precision"
-                />
-                <StatCard 
-                  title="Favorite" 
-                  value={userStats.favoriteLocation} 
-                  subtitle="Most visited"
-                />
-              </View>
             </View>
 
             {/* Settings */}
@@ -342,20 +321,7 @@ export default function ProfileScreen() {
                     value={notificationsEnabled}
                     onValueChange={setNotificationsEnabled}
                   />
-                  <View style={styles.settingDivider} />
-                  <SettingItem
-                    title="Location Services"
-                    subtitle="Enable precise positioning"
-                    value={locationServicesEnabled}
-                    onValueChange={setLocationServicesEnabled}
-                  />
-                  <View style={styles.settingDivider} />
-                  <SettingItem
-                    title="AR Navigation"
-                    subtitle="Use augmented reality mode"
-                    value={arModeEnabled}
-                    onValueChange={setArModeEnabled}
-                  />
+                
                 </LinearGradient>
               </BlurView>
             </View>
@@ -450,7 +416,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   header: {
-    paddingVertical: 30,
+    paddingVertical: 40,
     alignItems: 'center',
   },
   headerTitle: {

@@ -39,11 +39,11 @@ export default function NearbyScreen() {
 
   // Only connected/active beacons - filtered by connection status
   const connectedBeacons = [
-    { id: 'B001', name: 'Entrance Beacon', strength: 95, status: 'connected', distance: '2m', lastSeen: 'Now' },
-    { id: 'B002', name: 'Hall Beacon', strength: 87, status: 'connected', distance: '8m', lastSeen: '2s ago' },
-    { id: 'B003', name: 'Corridor Beacon', strength: 78, status: 'connected', distance: '15m', lastSeen: '5s ago' },
-    { id: 'B005', name: 'Meeting Room Beacon', strength: 92, status: 'connected', distance: '12m', lastSeen: '1s ago' },
-    { id: 'B007', name: 'Cafeteria Beacon', strength: 71, status: 'connected', distance: '25m', lastSeen: '8s ago' },
+    { id: 'B001', strength: 95, status: 'connected', distance: '2m'},
+    { id: 'B002', strength: 87, status: 'connected', distance: '8m'},
+    { id: 'B003', strength: 78, status: 'connected', distance: '15m'},
+    { id: 'B005', strength: 92, status: 'connected', distance: '12m'},
+    { id: 'B007', strength: 71, status: 'connected', distance: '25m'},
   ];
 
   const getSignalColor = (strength: number) => {
@@ -69,8 +69,7 @@ export default function NearbyScreen() {
         </View>
         <View style={styles.beaconInfo}>
           <Text style={styles.beaconId}>{beacon.id}</Text>
-          <Text style={styles.beaconName}>{beacon.name}</Text>
-          <Text style={styles.beaconDistance}>{beacon.distance} away • {beacon.lastSeen}</Text>
+          <Text style={styles.beaconDistance}>{beacon.distance} away {beacon.lastSeen}</Text>
         </View>
         <View style={styles.beaconStatusContainer}>
           <View style={[styles.statusDot, { 
@@ -185,7 +184,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingVertical: 30,
+    paddingVertical: 40,
     alignItems: 'center',
   },
   headerTitle: {

@@ -128,6 +128,15 @@ export default function ARNavigationScreen() {
 
   const handleStartNavigation = () => {
     setIsNavigating(true);
+    setPanelVisible(false); // Minimize panel when navigation starts
+    
+    // Animate to minimized panel state
+    Animated.timing(slideAnimation, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+    
     // Animate the compass to show activation
     Animated.timing(pulseAnimation, {
       toValue: 1.3,
@@ -153,6 +162,15 @@ export default function ARNavigationScreen() {
           style: 'destructive', 
           onPress: () => {
             setIsNavigating(false);
+            setPanelVisible(true); // Restore full panel
+            
+            // Animate back to full panel
+            Animated.timing(slideAnimation, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }).start();
+            
             router.back();
           }
         }
@@ -160,24 +178,7 @@ export default function ARNavigationScreen() {
     );
   };
 
-  const handleRecenter = () => {
-    // Animate recenter action
-    Animated.sequence([
-      Animated.timing(fadeAnimation, { toValue: 0.5, duration: 200, useNativeDriver: true }),
-      Animated.timing(fadeAnimation, { toValue: 1, duration: 200, useNativeDriver: true }),
-    ]).start();
-    Alert.alert('Camera Recentered 🎯', 'AR view has been recentered to your current position.');
-  };
 
-  const togglePanel = () => {
-    const toValue = panelVisible ? height * 0.4 : 0;
-    Animated.timing(slideAnimation, {
-      toValue,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    setPanelVisible(!panelVisible);
-  };
 
   const compassRotationInterpolate = compassRotation.interpolate({
     inputRange: [0, 1],
@@ -187,6 +188,37 @@ export default function ARNavigationScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
+      
+      {/* Modern Header with Gradient */}
+      <LinearGradient
+        colors={['#0052D4', '#4364F7', '#6FB1FC']}
+        style={styles.headerGradient}
+      >
+        <SafeAreaView>
+          <Animated.View 
+            style={[
+              styles.header,
+              { opacity: fadeAnimation }
+            ]}
+          >
+            <TouchableOpacity style={styles.headerBackButton} onPress={() => router.back()}>
+              <Feather name="arrow-left" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <View style={styles.headerContent}>
+              <Text style={styles.headerTitle}>AR Navigation</Text>
+              <Text style={styles.headerSubtitle}>
+                {destinationData?.name || 'Unknown Destination'}
+              </Text>
+            </View>
+            <View style={styles.headerStatus}>
+              <View style={styles.statusDot} />
+              <Text style={styles.statusText}>
+                {isNavigating ? 'Navigating' : 'Ready'}
+              </Text>
+            </View>
+          </Animated.View>
+        </SafeAreaView>
+      </LinearGradient>
       
       {/* AR Camera Background with Gradient */}
       <LinearGradient
@@ -241,156 +273,131 @@ export default function ARNavigationScreen() {
           )}
         </Animated.View>
 
-        {/* Top Status Bar */}
-        <BlurView intensity={20} style={styles.topStatusBar}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Feather name="arrow-left" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          
-          <View style={styles.destinationInfo}>
-            <Text style={styles.destinationName}>
-              {destinationData?.name || 'Unknown Destination'}
-            </Text>
-            <View style={styles.statusDot} />
-            <Text style={styles.statusText}>
-              {isNavigating ? 'Navigating' : 'Ready'}
-            </Text>
-          </View>
 
-          <TouchableOpacity style={styles.menuButton}>
-            <Feather name="more-vertical" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-        </BlurView>
 
-        {/* AR Controls */}
-        <View style={styles.arControls}>
-          <TouchableOpacity style={styles.arControlButton} onPress={handleRecenter}>
-            <BlurView intensity={40} style={styles.controlButtonBlur}>
-              <Feather name="target" size={20} color="#FFFFFF" />
-            </BlurView>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.arControlButton} onPress={togglePanel}>
-            <BlurView intensity={40} style={styles.controlButtonBlur}>
-              <Feather name={panelVisible ? "chevron-down" : "chevron-up"} size={20} color="#FFFFFF" />
-            </BlurView>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.arControlButton}>
-            <BlurView intensity={40} style={styles.controlButtonBlur}>
-              <Feather name="settings" size={20} color="#FFFFFF" />
-            </BlurView>
-          </TouchableOpacity>
-        </View>
+
       </LinearGradient>
 
-      {/* Modern Navigation Panel */}
+      {/* Navigation Panel - Full or Minimized */}
       <Animated.View 
         style={[
-          styles.navigationPanel,
+          isNavigating ? styles.minimizedPanel : styles.navigationPanel,
           { transform: [{ translateY: slideAnimation }] }
         ]}
       >
         <LinearGradient
           colors={['#FFFFFF', '#F8F9FA']}
-          style={styles.panelGradient}
+          style={isNavigating ? styles.minimizedPanelGradient : styles.panelGradient}
         >
-          {/* Panel Header */}
-          <View style={styles.panelHeader}>
-            <View style={styles.panelHandle} />
-            <View style={styles.quickStats}>
-              <View style={styles.quickStatItem}>
-                <Text style={styles.quickStatValue}>{distance}</Text>
-                <Text style={styles.quickStatLabel}>Distance</Text>
+          {!isNavigating ? (
+            // Full Panel - Before Navigation Starts
+            <>
+              {/* Panel Header */}
+              <View style={styles.panelHeader}>
+                <View style={styles.panelHandle} />
+                <View style={styles.quickStats}>
+                  <View style={styles.quickStatItem}>
+                    <Text style={styles.quickStatValue}>{distance}</Text>
+                    <Text style={styles.quickStatLabel}>Distance</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.quickStatItem}>
+                    <Text style={styles.quickStatValue}>{eta}</Text>
+                    <Text style={styles.quickStatLabel}>ETA</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.quickStatItem}>
+                    <Text style={styles.quickStatValue}>95%</Text>
+                    <Text style={styles.quickStatLabel}>Accuracy</Text>
+                  </View>
+                </View>
               </View>
-              <View style={styles.statDivider} />
-              <View style={styles.quickStatItem}>
-                <Text style={styles.quickStatValue}>{eta}</Text>
-                <Text style={styles.quickStatLabel}>ETA</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.quickStatItem}>
-                <Text style={styles.quickStatValue}>95%</Text>
-                <Text style={styles.quickStatLabel}>Accuracy</Text>
-              </View>
-            </View>
-          </View>
 
-          {/* Progress Indicator */}
-          <View style={styles.progressSection}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>Navigation Progress</Text>
-              <Text style={styles.progressSteps}>{currentStep}/{totalSteps}</Text>
-            </View>
-            <View style={styles.progressBarContainer}>
-              <View style={styles.progressBar}>
-                <LinearGradient
-                  colors={['#00D4FF', '#6FB1FC']}
-                  style={[
-                    styles.progressFill, 
-                    { width: `${(currentStep / totalSteps) * 100}%` }
-                  ]}
-                />
+              {/* Progress Indicator */}
+              <View style={styles.progressSection}>
+                <View style={styles.progressHeader}>
+                  <Text style={styles.progressTitle}>Navigation Progress</Text>
+                  <Text style={styles.progressSteps}>{currentStep}/{totalSteps}</Text>
+                </View>
+                <View style={styles.progressBarContainer}>
+                  <View style={styles.progressBar}>
+                    <LinearGradient
+                      colors={['#00D4FF', '#6FB1FC']}
+                      style={[
+                        styles.progressFill, 
+                        { width: `${(currentStep / totalSteps) * 100}%` }
+                      ]}
+                    />
+                  </View>
+                </View>
               </View>
-            </View>
-          </View>
 
-          {/* Current Instruction */}
-          <BlurView intensity={10} style={styles.instructionCard}>
-            <View style={styles.instructionHeader}>
-              <View style={styles.stepCircle}>
-                <Text style={styles.stepCircleText}>{currentStep}</Text>
-              </View>
-              <View style={styles.instructionContent}>
-                <Text style={styles.instructionTitle}>Step {currentStep}</Text>
-                <Text style={styles.instructionText}>
-                  {navigationSteps[currentStep - 1]}
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.instructionNext}>
-                <Feather name="chevron-right" size={20} color="#00D4FF" />
-              </TouchableOpacity>
-            </View>
-          </BlurView>
+              {/* Current Instruction */}
+              <BlurView intensity={10} style={styles.instructionCard}>
+                <View style={styles.instructionHeader}>
+                  <View style={styles.stepCircle}>
+                    <Text style={styles.stepCircleText}>{currentStep}</Text>
+                  </View>
+                  <View style={styles.instructionContent}>
+                    <Text style={styles.instructionTitle}>Step {currentStep}</Text>
+                    <Text style={styles.instructionText}>
+                      {navigationSteps[currentStep - 1]}
+                    </Text>
+                  </View>
+                  <TouchableOpacity style={styles.instructionNext}>
+                    <Feather name="chevron-right" size={20} color="#00D4FF" />
+                  </TouchableOpacity>
+                </View>
+              </BlurView>
 
-          {/* Navigation Controls */}
-          <View style={styles.controlsSection}>
-            {!isNavigating ? (
-              <TouchableOpacity 
-                style={styles.startButton} 
-                onPress={handleStartNavigation}
-              >
-                <LinearGradient
-                  colors={['#4CAF50', '#66BB6A']}
-                  style={styles.startButtonGradient}
-                >
-                  <Feather name="play" size={20} color="#FFFFFF" />
-                  <Text style={styles.startButtonText}>Start Navigation</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.activeControls}>
+              {/* Navigation Controls */}
+              <View style={styles.controlsSection}>
                 <TouchableOpacity 
-                  style={styles.pauseButton}
-                  onPress={() => setIsNavigating(false)}
+                  style={styles.startButton} 
+                  onPress={handleStartNavigation}
                 >
-                  <BlurView intensity={20} style={styles.controlButtonContent}>
-                    <Feather name="pause" size={18} color="#FF9800" />
-                    <Text style={styles.pauseButtonText}>Pause</Text>
-                  </BlurView>
+                  <LinearGradient
+                    colors={['#4CAF50', '#66BB6A']}
+                    style={styles.startButtonGradient}
+                  >
+                    <Feather name="play" size={20} color="#FFFFFF" />
+                    <Text style={styles.startButtonText}>Start Navigation</Text>
+                  </LinearGradient>
                 </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            // Minimized Panel - During Navigation
+            <View style={styles.minimizedContent}>
+              {/* Minimized Progress Bar */}
+              <View style={styles.minimizedProgressSection}>
+                <View style={styles.minimizedProgressHeader}>
+                  <Text style={styles.minimizedProgressText}>
+                    Step {currentStep} of {totalSteps} • {distance} • {eta}
+                  </Text>
+                </View>
+                <View style={styles.minimizedProgressBar}>
+                  <LinearGradient
+                    colors={['#00D4FF', '#6FB1FC']}
+                    style={[
+                      styles.minimizedProgressFill, 
+                      { width: `${(currentStep / totalSteps) * 100}%` }
+                    ]}
+                  />
+                </View>
+              </View>
+
+              {/* Minimized Controls */}
+              <View style={styles.minimizedControls}>
                 <TouchableOpacity 
-                  style={styles.stopButton}
+                  style={styles.minimizedStopButton}
                   onPress={handleStopNavigation}
                 >
-                  <BlurView intensity={20} style={styles.controlButtonContent}>
-                    <Feather name="square" size={18} color="#F44336" />
-                    <Text style={styles.stopButtonText}>Stop</Text>
-                  </BlurView>
+                  <Feather name="square" size={16} color="#F44336" />
                 </TouchableOpacity>
               </View>
-            )}
-          </View>
+            </View>
+          )}
         </LinearGradient>
       </Animated.View>
     </View>
@@ -402,9 +409,49 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
+  headerGradient: {
+    paddingBottom: 0,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  },
+  headerBackButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 212, 255, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginTop: 4,
+  },
+  headerStatus: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   arCameraContainer: {
     flex: 1,
     position: 'relative',
+    marginTop: -10,
   },
   arPlaceholder: {
     flex: 1,
@@ -446,38 +493,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 20,
   },
-  topStatusBar: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 25,
-    overflow: 'hidden',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  destinationInfo: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  destinationName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginRight: 8,
-  },
+
   statusDot: {
     width: 6,
     height: 6,
@@ -489,13 +505,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
   },
-  menuButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   directionOverlay: {
     position: 'absolute',
     top: 120,
@@ -546,25 +556,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  arControls: {
-    position: 'absolute',
-    bottom: 120,
-    right: 20,
-    flexDirection: 'column',
-    gap: 15,
-  },
-  arControlButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    overflow: 'hidden',
-  },
-  controlButtonBlur: {
-    width: 56,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   navigationPanel: {
     position: 'absolute',
     bottom: 0,
@@ -585,6 +577,67 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 30,
+  },
+  minimizedPanel: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 8,
+  },
+  minimizedPanelGradient: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+  },
+  minimizedContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  minimizedProgressSection: {
+    flex: 1,
+    marginRight: 15,
+  },
+  minimizedProgressHeader: {
+    marginBottom: 8,
+  },
+  minimizedProgressText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+  },
+
+  minimizedProgressBar: {
+    height: 6,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  minimizedProgressFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  minimizedControls: {
+    flexDirection: 'row',
+  },
+  minimizedStopButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   panelHeader: {
     alignItems: 'center',
