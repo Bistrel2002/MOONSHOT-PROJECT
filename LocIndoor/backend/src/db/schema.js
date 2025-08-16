@@ -5,11 +5,25 @@ import { relations } from 'drizzle-orm';
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull().unique(),
+  password: text('password').notNull(),
   name: text('name').notNull(),
   avatar: text('avatar'),
+  isActive: boolean('is_active').default(true),
+  emailVerified: boolean('email_verified').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
+
+//Refresh token table
+export const refreshTokens = pgTable('refresh_tokens', {
+  id: serial('id').primaryKey(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  isRevoke: boolean('is_revoked').default(false),
+});
+
 
 // Beacons table
 export const beacons = pgTable('beacons', {

@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import Svg, { Line, Path } from 'react-native-svg';
+import { useAuth } from '../contexts/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,6 +35,9 @@ export default function LoginPage({ onLogin, onSignUpPress, onBack }: LoginPageP
   const [showPassword, setShowPassword] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+
+  // Get authentication functions from context
+  const { login } = useAuth();
 
   // Animation refs
   const fadeAnimation = useRef(new Animated.Value(0)).current;
@@ -74,11 +78,23 @@ export default function LoginPage({ onLogin, onSignUpPress, onBack }: LoginPageP
       }),
     ]).start();
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Call the actual login API through our authentication context
+      const result = await login(email, password);
+      
+      if (result.success) {
+        // Login successful - call the onLogin prop to navigate to main app
+        onLogin();
+      } else {
+        // Login failed - show error message
+        Alert.alert('Login Failed', result.error || 'Please check your credentials and try again.');
+      }
+    } catch (error) {
+      // Network or other error
+      Alert.alert('Connection Error', 'Unable to connect to server. Please check your internet connection and try again.');
+    } finally {
       setIsLoading(false);
-      onLogin();
-    }, 2000);
+    }
   };
 
   const handleSocialLogin = (platform: string) => {

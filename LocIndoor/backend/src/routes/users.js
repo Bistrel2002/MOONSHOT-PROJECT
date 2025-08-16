@@ -1,17 +1,357 @@
 import express from 'express';
+import { body, validationResult } from 'express-validator';
 import { db } from '../db/db.js';
-import { users, userLocations, navigationSessions } from '../db/schema.js';
+import { users, userLocations, navigationSessions, refreshTokens } from '../db/schema.js';
 import { eq, desc, and, gte } from 'drizzle-orm';
+import { authenticateToken, optionalAuth } from '../middleware/auth.js';
+import { 
+  hashPassword, 
+  comparePassword, 
+  generateAccessToken, 
+  generateRefreshToken,
+  verifyRefreshToken 
+} from '../utils/auth.js';
 
 const router = express.Router();
 
-// Get all users
-router.get('/', async (req, res) => {
+// Validation middleware
+const validateRegistration = [
+  body('email').isEmail().normalizeEmail(),
+  body('password').isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/),
+  body('name').trim().isLength({ min: 2, max: 50 }),
+];
+
+const validateLogin = [
+  body('email').isEmail().normalizeEmail(),
+  body('password').notEmpty(),
+];
+
+// User registration
+router.post('/register', validateRegistration, async (req, res) => {
   try {
-    const allUsers = await db.select().from(users);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Validation failed', 
+        details: errors.array() 
+      });
+    }
+
+    const { email, password, name, avatar } = req.body;
+
+    // Check if user already exists
+    const existingUser = await db.select().from(users).where(eq(users.email, email));
+    if (existingUser.length > 0) {
+      return res.status(409).json({ 
+        success: false, 
+        error: 'User with this email already exists' 
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await hashPassword(password);
+
+    // Create user
+    const newUser = await db.insert(users).values({
+      email,
+      password: hashedPassword,
+      name,
+      avatar
+    }).returning();
+
+    // Generate tokens
+    const accessToken = generateAccessToken(newUser[0].id);
+    const refreshToken = generateRefreshToken(newUser[0].id);
+
+    // Store refresh token
+    await db.insert(refreshTokens).values({
+      userId: newUser[0].id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    });
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = newUser[0];
+
+    res.status(201).json({
+      success: true,
+      data: {
+        user: userWithoutPassword,
+        accessToken,
+        refreshToken
+      }
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Registration failed' 
+    });
+  }
+});
+
+// User login
+router.post('/login', validateLogin, async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Validation failed', 
+        details: errors.array() 
+      });
+    }
+
+    const { email, password } = req.body;
+
+    // Find user
+    const user = await db.select().from(users).where(eq(users.email, email));
+    if (user.length === 0) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Invalid credentials' 
+      });
+    }
+
+    // Check password
+    const isValidPassword = await comparePassword(password, user[0].password);
+    if (!isValidPassword) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Invalid credentials' 
+      });
+    }
+
+    // Check if user is active
+    if (!user[0].isActive) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Account is deactivated' 
+      });
+    }
+
+    // Generate tokens
+    const accessToken = generateAccessToken(user[0].id);
+    const refreshToken = generateRefreshToken(user[0].id);
+
+    // Store refresh token
+    await db.insert(refreshTokens).values({
+      userId: user[0].id,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    // Update last login
+    await db.update(users)
+      .set({ lastLogin: new Date() })
+      .where(eq(users.id, user[0].id));
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user[0];
+
+    res.json({
+      success: true,
+      data: {
+        user: userWithoutPassword,
+        accessToken,
+        refreshToken
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Login failed' 
+    });
+  }
+});
+
+// Refresh token
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Refresh token required' 
+      });
+    }
+
+    // Verify refresh token
+    const decoded = verifyRefreshToken(refreshToken);
+    
+    // Check if token exists and is not revoked
+    const tokenRecord = await db.select()
+      .from(refreshTokens)
+      .where(
+        and(
+          eq(refreshTokens.token, refreshToken),
+          eq(refreshTokens.isRevoked, false),
+          eq(refreshTokens.userId, decoded.userId)
+        )
+      );
+
+    if (tokenRecord.length === 0) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Invalid refresh token' 
+      });
+    }
+
+    // Generate new access token
+    const newAccessToken = generateAccessToken(decoded.userId);
+
+    res.json({
+      success: true,
+      data: {
+        accessToken: newAccessToken
+      }
+    });
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(401).json({ 
+      success: false, 
+      error: 'Invalid refresh token' 
+    });
+  }
+});
+
+// Logout
+router.post('/logout', authenticateToken, async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      // Revoke refresh token
+      await db.update(refreshTokens)
+        .set({ isRevoked: true })
+        .where(eq(refreshTokens.token, refreshToken));
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Logged out successfully' 
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Logout failed' 
+    });
+  }
+});
+
+// Get current user profile (authenticated)
+router.get('/profile', authenticateToken, async (req, res) => {
+  try {
+    const { password: _, ...userWithoutPassword } = req.user;
+    res.json({ 
+      success: true, 
+      data: userWithoutPassword 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// Update user profile (authenticated)
+router.put('/profile', authenticateToken, async (req, res) => {
+  try {
+    const { name, avatar } = req.body;
+    const updateData = { updatedAt: new Date() };
+
+    if (name) updateData.name = name;
+    if (avatar) updateData.avatar = avatar;
+
+    const updatedUser = await db.update(users)
+      .set(updateData)
+      .where(eq(users.id, req.user.id))
+      .returning();
+
+    const { password: _, ...userWithoutPassword } = updatedUser[0];
+
+    res.json({ 
+      success: true, 
+      data: userWithoutPassword 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// Change password (authenticated)
+router.put('/change-password', authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Current and new password are required' 
+      });
+    }
+
+    // Verify current password
+    const isValidPassword = await comparePassword(currentPassword, req.user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Current password is incorrect' 
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update password
+    await db.update(users)
+      .set({ 
+        password: hashedPassword, 
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, req.user.id));
+
+    res.json({ 
+      success: true, 
+      message: 'Password updated successfully' 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// Get all users (admin only - add role checking later)
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    const allUsers = await db.select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      avatar: users.avatar,
+      isActive: users.isActive,
+      emailVerified: users.emailVerified,
+      lastLogin: users.lastLogin,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt,
+    }).from(users);
+    
     res.json({ success: true, data: allUsers });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
   }
 });
 
@@ -26,27 +366,6 @@ router.get('/:id', async (req, res) => {
     }
     
     res.json({ success: true, data: user[0] });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Create new user
-router.post('/', async (req, res) => {
-  try {
-    const { email, name, avatar } = req.body;
-    
-    if (!email || !name) {
-      return res.status(400).json({ success: false, error: 'Email and name are required' });
-    }
-    
-    const newUser = await db.insert(users).values({
-      email,
-      name,
-      avatar
-    }).returning();
-    
-    res.status(201).json({ success: true, data: newUser[0] });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

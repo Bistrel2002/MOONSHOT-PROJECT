@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { ENV } from "./config/env.js";
 import { testConnection } from "./db/db.js";
 import userRoutes from "./routes/users.js";
@@ -8,6 +10,31 @@ import beaconRoutes from "./routes/beacons.js";
 
 const app = express();
 const PORT = ENV.PORT || 3001;
+
+//security middleware
+app.use(helmet());
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: {
+        succes: false,
+        error: "Too many requests, please try again later."
+    }
+});
+app.use('/api', limiter);
+
+//stricter rate limiting fro auth routes
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: {
+        success: false,
+        error: "Too many authentication attempts, please try again later."
+    }
+});
+app.use('/api/users/login', authLimiter);
+app.use('/api/users/register', authLimiter);
 
 // Middleware
 app.use(cors());
@@ -21,6 +48,7 @@ testConnection();
 app.get("/", (req, res) => {
     res.status(200).json({ message: "Welcome to LocIndoor API" });
 });
+
 
 app.get("/api/health", (req, res) => {
     res.status(200).json({ success: true, message: "Server is healthy" });

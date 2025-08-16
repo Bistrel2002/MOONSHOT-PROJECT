@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Path, Defs, RadialGradient, Stop } from 'react-native-svg';
+import { useAuth } from '../contexts/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,6 +40,9 @@ export default function SignUpPage({ onSignUp, onLoginPress, onBack }: SignUpPag
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
   const [fullNameFocused, setFullNameFocused] = useState(false);
+
+  // Get authentication functions from context
+  const { register } = useAuth();
 
   // Animation refs
   const fadeAnimation = useRef(new Animated.Value(0)).current;
@@ -110,11 +114,27 @@ export default function SignUpPage({ onSignUp, onLoginPress, onBack }: SignUpPag
       }),
     ]).start();
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Call the actual registration API through our authentication context
+      const result = await register({
+        name: fullName,
+        email: email,
+        password: password,
+      });
+      
+      if (result.success) {
+        // Registration successful - call the onSignUp prop to navigate to main app
+        onSignUp();
+      } else {
+        // Registration failed - show error message
+        Alert.alert('Registration Failed', result.error || 'Please check your information and try again.');
+      }
+    } catch (error) {
+      // Network or other error
+      Alert.alert('Connection Error', 'Unable to connect to server. Please check your internet connection and try again.');
+    } finally {
       setIsLoading(false);
-      onSignUp();
-    }, 2000);
+    }
   };
 
   const handleSocialSignUp = (platform: string) => {
