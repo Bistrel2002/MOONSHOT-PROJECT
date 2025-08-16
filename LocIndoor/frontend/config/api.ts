@@ -2,7 +2,7 @@
 const DEV_CONFIG = {
  
   BASE_URL: __DEV__ 
-    ? 'http://localhost:3001/api'  
+    ? 'http://192.168.1.43:3001/api'  // Your computer's IP address for physical device
     : 'https://your-production-url.com/api', 
   
   TIMEOUT: 10000, // 10 seconds timeout for requests

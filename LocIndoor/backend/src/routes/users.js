@@ -104,22 +104,31 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     const { email, password } = req.body;
+    console.log('🔐 Login attempt for email:', email);
 
     // Find user
     const user = await db.select().from(users).where(eq(users.email, email));
+    console.log('👤 Users found:', user.length);
+    
     if (user.length === 0) {
+      console.log('❌ No user found with email:', email);
       return res.status(401).json({ 
         success: false, 
-        error: 'Invalid credentials' 
+        error: '❌ No user found with email' 
       });
     }
 
+    console.log('👤 User found:', { id: user[0].id, email: user[0].email, isActive: user[0].isActive });
+
     // Check password
     const isValidPassword = await comparePassword(password, user[0].password);
+    console.log('🔑 Password valid:', isValidPassword);
+    
     if (!isValidPassword) {
+      console.log('❌ Invalid password for user:', email);
       return res.status(401).json({ 
         success: false, 
-        error: 'Invalid credentials' 
+        error: '❌ Invalid password for user' 
       });
     }
 
@@ -132,20 +141,22 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     // Generate tokens
+    console.log('🎫 Generating tokens for user ID:', user[0].id);
     const accessToken = generateAccessToken(user[0].id);
     const refreshToken = generateRefreshToken(user[0].id);
+    console.log('✅ Tokens generated successfully');
 
     // Store refresh token
+    console.log('💾 Storing refresh token...');
     await db.insert(refreshTokens).values({
       userId: user[0].id,
       token: refreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
+    console.log('✅ Refresh token stored successfully');
 
-    // Update last login
-    await db.update(users)
-      .set({ lastLogin: new Date() })
-      .where(eq(users.id, user[0].id));
+    // Note: lastLogin field doesn't exist in schema, skipping update
+    console.log('✅ Login process completed successfully');
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user[0];
