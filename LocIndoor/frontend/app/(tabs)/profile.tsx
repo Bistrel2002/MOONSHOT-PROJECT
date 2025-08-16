@@ -17,6 +17,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import Svg, { Line, Path, Circle } from 'react-native-svg';
+import { useAuth } from '../../contexts/AuthContext';
+import ApiService from '../../services/apiService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,6 +26,14 @@ export default function ProfileScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [locationServicesEnabled, setLocationServicesEnabled] = useState(true);
   const [arModeEnabled, setArModeEnabled] = useState(true);
+  const [userStats, setUserStats] = useState({
+    totalNavigations: 0,
+    totalDistance: '0 km',
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
+  // Get user data and authentication functions from context
+  const { user, logout, isAuthenticated, refreshUserData } = useAuth();
 
   // Animation refs
   const fadeAnimation = useRef(new Animated.Value(0)).current;
@@ -31,9 +41,28 @@ export default function ProfileScreen() {
   const floatingAnimation = useRef(new Animated.Value(0)).current;
   const profilePulse = useRef(new Animated.Value(1)).current;
 
-  const userStats = {
-    totalNavigations: 47,
-    totalDistance: '2.3 km',
+  // Function to load user statistics from backend
+  const loadUserStats = async () => {
+    try {
+      setIsLoadingStats(true);
+      const response = await ApiService.getUserStats();
+      
+      if (response.success) {
+        setUserStats({
+          totalNavigations: response.data.stats.totalNavigations,
+          totalDistance: response.data.stats.totalDistance,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load user stats:', error);
+      // Keep default values on error
+      setUserStats({
+        totalNavigations: 0,
+        totalDistance: '0 km',
+      });
+    } finally {
+      setIsLoadingStats(false);
+    }
   };
 
   const menuItems = [
@@ -59,6 +88,13 @@ export default function ProfileScreen() {
       onPress: () => Alert.alert('Help', 'For support, email us at support@locindoor.com'),
     },
     {
+      id: 'edit-profile',
+      title: 'Edit Profile',
+      subtitle: 'Update your name and avatar',
+      icon: '✏️',
+      onPress: () => handleEditProfile(),
+    },
+    {
       id: 'about',
       title: 'About LocIndoor',
       subtitle: 'App version and information',
@@ -68,6 +104,15 @@ export default function ProfileScreen() {
   ];
 
   useEffect(() => {
+    // Check if user is authenticated, if not redirect to login
+    if (!isAuthenticated) {
+      router.replace('/login-page');
+      return;
+    }
+
+    // Load user statistics
+    loadUserStats();
+
     // Initial animations
     Animated.parallel([
       Animated.timing(fadeAnimation, {
@@ -120,7 +165,7 @@ export default function ProfileScreen() {
       floatingLoop.stop();
       pulseLoop.stop();
     };
-  }, []);
+  }, [isAuthenticated, user]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -128,10 +173,48 @@ export default function ProfileScreen() {
       'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', style: 'destructive', onPress: () => {
-          Alert.alert('Signed Out', 'You have been signed out successfully.');
+        { text: 'Sign Out', style: 'destructive', onPress: async () => {
+          try {
+            await logout(); // Call the actual logout function from auth context
+            router.replace('/'); // Navigate back to intro/login screen
+          } catch (error) {
+            console.error('Logout error:', error);
+            Alert.alert('Error', 'Failed to sign out. Please try again.');
+          }
         }},
       ]
+    );
+  };
+
+  const handleEditProfile = () => {
+    Alert.prompt(
+      'Edit Profile',
+      'Enter your new name:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Update', 
+          onPress: async (newName) => {
+            if (newName && newName.trim()) {
+              try {
+                const response = await ApiService.updateUserProfile({ name: newName.trim() });
+                if (response.success) {
+                  // Refresh user data
+                  await refreshUserData();
+                  Alert.alert('Success', 'Profile updated successfully!');
+                } else {
+                  Alert.alert('Error', 'Failed to update profile. Please try again.');
+                }
+              } catch (error) {
+                console.error('Update profile error:', error);
+                Alert.alert('Error', 'Failed to update profile. Please try again.');
+              }
+            }
+          }
+        }
+      ],
+      'plain-text',
+      user?.name || ''
     );
   };
 
@@ -282,9 +365,11 @@ export default function ProfileScreen() {
                     </LinearGradient>
                   </Animated.View>
                   <View style={styles.userInfo}>
-                    <Text style={styles.userName}>John Doe</Text>
-                    <Text style={styles.userEmail}>john.doe@locindoor.com</Text>
-                    <Text style={styles.userMember}>Member since Jan 2024</Text>
+                    <Text style={styles.userName}>{user?.name || 'Loading...'}</Text>
+                    <Text style={styles.userEmail}>{user?.email || 'Loading...'}</Text>
+                    <Text style={styles.userMember}>
+                      Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Loading...'}
+                    </Text>
                   </View>
                 </LinearGradient>
               </BlurView>
@@ -296,12 +381,12 @@ export default function ProfileScreen() {
               <View style={styles.statsContainer}>
                 <StatCard 
                   title="Navigations" 
-                  value={userStats.totalNavigations} 
+                  value={isLoadingStats ? "..." : userStats.totalNavigations} 
                   subtitle="Total trips"
                 />
                 <StatCard 
                   title="Distance" 
-                  value={userStats.totalDistance} 
+                  value={isLoadingStats ? "..." : userStats.totalDistance} 
                   subtitle="Total walked"
                 />
               </View>

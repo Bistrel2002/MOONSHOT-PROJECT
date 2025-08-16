@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,11 +8,14 @@ import {
   SafeAreaView,
   StatusBar,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { useAuth } from '../contexts/AuthContext';
+import ApiService from '../services/apiService';
 
 export default function HistoryScreen() {
   // Animation refs
@@ -20,26 +23,71 @@ export default function HistoryScreen() {
   const slideAnimation = useRef(new Animated.Value(30)).current;
   const headerAnimation = useRef(new Animated.Value(-100)).current;
 
-  // Mock data for recent navigation history (last 3 days)
-  const recentHistory = [
-    // Currently empty to show the "No journeys yet" state
-    // When there's actual data, it would look like:
-    // {
-    //   id: 1,
-    //   destination: 'Conference Room A',
-    //   startLocation: 'Main Entrance',
-    //   date: '2024-01-15',
-    //   time: '09:30 AM',
-    // }
-  ];
+  // Define the navigation session type
+  interface NavigationSession {
+    id: string;
+    destination: string;
+    startLocation: string;
+    startTime: string;
+    endTime?: string;
+    status: 'active' | 'completed' | 'cancelled';
+    duration?: number;
+    date: string;
+    time: string;
+  }
 
-  // Stats for the overview cards
-  const stats = {
-    totalNavigations: 5,
+  // State for navigation history
+  const [navigationHistory, setNavigationHistory] = useState<NavigationSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalNavigations: 0,
     thisWeekCount: 0,
+  });
+
+  // Get authentication context
+  const { isAuthenticated, user } = useAuth();
+
+  // Load navigation history from backend
+  const loadNavigationHistory = async () => {
+    try {
+      setIsLoading(true);
+      const response = await ApiService.getNavigationHistory(20, 0);
+      
+      if (response.success) {
+        setNavigationHistory(response.data.sessions);
+        
+        // Calculate stats
+        const total = response.data.sessions.length;
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        
+        const thisWeek = response.data.sessions.filter((session: NavigationSession) => 
+          new Date(session.startTime) >= oneWeekAgo
+        ).length;
+        
+        setStats({
+          totalNavigations: total,
+          thisWeekCount: thisWeek,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load navigation history:', error);
+      // Keep empty state on error
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
+    // Check authentication and load data
+    if (!isAuthenticated) {
+      router.replace('/login-page');
+      return;
+    }
+
+    // Load navigation history
+    loadNavigationHistory();
+
     // Initial animations
     Animated.parallel([
       Animated.timing(fadeAnimation, {
@@ -58,7 +106,50 @@ export default function HistoryScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [isAuthenticated]);
+
+  // Component to render individual history cards
+  const HistoryCard = ({ session }: { session: NavigationSession }) => (
+    <BlurView intensity={15} style={styles.historyCard}>
+      <LinearGradient
+        colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.7)']}
+        style={styles.historyCardGradient}
+      >
+        <View style={styles.historyCardHeader}>
+          <View style={styles.destinationInfo}>
+            <Text style={styles.destinationName}>{session.destination}</Text>
+            <Text style={styles.startLocation}>From: {session.startLocation}</Text>
+          </View>
+          <View style={[styles.statusBadge, 
+            session.status === 'completed' ? styles.statusCompleted : 
+            session.status === 'active' ? styles.statusActive : styles.statusCancelled
+          ]}>
+            <Text style={styles.statusText}>
+              {session.status === 'completed' ? '✓' : 
+               session.status === 'active' ? '•' : '✕'}
+            </Text>
+          </View>
+        </View>
+        
+        <View style={styles.historyCardFooter}>
+          <View style={styles.timeInfo}>
+            <Feather name="calendar" size={12} color="#666" />
+            <Text style={styles.dateText}>{session.date}</Text>
+          </View>
+          <View style={styles.timeInfo}>
+            <Feather name="clock" size={12} color="#666" />
+            <Text style={styles.timeText}>{session.time}</Text>
+          </View>
+          {session.duration && (
+            <View style={styles.timeInfo}>
+              <Feather name="zap" size={12} color="#666" />
+              <Text style={styles.durationText}>{session.duration}m</Text>
+            </View>
+          )}
+        </View>
+      </LinearGradient>
+    </BlurView>
+  );
 
   return (
     <View style={styles.container}>
@@ -139,9 +230,19 @@ export default function HistoryScreen() {
           contentContainerStyle={styles.historyContent}
           showsVerticalScrollIndicator={false}
         >
-          {recentHistory.length > 0 ? (
-            // History cards would go here when there's data
-            <View />
+          {isLoading ? (
+            // Loading State
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#00D4FF" />
+              <Text style={styles.loadingText}>Loading your journeys...</Text>
+            </View>
+          ) : navigationHistory.length > 0 ? (
+            // History cards with real data
+            <View style={styles.historyCardsContainer}>
+              {navigationHistory.map((session, index) => (
+                <HistoryCard key={session.id || index} session={session} />
+              ))}
+            </View>
           ) : (
             // Empty State
             <BlurView intensity={10} style={styles.emptyState}>
@@ -152,7 +253,7 @@ export default function HistoryScreen() {
                 <Feather name="map" size={48} color="#CCCCCC" />
                 <Text style={styles.emptyTitle}>No journeys yet</Text>
                 <Text style={styles.emptySubtitle}>
-                  Your navigation history will appear here
+                  Your navigation history will appear here once you start exploring
                 </Text>
                 <TouchableOpacity 
                   style={styles.startNavigatingButton}
@@ -340,5 +441,93 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     marginLeft: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  historyCardsContainer: {
+    gap: 12,
+  },
+  historyCard: {
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 212, 255, 0.1)',
+  },
+  historyCardGradient: {
+    padding: 16,
+  },
+  historyCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  destinationInfo: {
+    flex: 1,
+  },
+  destinationName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  startLocation: {
+    fontSize: 12,
+    color: '#666',
+  },
+  statusBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+  },
+  statusCompleted: {
+    backgroundColor: '#4CAF50',
+  },
+  statusActive: {
+    backgroundColor: '#FF9800',
+  },
+  statusCancelled: {
+    backgroundColor: '#F44336',
+  },
+  statusText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  historyCardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  timeInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  timeText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  durationText: {
+    fontSize: 12,
+    color: '#666',
   },
 });

@@ -7,6 +7,7 @@ import { testConnection } from "./db/db.js";
 import userRoutes from "./routes/users.js";
 import locationRoutes from "./routes/locations.js";
 import beaconRoutes from "./routes/beacons.js";
+import navigationRoutes from "./routes/navigation.js";
 
 const app = express();
 const PORT = ENV.PORT || 3001;
@@ -58,6 +59,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/beacons", beaconRoutes);
+app.use("/api/navigation", navigationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

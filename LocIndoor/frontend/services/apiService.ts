@@ -188,6 +188,31 @@ export class ApiService {
     }
   }
 
+  // Get user statistics
+  static async getUserStats() {
+    try {
+      const response = await apiClient.get('/users/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Get user stats error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  // Update user profile
+  static async updateUserProfile(profileData: {
+    name?: string;
+    avatar?: string;
+  }) {
+    try {
+      const response = await apiClient.put(ENDPOINTS.AUTH.PROFILE, profileData);
+      return response.data;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw this.handleError(error);
+    }
+  }
+
   // ===== LOCATION METHODS =====
   
   // Get all locations
@@ -241,6 +266,68 @@ export class ApiService {
       return response.data;
     } catch (error) {
       console.error('Get beacons error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  // ===== NAVIGATION METHODS =====
+  
+  // Start a new navigation session
+  static async startNavigation(destinationName: string, startLocationName?: string) {
+    try {
+      const response = await apiClient.post(ENDPOINTS.NAVIGATION.START, {
+        destinationName,
+        startLocationName,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Start navigation error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  // Complete a navigation session
+  static async completeNavigation(sessionId: string) {
+    try {
+      const response = await apiClient.put(ENDPOINTS.NAVIGATION.COMPLETE(sessionId));
+      return response.data;
+    } catch (error) {
+      console.error('Complete navigation error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  // Cancel a navigation session
+  static async cancelNavigation(sessionId: string) {
+    try {
+      const response = await apiClient.put(ENDPOINTS.NAVIGATION.CANCEL(sessionId));
+      return response.data;
+    } catch (error) {
+      console.error('Cancel navigation error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  // Get navigation history
+  static async getNavigationHistory(limit: number = 20, offset: number = 0) {
+    try {
+      const response = await apiClient.get(ENDPOINTS.NAVIGATION.HISTORY, {
+        params: { limit, offset }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get navigation history error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  // Get current active navigation session
+  static async getCurrentNavigation() {
+    try {
+      const response = await apiClient.get(ENDPOINTS.NAVIGATION.CURRENT);
+      return response.data;
+    } catch (error) {
+      console.error('Get current navigation error:', error);
       throw this.handleError(error);
     }
   }

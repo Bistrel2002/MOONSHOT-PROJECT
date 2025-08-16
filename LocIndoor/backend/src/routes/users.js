@@ -1,8 +1,8 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import { db } from '../db/db.js';
-import { users, userLocations, navigationSessions, refreshTokens } from '../db/schema.js';
-import { eq, desc, and, gte } from 'drizzle-orm';
+import { users, userLocations, navigationSessions, refreshTokens, locations } from '../db/schema.js';
+import { eq, desc, and, gte, sql } from 'drizzle-orm';
 import { authenticateToken, optionalAuth } from '../middleware/auth.js';
 import { 
   hashPassword, 
@@ -104,28 +104,21 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     const { email, password } = req.body;
-    console.log('🔐 Login attempt for email:', email);
 
     // Find user
     const user = await db.select().from(users).where(eq(users.email, email));
-    console.log('👤 Users found:', user.length);
     
     if (user.length === 0) {
-      console.log('❌ No user found with email:', email);
       return res.status(401).json({ 
         success: false, 
         error: '❌ No user found with email' 
       });
     }
 
-    console.log('👤 User found:', { id: user[0].id, email: user[0].email, isActive: user[0].isActive });
-
     // Check password
     const isValidPassword = await comparePassword(password, user[0].password);
-    console.log('🔑 Password valid:', isValidPassword);
     
     if (!isValidPassword) {
-      console.log('❌ Invalid password for user:', email);
       return res.status(401).json({ 
         success: false, 
         error: '❌ Invalid password for user' 
@@ -141,22 +134,15 @@ router.post('/login', validateLogin, async (req, res) => {
     }
 
     // Generate tokens
-    console.log('🎫 Generating tokens for user ID:', user[0].id);
     const accessToken = generateAccessToken(user[0].id);
     const refreshToken = generateRefreshToken(user[0].id);
-    console.log('✅ Tokens generated successfully');
 
     // Store refresh token
-    console.log('💾 Storing refresh token...');
     await db.insert(refreshTokens).values({
       userId: user[0].id,
       token: refreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
-    console.log('✅ Refresh token stored successfully');
-
-    // Note: lastLogin field doesn't exist in schema, skipping update
-    console.log('✅ Login process completed successfully');
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user[0];
@@ -260,12 +246,103 @@ router.get('/profile', authenticateToken, async (req, res) => {
     const { password: _, ...userWithoutPassword } = req.user;
     res.json({ 
       success: true, 
-      data: userWithoutPassword 
+      data: { user: userWithoutPassword }
     });
   } catch (error) {
     res.status(500).json({ 
       success: false, 
       error: error.message 
+    });
+  }
+});
+
+// Get user statistics
+router.get('/stats', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get total completed navigations
+    const totalNavigations = await db
+      .select({ count: sql`COUNT(*)` })
+      .from(navigationSessions)
+      .where(and(
+        eq(navigationSessions.userId, userId),
+        eq(navigationSessions.status, 'completed')
+      ));
+
+    // Get this week's navigations
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const thisWeekNavigations = await db
+      .select({ count: sql`COUNT(*)` })
+      .from(navigationSessions)
+      .where(and(
+        eq(navigationSessions.userId, userId),
+        eq(navigationSessions.status, 'completed'),
+        gte(navigationSessions.startTime, oneWeekAgo)
+      ));
+
+    // Get favorite locations (most visited destinations)
+    const favoriteLocationsData = await db
+      .select({
+        locationId: navigationSessions.endLocation,
+        locationName: sql`locations.name`,
+        visitCount: sql`COUNT(*)`
+      })
+      .from(navigationSessions)
+      .leftJoin(sql`locations`, sql`locations.id = ${navigationSessions.endLocation}`)
+      .where(and(
+        eq(navigationSessions.userId, userId),
+        eq(navigationSessions.status, 'completed')
+      ))
+      .groupBy(navigationSessions.endLocation, sql`locations.name`)
+      .orderBy(sql`COUNT(*) DESC`)
+      .limit(3);
+
+    // Calculate average session time for completed sessions
+    const sessionTimes = await db
+      .select({
+        startTime: navigationSessions.startTime,
+        endTime: navigationSessions.endTime
+      })
+      .from(navigationSessions)
+      .where(and(
+        eq(navigationSessions.userId, userId),
+        eq(navigationSessions.status, 'completed'),
+        sql`${navigationSessions.endTime} IS NOT NULL`
+      ));
+
+    let averageSessionMinutes = 0;
+    if (sessionTimes.length > 0) {
+      const totalMinutes = sessionTimes.reduce((sum, session) => {
+        const duration = (new Date(session.endTime) - new Date(session.startTime)) / 1000 / 60;
+        return sum + duration;
+      }, 0);
+      averageSessionMinutes = Math.round(totalMinutes / sessionTimes.length);
+    }
+
+    // Format the response
+    const stats = {
+      totalNavigations: parseInt(totalNavigations[0]?.count || 0),
+      totalDistance: "0.0 km", // TODO: Calculate based on actual route distances
+      favoriteLocations: favoriteLocationsData.map(loc => ({
+        name: loc.locationName || 'Unknown Location',
+        visits: parseInt(loc.visitCount)
+      })),
+      thisWeekNavigations: parseInt(thisWeekNavigations[0]?.count || 0),
+      averageSessionTime: averageSessionMinutes > 0 ? `${averageSessionMinutes} min` : "0 min",
+    };
+
+    res.json({
+      success: true,
+      data: { stats }
+    });
+  } catch (error) {
+    console.error('Get user stats error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to get user statistics' 
     });
   }
 });

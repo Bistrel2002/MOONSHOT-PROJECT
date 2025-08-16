@@ -41,4 +41,13 @@ export const ENDPOINTS = {
   
   // Health check
   HEALTH: '/health',
+  
+  // Navigation endpoints
+  NAVIGATION: {
+    START: '/navigation/start',
+    COMPLETE: (sessionId: string) => `/navigation/${sessionId}/complete`,
+    CANCEL: (sessionId: string) => `/navigation/${sessionId}/cancel`,
+    HISTORY: '/navigation/history',
+    CURRENT: '/navigation/current',
+  },
 };
