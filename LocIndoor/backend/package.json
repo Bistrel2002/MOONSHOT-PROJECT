@@ -10,7 +10,6 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate --config=drizzle.config.js",
     "db:studio": "drizzle-kit studio"
-
   },
   "keywords": [],
   "author": "",
@@ -29,7 +28,8 @@
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
-    "postgres": "^3.4.7"
+    "postgres": "^3.4.7",
+    "react-native-unity-play": "^0.1.6"
   },
   "devDependencies": {
     "@types/pg": "^8.15.5",

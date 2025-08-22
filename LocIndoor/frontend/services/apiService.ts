@@ -1,5 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios, { AxiosInstance} from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { API_CONFIG, ENDPOINTS } from '../config/api';
 
@@ -119,10 +118,15 @@ export class ApiService {
   // Login user - sends email and password to backend
   static async login(email: string, password: string) {
     try {
+      console.log('🔄 Attempting login to:', `${API_CONFIG.BASE_URL}${ENDPOINTS.AUTH.LOGIN}`);
+      console.log('📧 Email:', email);
+      
       const response = await apiClient.post(ENDPOINTS.AUTH.LOGIN, {
         email,
         password,
       });
+      
+      console.log('✅ Login response:', response.data);
       
       if (response.data.success && response.data.data.accessToken) {
         // Save tokens if login successful
@@ -130,11 +134,18 @@ export class ApiService {
           response.data.data.accessToken,
           response.data.data.refreshToken
         );
+        console.log('🔐 Tokens saved successfully');
       }
       
       return response.data;
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      console.error('❌ Login error details:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url,
+      });
       throw this.handleError(error);
     }
   }
@@ -337,11 +348,34 @@ export class ApiService {
   // Check if backend is healthy
   static async healthCheck() {
     try {
+      console.log('🔄 Testing connection to:', `${API_CONFIG.BASE_URL}${ENDPOINTS.HEALTH}`);
       const response = await apiClient.get(ENDPOINTS.HEALTH);
+      console.log('✅ Health check response:', response.data);
       return response.data;
-    } catch (error) {
-      console.error('Health check error:', error);
+    } catch (error: any) {
+      console.error('❌ Health check error details:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url,
+      });
       throw this.handleError(error);
+    }
+  }
+
+  // Test network connectivity
+  static async testConnection() {
+    try {
+      console.log('🌐 Testing network connectivity...');
+      const startTime = Date.now();
+      const response = await this.healthCheck();
+      const endTime = Date.now();
+      console.log(`✅ Connection successful! Response time: ${endTime - startTime}ms`);
+      return { success: true, responseTime: endTime - startTime, data: response };
+    } catch (error: any) {
+      console.error('❌ Connection test failed:', error.message);
+      return { success: false, error: error.message };
     }
   }
 

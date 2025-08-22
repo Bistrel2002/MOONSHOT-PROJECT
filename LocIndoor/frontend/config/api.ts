@@ -5,7 +5,7 @@ const DEV_CONFIG = {
     ? 'http://192.168.1.43:3001/api'  // Your computer's IP address for physical device
     : 'https://your-production-url.com/api', 
   
-  TIMEOUT: 10000, // 10 seconds timeout for requests
+  TIMEOUT: 30000, // 30 seconds timeout for requests (increased for slower connections)
 };
 
 export const API_CONFIG = DEV_CONFIG;
