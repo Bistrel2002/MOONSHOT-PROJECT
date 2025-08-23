@@ -44,7 +44,15 @@
           "resizeMode": "contain",
           "backgroundColor": "#1A237E"
         }
-      ]
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for AR navigation."
+        }
+      ],
+      "expo-router",
+      "expo-secure-store"
     ]
   }
 }

@@ -14,6 +14,9 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
+import { Camera } from 'expo-camera';
+import { UnityARView } from '../components/UnityARView';
+import { ExpoARCameraView } from '../components/ExpoARCameraView';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,6 +28,10 @@ export default function ARNavigationScreen() {
   const [distance, setDistance] = useState('45m');
   const [eta, setEta] = useState('2 min');
   const [panelVisible, setPanelVisible] = useState(true);
+  const [isUnityLoaded, setIsUnityLoaded] = useState(false);
+  const [useUnityAR, setUseUnityAR] = useState(true); // Enable Unity AR to load floorline scene
+  const [unityAvailable, setUnityAvailable] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
 
   // Animation refs
   const fadeAnimation = useRef(new Animated.Value(0)).current;
@@ -43,6 +50,32 @@ export default function ARNavigationScreen() {
   ];
 
   useEffect(() => {
+    // Request camera permissions
+    const requestCameraPermissions = async () => {
+      try {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setHasCameraPermission(status === 'granted');
+        console.log('Camera permission status:', status);
+        
+        if (status !== 'granted') {
+          Alert.alert(
+            'Camera Permission Required',
+            'This app needs camera access to provide AR navigation. Please enable camera permissions in your device settings.',
+            [
+              { text: 'Cancel', onPress: () => router.back() },
+              { text: 'OK', onPress: () => router.back() }
+            ]
+          );
+          return;
+        }
+      } catch (error) {
+        console.error('Error requesting camera permissions:', error);
+        setHasCameraPermission(false);
+      }
+    };
+
+    requestCameraPermissions();
+
     // Initial animations
     Animated.parallel([
       Animated.timing(fadeAnimation, {
@@ -84,47 +117,80 @@ export default function ARNavigationScreen() {
     );
     pulseLoop.start();
 
+    // Unity initialization with fallback to Expo camera
+    const initializeARSystem = async () => {
+      // Wait for camera permissions
+      if (hasCameraPermission === null) {
+        return;
+      }
+      
+      if (!hasCameraPermission) {
+        console.log('Camera permission denied, cannot initialize AR');
+        setIsUnityLoaded(false);
+        setUseUnityAR(false);
+        setUnityAvailable(false);
+        return;
+      }
+
+      try {
+        console.log('Camera permissions granted - testing Unity availability...');
+        
+        // Test Unity availability with a timeout
+        const unityTest = new Promise((resolve, reject) => {
+          setTimeout(() => {
+            try {
+              // Try to access Unity functionality
+              // In a real scenario, you'd check if Unity module is available
+              console.log('Testing Unity integration...');
+              
+              // Enable Unity integration to load floorline.unity scene
+              // Set to true to use your actual Unity AR navigation scene
+              const hasUnityLibrary = true; // Enable Unity to load floorline.unity scene
+              
+              if (hasUnityLibrary) {
+                setIsUnityLoaded(true);
+                setUnityAvailable(true);
+                setUseUnityAR(true); // Enable Unity AR for floorline scene
+                console.log('Unity AR available and initialized - floorline scene ready');
+                resolve(true);
+              } else {
+                throw new Error('Unity library not found');
+              }
+            } catch (error) {
+              reject(error);
+            }
+          }, 1000);
+        });
+
+        await unityTest;
+        
+        if (destinationData) {
+          console.log('Destination data available for Unity:', destinationData);
+        }
+        
+      } catch (error) {
+        console.log('Unity not available, using Expo camera fallback:', error);
+        setIsUnityLoaded(false);
+        setUseUnityAR(false);
+        setUnityAvailable(false);
+        
+        // Expo camera will be used as fallback
+        console.log('Expo Camera AR fallback activated');
+      }
+    };
+    
+    // Initialize AR system only after camera permissions are determined
+    if (hasCameraPermission !== null) {
+      initializeARSystem();
+    }
+
     return () => {
       compassLoop.stop();
       pulseLoop.stop();
     };
-  }, []);
+  }, [hasCameraPermission, destinationData]);
 
-  useEffect(() => {
-    // Simulate navigation progress
-    if (isNavigating) {
-      const interval = setInterval(() => {
-        setCurrentStep(prev => {
-          if (prev < totalSteps) {
-            return prev + 1;
-          } else {
-            setIsNavigating(false);
-            Alert.alert(
-              'Destination Reached! 🎉',
-              `You have arrived at ${destinationData?.name || 'your destination'}.`,
-              [{ text: 'OK', onPress: () => router.back() }]
-            );
-            return prev;
-          }
-        });
-        
-        // Update distance and ETA
-        setDistance(prev => {
-          const currentDistance = parseInt(prev);
-          const newDistance = Math.max(0, currentDistance - 8);
-          return `${newDistance}m`;
-        });
-        
-        setEta(prev => {
-          const currentMinutes = parseInt(prev);
-          const newMinutes = Math.max(0, currentMinutes - 0.4);
-          return newMinutes < 1 ? '< 1 min' : `${Math.round(newMinutes)} min`;
-        });
-      }, 3000);
-
-      return () => clearInterval(interval);
-    }
-  }, [isNavigating, destinationData, totalSteps]);
+  // Removed automatic navigation simulation - no fake timers or auto progress
 
   const handleStartNavigation = () => {
     setIsNavigating(true);
@@ -149,6 +215,8 @@ export default function ARNavigationScreen() {
         useNativeDriver: true,
       }).start();
     });
+    
+    console.log('Navigation started - waiting for AR system to handle routing');
   };
 
   const handleStopNavigation = () => {
@@ -220,63 +288,113 @@ export default function ARNavigationScreen() {
         </SafeAreaView>
       </LinearGradient>
       
-      {/* AR Camera Background with Gradient */}
-      <LinearGradient
-        colors={['#000000', '#1A1A2E', '#16213E']}
-        style={styles.arCameraContainer}
-      >
-        <Animated.View style={[styles.arPlaceholder, { opacity: fadeAnimation }]}>
-          <View style={styles.arCenterContent}>
-            <Feather name="camera" size={48} color="#00D4FF" />
-            <Text style={styles.arPlaceholderText}>AR Camera View</Text>
-            <Text style={styles.arSubtext}>Unity AR Component Will Render Here</Text>
-            
-            {/* AR Compass */}
-            <Animated.View 
-              style={[
-                styles.arCompass,
-                { 
-                  transform: [
-                    { rotate: compassRotationInterpolate },
-                    { scale: pulseAnimation }
-                  ]
-                }
-              ]}
-            >
-              <LinearGradient
-                colors={['#00D4FF', '#6FB1FC']}
-                style={styles.compassGradient}
-              >
-                <MaterialIcons name="navigation" size={32} color="#FFFFFF" />
-              </LinearGradient>
-            </Animated.View>
-          </View>
-
-          {/* Direction Indicator Overlay */}
-          {isNavigating && (
-            <BlurView intensity={80} style={styles.directionOverlay}>
-              <View style={styles.directionIndicator}>
-                <View style={styles.stepIndicator}>
-                  <Text style={styles.stepNumber}>{currentStep}</Text>
-                </View>
-                <View style={styles.directionContent}>
-                  <Text style={styles.directionTitle}>Next Step</Text>
-                  <Text style={styles.directionText}>
-                    {navigationSteps[currentStep - 1]}
-                  </Text>
-                </View>
-                <TouchableOpacity style={styles.arrowButton}>
-                  <Feather name="arrow-right" size={24} color="#00D4FF" />
-                </TouchableOpacity>
+      {/* AR Camera View with Unity and Expo Camera Fallback */}
+      <View style={styles.arCameraContainer}>
+        {hasCameraPermission === false ? (
+          <LinearGradient
+            colors={['#000000', '#1A1A2E', '#16213E']}
+            style={styles.arFallbackContainer}
+          >
+            <Animated.View style={[styles.arPlaceholder, { opacity: fadeAnimation }]}>
+              <View style={styles.arCenterContent}>
+                <Feather name="camera-off" size={48} color="#FF6B6B" />
+                <Text style={styles.arPlaceholderText}>Camera Access Required</Text>
+                <Text style={styles.arSubtext}>
+                  Please enable camera permissions to use AR navigation
+                </Text>
               </View>
-            </BlurView>
-          )}
-        </Animated.View>
+            </Animated.View>
+          </LinearGradient>
+        ) : useUnityAR && isUnityLoaded && unityAvailable && hasCameraPermission ? (
+          // Try Unity AR View with error boundary
+          <View style={styles.arCameraContainer}>
+            <UnityARView
+              destination={destinationData}
+              onNavigationStart={() => {
+                console.log('Unity AR navigation started');
+                setIsNavigating(true);
+              }}
+              onNavigationComplete={() => {
+                console.log('Unity AR navigation completed');
+                // No automatic completion - let Unity handle the navigation flow
+              }}
+            />
+            {/* Add overlay message */}
+            <View style={styles.unityOverlay}>
+              <Text style={styles.unityOverlayText}>Loading Unity AR Scene...</Text>
+              <Text style={styles.unityOverlaySubtext}>Floor line rendering initializing</Text>
+            </View>
+          </View>
+        ) : hasCameraPermission ? (
+          <ExpoARCameraView
+            destination={destinationData}
+            onNavigationStart={() => {
+              console.log('Expo AR navigation started');
+              setIsNavigating(true);
+            }}
+            onNavigationComplete={() => {
+              console.log('Expo AR navigation completed');
+              // No automatic completion - just show the AR navigation
+            }}
+          />
+        ) : (
+          <LinearGradient
+            colors={['#000000', '#1A1A2E', '#16213E']}
+            style={styles.arFallbackContainer}
+          >
+            <Animated.View style={[styles.arPlaceholder, { opacity: fadeAnimation }]}>
+              <View style={styles.arCenterContent}>
+                <Feather name="camera" size={48} color="#00D4FF" />
+                <Text style={styles.arPlaceholderText}>
+                  {hasCameraPermission === null ? 'Requesting Camera Access...' : 'Initializing AR Camera...'}
+                </Text>
+                <Text style={styles.arSubtext}>
+                  {hasCameraPermission === null 
+                    ? 'Please grant camera permission' 
+                    : 'Loading AR system...'}
+                </Text>
+                
+                {/* AR Compass */}
+                <Animated.View 
+                  style={[
+                    styles.arCompass,
+                    { 
+                      transform: [
+                        { rotate: compassRotationInterpolate },
+                        { scale: pulseAnimation }
+                      ]
+                    }
+                  ]}
+                >
+                  <LinearGradient
+                    colors={['#00D4FF', '#6FB1FC']}
+                    style={styles.compassGradient}
+                  >
+                    <MaterialIcons name="navigation" size={32} color="#FFFFFF" />
+                  </LinearGradient>
+                </Animated.View>
+              </View>
+            </Animated.View>
+          </LinearGradient>
+        )}
 
-
-
-
-      </LinearGradient>
+        {/* Navigation Active Indicator */}
+        {isNavigating && (
+          <BlurView intensity={80} style={styles.directionOverlay}>
+            <View style={styles.directionIndicator}>
+              <View style={styles.stepIndicator}>
+                <MaterialIcons name="navigation" size={20} color="#FFFFFF" />
+              </View>
+              <View style={styles.directionContent}>
+                <Text style={styles.directionTitle}>AR Navigation Active</Text>
+                <Text style={styles.directionText}>
+                  Navigating to {destinationData?.name || 'destination'}
+                </Text>
+              </View>
+            </View>
+          </BlurView>
+        )}
+      </View>
 
       {/* Navigation Panel - Full or Minimized */}
       <Animated.View 
@@ -313,35 +431,24 @@ export default function ARNavigationScreen() {
                 </View>
               </View>
 
-              {/* Progress Indicator */}
+              {/* Navigation Info */}
               <View style={styles.progressSection}>
                 <View style={styles.progressHeader}>
-                  <Text style={styles.progressTitle}>Navigation Progress</Text>
-                  <Text style={styles.progressSteps}>{currentStep}/{totalSteps}</Text>
-                </View>
-                <View style={styles.progressBarContainer}>
-                  <View style={styles.progressBar}>
-                    <LinearGradient
-                      colors={['#00D4FF', '#6FB1FC']}
-                      style={[
-                        styles.progressFill, 
-                        { width: `${(currentStep / totalSteps) * 100}%` }
-                      ]}
-                    />
-                  </View>
+                  <Text style={styles.progressTitle}>Navigation Ready</Text>
+                  <Text style={styles.progressSteps}>AR Mode</Text>
                 </View>
               </View>
 
-              {/* Current Instruction */}
+              {/* Destination Info */}
               <BlurView intensity={10} style={styles.instructionCard}>
                 <View style={styles.instructionHeader}>
                   <View style={styles.stepCircle}>
-                    <Text style={styles.stepCircleText}>{currentStep}</Text>
+                    <MaterialIcons name="place" size={24} color="#FFFFFF" />
                   </View>
                   <View style={styles.instructionContent}>
-                    <Text style={styles.instructionTitle}>Step {currentStep}</Text>
+                    <Text style={styles.instructionTitle}>Destination</Text>
                     <Text style={styles.instructionText}>
-                      {navigationSteps[currentStep - 1]}
+                      {destinationData?.name || 'Selected location'}
                     </Text>
                   </View>
                   <TouchableOpacity style={styles.instructionNext}>
@@ -369,21 +476,12 @@ export default function ARNavigationScreen() {
           ) : (
             // Minimized Panel - During Navigation
             <View style={styles.minimizedContent}>
-              {/* Minimized Progress Bar */}
+              {/* Navigation Status */}
               <View style={styles.minimizedProgressSection}>
                 <View style={styles.minimizedProgressHeader}>
                   <Text style={styles.minimizedProgressText}>
-                    Step {currentStep} of {totalSteps} • {distance} • {eta}
+                    AR Navigation Active • {destinationData?.name || 'Destination'}
                   </Text>
-                </View>
-                <View style={styles.minimizedProgressBar}>
-                  <LinearGradient
-                    colors={['#00D4FF', '#6FB1FC']}
-                    style={[
-                      styles.minimizedProgressFill, 
-                      { width: `${(currentStep / totalSteps) * 100}%` }
-                    ]}
-                  />
                 </View>
               </View>
 
@@ -452,6 +550,9 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
     marginTop: -10,
+  },
+  arFallbackContainer: {
+    flex: 1,
   },
   arPlaceholder: {
     flex: 1,
@@ -824,5 +925,43 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#F44336',
     marginLeft: 8,
+  },
+  unityToggleButton: {
+    marginTop: 20,
+    backgroundColor: 'rgba(0, 212, 255, 0.2)',
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#00D4FF',
+  },
+  unityToggleText: {
+    color: '#00D4FF',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  unityOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -100 }, { translateY: -50 }],
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: 200,
+  },
+  unityOverlayText: {
+    color: '#00D4FF',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  unityOverlaySubtext: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    textAlign: 'center',
   },
 });
