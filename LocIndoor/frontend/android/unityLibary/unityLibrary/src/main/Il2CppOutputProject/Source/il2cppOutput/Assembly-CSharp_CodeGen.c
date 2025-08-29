@@ -364,6 +364,7 @@ extern void UnityBridge_HandleNavigation_mD72389380169A720EDC65B8A30AF8B768BD9DE
 extern void UnityBridge_SendDestinationsToReactNative_m9592438033AEB0CFCD0C1020C0695ED2C9E4BE83 (void);
 extern void UnityBridge_SendResponseToReactNative_m78CA8495A0A43CA70BF7560EB63516CB04F084BB (void);
 extern void UnityBridge_ManualSendDestinations_m1BE9120EE3F446985B867E394284DD8B1BEEFA89 (void);
+extern void UnityBridge_HandleSceneLoading_m83F031C3A5ACA39494498DA357FA0C470BCF927A (void);
 extern void UnityBridge_TestReactNativeCommunication_m29F3340D7953EC259E21C77F856D88389A542967 (void);
 extern void UnityBridge_TestSendMessageToReactNative_mDEA22C38F30FE357C8342E87D502A1EB7832B677 (void);
 extern void UnityBridge_TestNavigation_m29D7209B7A399BED083A7D34D3F769F17DE1BA48 (void);
@@ -401,7 +402,7 @@ extern void ARFeatheredPlaneMeshVisualizerCompanion_Update_m541F58E1FC27F7D775FE
 extern void ARFeatheredPlaneMeshVisualizerCompanion_set_visualizeSurfaces_m7A7F198C97A315F6F7F58F0BDA5269863F098D68 (void);
 extern void ARFeatheredPlaneMeshVisualizerCompanion__ctor_m3871FAD2A1135D983A9B5ADCD604F22949DE985C (void);
 extern void U3CPrivateImplementationDetailsU3E_ComputeStringHash_m6EA1F233618497AEFF8902A5EDFA24C74E2F2876 (void);
-static Il2CppMethodPointer s_methodPointers[464] = 
+static Il2CppMethodPointer s_methodPointers[465] = 
 {
 	NULL,
 	NULL,
@@ -830,6 +831,7 @@ static Il2CppMethodPointer s_methodPointers[464] =
 	UnityBridge_SendDestinationsToReactNative_m9592438033AEB0CFCD0C1020C0695ED2C9E4BE83,
 	UnityBridge_SendResponseToReactNative_m78CA8495A0A43CA70BF7560EB63516CB04F084BB,
 	UnityBridge_ManualSendDestinations_m1BE9120EE3F446985B867E394284DD8B1BEEFA89,
+	UnityBridge_HandleSceneLoading_m83F031C3A5ACA39494498DA357FA0C470BCF927A,
 	UnityBridge_TestReactNativeCommunication_m29F3340D7953EC259E21C77F856D88389A542967,
 	UnityBridge_TestSendMessageToReactNative_mDEA22C38F30FE357C8342E87D502A1EB7832B677,
 	UnityBridge_TestNavigation_m29D7209B7A399BED083A7D34D3F769F17DE1BA48,
@@ -875,7 +877,7 @@ static Il2CppTokenAdjustorThunkPair s_adjustorThunks[2] =
 	{ 0x06000077, Goal__ctor_m1545B6E40E910D8B0648797BF96520F84FF2FF40_AdjustorThunk },
 	{ 0x06000145, FrameData__ctor_m9D76FAE28FFBC9417D86FC8AFA11DBE110F6662D_AdjustorThunk },
 };
-static const int32_t s_InvokerIndices[464] = 
+static const int32_t s_InvokerIndices[465] = 
 {
 	-1,
 	-1,
@@ -1304,6 +1306,7 @@ static const int32_t s_InvokerIndices[464] =
 	14840,
 	5670,
 	14840,
+	11250,
 	14840,
 	14840,
 	14840,
@@ -1749,7 +1752,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
 const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule = 
 {
 	"Assembly-CSharp.dll",
-	464,
+	465,
 	s_methodPointers,
 	2,
 	s_adjustorThunks,
