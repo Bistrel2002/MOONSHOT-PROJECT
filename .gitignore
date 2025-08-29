@@ -24,6 +24,11 @@ CrashReports/
 .DS_Store
 Thumbs.db
 
+node_modules/
+dist/
+build/
+.env
+
 # Ignore builds
 *.apk
 *.aab

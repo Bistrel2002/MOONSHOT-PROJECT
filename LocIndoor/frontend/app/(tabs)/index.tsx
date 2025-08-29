@@ -17,6 +17,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import Svg, { Line, Path, Circle } from 'react-native-svg';
+import UnityService, { CategoryInfo, DestinationInfo } from '../../services/unityService';
+import UnityTestView from '../../components/UnityTestView';
 
 const { width, height } = Dimensions.get('window');
 
@@ -34,45 +36,89 @@ export default function HomeScreen() {
   // Search input ref
   const searchInputRef = useRef<TextInput>(null);
 
-  // Nearby locations data (moved from nearby page)
-  const nearbyLocations = [
-    { 
-      id: 1, 
-      name: 'Main Reception', 
-      type: 'service', 
-    },
-    { 
-      id: 2, 
-      name: 'Coffee Shop', 
-      type: 'food', 
-    },
-    { 
-      id: 3, 
-      name: 'Meeting Room B', 
-      type: 'meeting', 
-    },
-    { 
-      id: 4, 
-      name: 'Restroom', 
-      type: 'facility', 
-    },
-    { 
-      id: 5, 
-      name: 'Library', 
-      type: 'study', 
-    },
+  // Unity destinations data
+  const [unityDestinations, setUnityDestinations] = useState<CategoryInfo[]>([]);
+  const [isLoadingDestinations, setIsLoadingDestinations] = useState(true);
+  const [destinationsError, setDestinationsError] = useState<string | null>(null);
+  const [unityViewRef, setUnityViewRef] = useState<any>(null);
+
+  // Fallback categories if Unity destinations fail to load
+  const fallbackCategories = [
+    { id: 'all', name: 'All', icon: '📍' },
+    { id: 'Food', name: 'Food', icon: '🍽️' },
+    { id: 'Rooms', name: 'Rooms', icon: '👥' },
+    { id: 'Facilities', name: 'Facilities', icon: '🚻' },
+    { id: 'Services', name: 'Services', icon: '🏢' },
+    { id: 'Studies', name: 'Studies', icon: '📚' },
   ];
 
-  const categories = [
-    { id: 'all', name: 'All', icon: '📍' },
-    { id: 'food', name: 'Food', icon: '🍽️' },
-    { id: 'meeting', name: 'Rooms', icon: '👥' },
-    { id: 'facility', name: 'Facilities', icon: '🚻' },
-    { id: 'service', name: 'Services', icon: '🏢' },
-    { id: 'study', name: 'Study', icon: '📚' },
-  ];
+  // Get categories from Unity or fallback
+  const categories = unityDestinations.length > 0 
+    ? [{ id: 'all', name: 'All', icon: '📍' }, ...unityDestinations.map(cat => ({
+        id: cat.categoryName,
+        name: cat.categoryName,
+        icon: getCategoryIcon(cat.categoryName)
+      }))]
+    : fallbackCategories;
+
+  // Get all destinations from Unity
+  const allDestinations = unityDestinations.flatMap(category => 
+    category.destinations.map(dest => ({
+      id: `${category.categoryName}_${dest.index}`,
+      name: dest.name,
+      type: category.categoryName.toLowerCase(),
+      category: category.categoryName,
+      index: dest.index
+    }))
+  );
+
+  // Helper function to get category icon
+  const getCategoryIcon = (categoryName: string): string => {
+    switch(categoryName.toLowerCase()) {
+      case 'food': return '🍽️';
+      case 'rooms': return '👥';
+      case 'facilities': return '🚻';
+      case 'services': return '🏢';
+      case 'studies': return '📚';
+      default: return '📍';
+    }
+  };
+
+  // Handle Unity responses
+  const handleUnityResponse = (responseJson: string) => {
+    try {
+      UnityService.handleUnityResponse(responseJson);
+    } catch (error) {
+      console.error('Error handling Unity response:', error);
+    }
+  };
 
   useEffect(() => {
+    // Delay Unity initialization to prevent immediate crashes
+    const initUnity = async () => {
+      try {
+        // Wait a moment for the app to stabilize
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Initialize Unity service only if we have a Unity view reference
+        if (unityViewRef) {
+          UnityService.initialize();
+        }
+      } catch (error) {
+        console.error('Failed to initialize Unity:', error);
+        // Continue without Unity - use fallback categories
+      }
+    };
+
+    // Only initialize Unity after a delay
+    initUnity();
+
+    // Set up Unity response handler
+    UnityService.setResponseHandler(handleUnityResponse);
+    
+    // Load destinations from Unity
+    loadDestinationsFromUnity();
+    
     // Initial animations
     Animated.parallel([
       Animated.timing(fadeAnimation, {
@@ -127,8 +173,71 @@ export default function HomeScreen() {
     };
   }, []);
 
+  // Test Unity connection
+  const testUnityConnection = async () => {
+    try {
+      console.log('Testing Unity connection...');
+      
+      if (!UnityService.isReady()) {
+        Alert.alert(
+          'Unity Not Ready',
+          'Unity service is not ready. Make sure Unity is running and the bridge scripts are set up.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+      
+      // Try to get destinations as a connection test
+      const destinations = await UnityService.getDestinations();
+      Alert.alert(
+        'Unity Connected!',
+        `Successfully connected to Unity! Found ${destinations.categories.length} categories.`,
+        [{ text: 'OK' }]
+      );
+      
+      // Update the destinations
+      setUnityDestinations(destinations.categories);
+      setDestinationsError(null);
+    } catch (error) {
+      console.error('Unity connection test failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert(
+        'Unity Connection Failed',
+        `Failed to connect to Unity.\n\nError: ${errorMessage}\n\nPlease check:\n1. Unity is running\n2. UnityBridge script is attached to a GameObject\n3. DestinationManager is assigned in UnityBridge\n4. Check console for more details`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  // Load destinations from Unity
+  const loadDestinationsFromUnity = async () => {
+    try {
+      setIsLoadingDestinations(true);
+      setDestinationsError(null);
+      
+      // Check if Unity is ready
+      if (!UnityService.isReady()) {
+        console.log('Unity not ready yet, using fallback destinations');
+        setUnityDestinations([]);
+        setDestinationsError('Unity not ready - using fallback destinations');
+        return;
+      }
+      
+      const destinations = await UnityService.getDestinations();
+      setUnityDestinations(destinations.categories);
+      console.log('Loaded destinations from Unity:', destinations);
+    } catch (error) {
+      console.error('Failed to load destinations from Unity:', error);
+      setDestinationsError('Failed to load destinations from Unity - check Unity setup');
+      // Use fallback categories
+      setUnityDestinations([]);
+    } finally {
+      setIsLoadingDestinations(false);
+    }
+  };
+
   // Filter locations based on selected category and search query
-  const filteredLocations = nearbyLocations.filter(location => {
+  const filteredLocations = allDestinations.filter(location => {
     const matchesCategory = selectedCategory === 'all' || location.type === selectedCategory;
     const matchesSearch = searchQuery === '' || 
       location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -143,7 +252,7 @@ export default function HomeScreen() {
     return '#F44336';
   };
 
-  const LocationCard = ({ location }: { location: any }) => (
+  const LocationCard = ({ location }: { location: typeof allDestinations[0] }) => (
     <BlurView intensity={15} style={styles.locationCard}>
       <LinearGradient
         colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.05)']}
@@ -159,10 +268,7 @@ export default function HomeScreen() {
         </View>
         <TouchableOpacity 
           style={styles.navigateButton}
-          onPress={() => router.push({
-            pathname: '/ar-navigation',
-            params: { destination: JSON.stringify(location) }
-          })}
+          onPress={() => handleUnityNavigation(location)}
         >
           <LinearGradient
             colors={['#00D4FF', '#6FB1FC']}
@@ -198,6 +304,41 @@ export default function HomeScreen() {
     }
   };
 
+  const handleUnityNavigation = async (location: typeof allDestinations[0]) => {
+    try {
+      console.log('Starting Unity navigation to:', location);
+      
+      // Send navigation request to Unity
+      await UnityService.navigateToDestination(location.category, location.index);
+      
+      // Show success message
+      Alert.alert(
+        'Navigation Started',
+        `Starting AR navigation to ${location.name}`,
+        [
+          {
+            text: 'Continue in AR',
+            onPress: () => router.push({
+              pathname: '/ar-navigation',
+              params: { destination: JSON.stringify(location) }
+            })
+          },
+          {
+            text: 'Stay Here',
+            style: 'cancel'
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Unity navigation failed:', error);
+      Alert.alert(
+        'Navigation Failed',
+        'Failed to start navigation in Unity. Please try again.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   const handleARNavigation = () => {
     router.push({
       pathname: '/ar-navigation',
@@ -222,6 +363,31 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
+      
+      {/* Hidden Unity connection component - only render after delay */}
+      {unityViewRef && (
+        <UnityTestView
+          onUnityReady={() => {
+            console.log('Unity connection established');
+            // Try to load destinations when Unity is ready
+            loadDestinationsFromUnity();
+          }}
+          onUnityError={(error) => {
+            console.error('Unity connection error:', error);
+            setDestinationsError(`Unity error: ${error}`);
+            // Continue with fallback destinations
+            setUnityDestinations([]);
+          }}
+        />
+      )}
+
+      {/* Loading indicator for Unity initialization */}
+      {!unityViewRef && (
+        <View style={styles.loadingOverlay}>
+          <Text style={styles.loadingText}>Initializing AR System...</Text>
+          <Text style={styles.loadingSubtext}>Please wait while we set up augmented reality navigation</Text>
+        </View>
+      )}
       
       {/* AR Navigation themed background */}
       <LinearGradient
@@ -407,14 +573,65 @@ export default function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
                 Nearby Locations ({filteredLocations.length})
-              </Text>  
+              </Text>
+              <View style={styles.headerButtons}>
+                <TouchableOpacity 
+                  style={styles.testUnityButton}
+                  onPress={() => testUnityConnection()}
+                >
+                  <MaterialIcons 
+                    name="wifi" 
+                    size={18} 
+                    color="#00D4FF" 
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.refreshButton}
+                  onPress={loadDestinationsFromUnity}
+                  disabled={isLoadingDestinations}
+                >
+                  <MaterialIcons 
+                    name="refresh" 
+                    size={20} 
+                    color={isLoadingDestinations ? "#666" : "#00D4FF"} 
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
             <ScrollView 
               style={styles.locationsList} 
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.locationsListContent}
             >
-              {filteredLocations.length > 0 ? (
+              {isLoadingDestinations ? (
+                <BlurView intensity={15} style={styles.loadingContainer}>
+                  <LinearGradient
+                    colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.05)']}
+                    style={styles.loadingContent}
+                  >
+                    <Text style={styles.loadingIcon}>⏳</Text>
+                    <Text style={styles.loadingTitle}>Loading destinations...</Text>
+                    <Text style={styles.loadingMessage}>Fetching locations from Unity</Text>
+                  </LinearGradient>
+                </BlurView>
+              ) : destinationsError ? (
+                <BlurView intensity={15} style={styles.errorContainer}>
+                  <LinearGradient
+                    colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.05)']}
+                    style={styles.errorContent}
+                  >
+                    <Text style={styles.errorIcon}>⚠️</Text>
+                    <Text style={styles.errorTitle}>Failed to load destinations</Text>
+                    <Text style={styles.errorMessage}>{destinationsError}</Text>
+                    <TouchableOpacity 
+                      style={styles.retryButton}
+                      onPress={loadDestinationsFromUnity}
+                    >
+                      <Text style={styles.retryText}>Retry</Text>
+                    </TouchableOpacity>
+                  </LinearGradient>
+                </BlurView>
+              ) : filteredLocations.length > 0 ? (
                 filteredLocations.map((location) => (
                   <LocationCard key={location.id} location={location} />
                 ))
@@ -798,5 +1015,115 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  refreshButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  loadingContainer: {
+    marginTop: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  loadingContent: {
+    padding: 30,
+    alignItems: 'center',
+  },
+  loadingIcon: {
+    fontSize: 32,
+    marginBottom: 15,
+  },
+  loadingTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  loadingMessage: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  errorContainer: {
+    marginTop: 20,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  errorContent: {
+    padding: 30,
+    alignItems: 'center',
+  },
+  errorIcon: {
+    fontSize: 32,
+    marginBottom: 15,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 15,
+  },
+  retryButton: {
+    backgroundColor: '#00D4FF',
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+  },
+  retryText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  testUnityButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 10,
+    padding: 15,
+    zIndex: 10,
+  },
+  loadingText: {
+    color: '#00D4FF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  loadingSubtext: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    textAlign: 'center',
+    opacity: 0.8,
   },
 });

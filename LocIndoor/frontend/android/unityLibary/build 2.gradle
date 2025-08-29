@@ -1,0 +1,10 @@
+plugins {
+    // Using the same Android Gradle Plugin version as the main project
+    // The version is inherited from the main project's build.gradle
+    id 'com.android.application' apply false
+    id 'com.android.library' apply false
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
+}
