@@ -36,12 +36,13 @@ rootProject.name = 'LocIndoor'
 expoAutolinking.useExpoVersionCatalog()
 
 include ':app'
-// Unity library integration - ENABLED
-include ':unity_libary:unityLibrary'
-include 'unity_libary:unityLibrary:xrmanifest.androidlib'
 
-// Create alias for React Native Unity package - ENABLED
+// Unity library configuration
 include ':unityLibrary'
-project(':unityLibrary').projectDir = file('unity_libary/unityLibrary')
+project(':unityLibrary').projectDir = new File(rootProject.projectDir, 'unityLibary/unityLibrary')
+
+// XR manifest library
+include ':unityLibrary:xrmanifest.androidlib'
+project(':unityLibrary:xrmanifest.androidlib').projectDir = new File(rootProject.projectDir, 'unityLibary/unityLibrary/xrmanifest.androidlib')
 
 includeBuild(expoAutolinking.reactNativeGradlePlugin)
