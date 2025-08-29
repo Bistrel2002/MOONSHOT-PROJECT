@@ -1,240 +1,190 @@
-# LOC-INDOOR: Indoor Navigation System
+# LocIndoor - Unity + React Native AR Navigation
 
-A comprehensive indoor navigation system that combines beacon technology with AR navigation, featuring a React Native mobile app and Node.js backend with PostgreSQL database.
+A hybrid AR navigation app that combines Unity's powerful AR capabilities with React Native's cross-platform UI.
 
 ## 🏗️ Architecture
 
-```
-LOC-INDOOR/
-├── backend/                 # Node.js API Server
-│   ├── src/
-│   │   ├── db/             # Database schema and connection
-│   │   ├── routes/         # API endpoints
-│   │   └── config/         # Environment configuration
-├── frontend/               # React Native Mobile App
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── screens/        # App screens
-│   │   ├── stores/         # State management (Zustand)
-│   │   └── services/       # API services
-└── LOC-INDOOR/            # Unity AR Application
-    └── Script/            # Unity scripts for beacon integration
-```
+- **Frontend**: React Native with Expo
+- **AR Engine**: Unity with AR Foundation
+- **Communication**: Custom bridge using react-native-unity
+- **Navigation**: AI Navigation system with pathfinding
 
-## 🚀 Features
-
-### Backend API
-- **User Management**: Registration, authentication, and profile management
-- **Location Tracking**: Real-time user location updates via beacons
-- **Navigation Sessions**: Track navigation history and active sessions
-- **Beacon Management**: Monitor beacon status and signal strength
-- **Analytics**: User movement patterns and location occupancy
-
-### React Native App
-- **Google Maps-like Interface**: Clean, intuitive navigation UI
-- **Real-time Location**: Live location updates with beacon integration
-- **Navigation History**: Timeline view of past navigation sessions
-- **Floor Management**: Multi-floor building support
-- **Search & Filter**: Find locations quickly
-- **User Profiles**: Account management and settings
-
-### Unity AR Integration
-- **Beacon Simulation**: Test beacon signals in Unity editor
-- **AR Navigation**: Augmented reality wayfinding
-- **Room-to-Room Tracking**: Monitor user movement between rooms
-
-## 🛠️ Setup Instructions
+## 🚀 Setup Instructions
 
 ### Prerequisites
-- Node.js 18+ 
-- React Native CLI
-- PostgreSQL database (Neon recommended)
-- Unity 2022.3+ (for AR features)
 
-### Backend Setup
-
-1. **Install Dependencies**
-```bash
-cd LocIndoor/backend
-npm install
-```
-
-2. **Environment Configuration**
-Create a `.env` file in `backend/`:
-```env
-PORT=3001
-DATABASE_URL=your_neon_database_url
-NODE_ENV=development
-```
-
-3. **Database Setup**
-```bash
-# The database schema will be automatically created when the server starts
-npm run dev
-```
-
-### Frontend Setup
-
-1. **Install Dependencies**
-```bash
-cd LocIndoor/frontend
-npm install
-```
-
-2. **iOS Setup** (if developing for iOS)
-```bash
-cd ios && pod install && cd ..
-```
-
-3. **Start the App**
-```bash
-# Start Metro bundler
-npm start
-
-# Run on Android
-npm run android
-
-# Run on iOS
-npm run ios
-```
+1. **Unity 2022.3 LTS or later**
+2. **React Native development environment**
+3. **Android Studio** (for Android builds)
+4. **Xcode** (for iOS builds)
 
 ### Unity Setup
 
-1. **Open Unity Project**
-   - Open `LOC-INDOOR/LOC-INDOOR.unity` in Unity 2022.3+
+1. **Open the Unity project** in `LocIndoor/LOC-INDOOR/`
+2. **Import required packages**:
+   - AR Foundation
+   - XR Interaction Toolkit
+   - AI Navigation
+3. **Set up the scene**:
+   - Ensure `UnityBridge` GameObject exists in your scene
+   - Assign `DestinationManager` to the UnityBridge component
+   - Set up your AR scene with destinations
 
-2. **Configure Beacons**
-   - Add beacon UUIDs in the BeaconManager script
-   - Set up room coordinates in the LocationManager
+### React Native Setup
 
-3. **Test Beacon Simulation**
-   - Use the simulation interface to test room-to-room movement
+1. **Install dependencies**:
+   ```bash
+   cd LocIndoor/frontend
+   npm install
+   ```
 
-## 📱 App Features
+2. **Start the development server**:
+   ```bash
+   npm start
+   ```
 
-### Main Screens
+3. **Run on device/simulator**:
+   ```bash
+   npm run android  # or npm run ios
+   ```
 
-1. **Map Screen** - Main navigation interface
-   - Current location display
-   - Floor selector
-   - Location search
-   - Navigation panel
+## 🔗 Unity-React Native Communication
 
-2. **Navigation Screen** - Active navigation
-   - Route visualization
-   - Progress tracking
-   - Turn-by-turn directions
+### Message Flow
 
-3. **History Screen** - Navigation timeline
-   - Past navigation sessions
-   - Location history
-   - Analytics data
+```
+React Native → UnityBridge → DestinationManager → ArrowPathRenderer
+     ↑              ↓
+UnityService ← UnityToReactNativeService ← UnityBridge
+```
 
-4. **Profile Screen** - User settings
-   - Account management
-   - Privacy settings
-   - Data export
+### Message Format
+
+**Navigation Request**:
+```json
+{
+  "action": "navigate",
+  "category": "Facilities",
+  "index": 1
+}
+```
+
+**Get Destinations Request**:
+```json
+{
+  "action": "getdestinations"
+}
+```
+
+**Unity Response**:
+```json
+{
+  "type": "destinations_list",
+  "data": "{\"categories\":[...]}"
+}
+```
 
 ### Key Components
 
-- **LocationCard**: Displays location information with navigation options
-- **FloorSelector**: Switch between building floors
-- **NavigationPanel**: Active navigation session display
-- **BeaconManager**: Handles beacon signal processing
+#### Unity Side
+- **UnityBridge.cs**: Main bridge script that receives React Native messages
+- **DestinationManager.cs**: Manages navigation destinations and categories
+- **UnityToReactNativeService.cs**: Sends messages back to React Native
 
-## 🗄️ Database Schema
+#### React Native Side
+- **UnityService.ts**: Service for communicating with Unity
+- **UnityTestView.tsx**: Hidden component that establishes Unity connection
+- **UnityARView.tsx**: Full-screen Unity view for AR navigation
 
-### Core Tables
-- **users**: User accounts and profiles
-- **beacons**: Beacon devices and their locations
-- **locations**: Rooms, corridors, and areas
-- **user_locations**: Real-time user location tracking
-- **navigation_sessions**: Navigation history and active sessions
-- **beacon_readings**: Beacon signal analytics
+## 🧪 Testing
 
-### Key Relationships
-- Users have multiple location records
-- Locations contain multiple beacons
-- Navigation sessions track start/end locations
-- Beacon readings provide signal strength data
+### Unity Testing
 
-## 🔌 API Endpoints
+1. **In Unity Editor**:
+   - Right-click on UnityBridge GameObject
+   - Use context menu items to test communication
+   - Check Console for debug messages
 
-### Users
-- `GET /api/users` - Get all users
-- `POST /api/users` - Create new user
-- `GET /api/users/:id` - Get user by ID
-- `GET /api/users/:id/locations` - Get user location history
-- `POST /api/users/:id/location` - Update user location
+2. **Test Navigation**:
+   - Use "Test Navigation to Facilities[0]" context menu
+   - Verify path is drawn in scene
 
-### Locations
-- `GET /api/locations` - Get all locations
-- `POST /api/locations` - Create new location
-- `GET /api/locations/:id` - Get location details
-- `GET /api/locations/:id/occupancy` - Get current occupants
-- `GET /api/locations/:id/beacons` - Get beacons in location
-- `GET /api/locations/:startId/to/:endId` - Get navigation path
+### React Native Testing
 
-## 🎯 Usage Examples
+1. **Test Unity Connection**:
+   - Press the WiFi icon button in the main screen
+   - Check console for connection status
 
-### Starting Navigation
-1. Open the app and navigate to the Map screen
-2. Search for your destination or browse locations
-3. Tap "Navigate" on the desired location
-4. Follow the on-screen directions
+2. **Test Navigation**:
+   - Press "Navigate" button on any location card
+   - Verify Unity receives the message
 
-### Viewing History
-1. Go to the History tab
-2. View your navigation timeline
-3. See detailed session information
-4. Export data if needed
+## 🐛 Troubleshooting
 
-### Beacon Integration
-1. Ensure beacons are properly configured in Unity
-2. The app will automatically detect nearby beacons
-3. Location updates happen in real-time
-4. Signal strength is displayed for accuracy
+### Common Issues
 
-## 🔧 Development
+1. **Unity not responding**:
+   - Check UnityBridge GameObject exists in scene
+   - Verify DestinationManager is assigned
+   - Check Unity Console for errors
 
-### Adding New Features
-1. **Backend**: Add routes in `src/routes/`
-2. **Frontend**: Create components in `src/components/`
-3. **Database**: Update schema in `src/db/schema.js`
+2. **React Native can't connect**:
+   - Ensure Unity is running
+   - Check UnityTestView component is mounted
+   - Verify react-native-unity package is installed
 
-### Testing
-```bash
-# Backend tests
-cd backend && npm test
+3. **Messages not received**:
+   - Check GameObject names match (UnityBridge)
+   - Verify method names match (ReceiveMessageFromReactNative)
+   - Check JSON message format
 
-# Frontend tests
-cd frontend && npm test
-```
+### Debug Steps
 
-### Deployment
-1. **Backend**: Deploy to Vercel/Railway with Neon database
-2. **Frontend**: Build APK/IPA for mobile deployment
-3. **Unity**: Build for target platforms
+1. **Unity Console**: Look for UnityBridge debug messages
+2. **React Native Console**: Check UnityService logs
+3. **Network**: Verify Unity and React Native are on same device/network
+
+## 📱 Features
+
+- **Category-based navigation**: Organize destinations by type
+- **Real-time AR pathfinding**: Dynamic navigation paths
+- **Cross-platform**: Works on Android and iOS
+- **Responsive UI**: Modern React Native interface
+- **Unity AR**: High-performance AR rendering
+
+## 🔧 Customization
+
+### Adding New Destinations
+
+1. **In Unity**:
+   - Add new Transform objects to DestinationManager categories
+   - Position them in your AR scene
+
+2. **In React Native**:
+   - Destinations automatically load from Unity
+   - No code changes needed
+
+### Modifying Categories
+
+1. **Edit DestinationManager.cs** in Unity
+2. **Update category names** and destinations
+3. **Rebuild Unity project**
+
+## 📄 License
+
+This project is part of the LocIndoor AR navigation system.
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
-## 📄 License
+## 📞 Support
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation in `/Document/`
-- Review the technical specifications
-
----
-
-**Built with ❤️ for indoor navigation** 
+For issues and questions:
+1. Check the troubleshooting section
+2. Review Unity and React Native console logs
+3. Create an issue with detailed error information 

@@ -21,6 +21,10 @@ public class ArrowPathRenderer : MonoBehaviour
     public bool alignToGround = true;
     public LayerMask groundMask;                   
     public float groundRaycastHeight = 0.5f;
+    
+    [Header("AR Stability")]
+    [Tooltip("Prevents path from being recalculated automatically on transform changes")]
+    public bool lockPathAfterRender = true;
 
     [Header("Base Line (red)")]
     public Material baseLineMaterial;             
@@ -30,10 +34,21 @@ public class ArrowPathRenderer : MonoBehaviour
     private LineRenderer lr;
     private readonly List<GameObject> spawnedArrows = new();
     private readonly List<Vector3> bakedPoints = new();
+    private bool pathLocked = false;
 
     void Awake()
     {
+        Debug.Log("ArrowPathRenderer: Awake called - looking for LineRenderer...");
+        
         lr = GetComponent<LineRenderer>();
+        if (lr == null)
+        {
+            Debug.LogError("ArrowPathRenderer: LineRenderer not found in Awake!");
+            return;
+        }
+        
+        Debug.Log("ArrowPathRenderer: LineRenderer found successfully!");
+        
         lr.useWorldSpace = true;
         lr.shadowCastingMode = ShadowCastingMode.Off;
         lr.receiveShadows = false;
@@ -43,6 +58,8 @@ public class ArrowPathRenderer : MonoBehaviour
             lr.material = baseLineMaterial;
 
         lr.widthMultiplier = baseLineWidth;
+        
+        Debug.Log("ArrowPathRenderer: LineRenderer configured successfully!");
     }
 
     void Start()
@@ -65,25 +82,91 @@ public class ArrowPathRenderer : MonoBehaviour
     // Public API: call this if you change waypoints at runtime
     public void RenderPathFromWaypoints()
     {
-        if (waypoints == null || waypoints.Length < 2 || arrowPrefab == null) return;
-
-        // Build a dense list of points along segments
-        BakePoints();
-
-        // 1) Base line
-        if (drawBaseLine)
+        Debug.Log($"ArrowPathRenderer: RenderPathFromWaypoints called. lr is null: {lr == null}");
+        
+        // Check if LineRenderer is available
+        if (lr == null)
         {
-            lr.positionCount = bakedPoints.Count;
-            lr.SetPositions(bakedPoints.ToArray());
+            Debug.LogError("ArrowPathRenderer: LineRenderer is null! Cannot render path.");
+            Debug.LogError("ArrowPathRenderer: This GameObject has LineRenderer: " + (GetComponent<LineRenderer>() != null));
+            Debug.LogError("ArrowPathRenderer: GameObject name: " + gameObject.name);
+            return;
         }
-        else
+        
+        if (waypoints == null || waypoints.Length < 2)
+        {
+            Debug.LogWarning("ArrowPathRenderer: No waypoints available for path rendering.");
+            return;
+        }
+        
+        if (arrowPrefab == null)
+        {
+            Debug.LogWarning("ArrowPathRenderer: No arrow prefab assigned. Path will render without arrows.");
+        }
+        
+        // If path is locked for AR stability, don't recalculate
+        if (lockPathAfterRender && pathLocked)
+        {
+            Debug.Log("ArrowPathRenderer: Path is locked for AR stability - skipping recalculation");
+            return;
+        }
+
+        try
+        {
+            // Build a dense list of points along segments
+            BakePoints();
+
+            // 1) Base line
+            if (drawBaseLine && lr != null)
+            {
+                lr.positionCount = bakedPoints.Count;
+                lr.SetPositions(bakedPoints.ToArray());
+            }
+            else if (lr != null)
+            {
+                lr.positionCount = 0;
+            }
+
+            // 2) Arrows
+            ClearArrows();
+            PlaceArrows();
+            
+            // Lock the path after first render for AR stability
+            if (lockPathAfterRender)
+            {
+                pathLocked = true;
+                Debug.Log("ArrowPathRenderer: Path locked for AR stability");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"ArrowPathRenderer: Error rendering path: {e.Message}");
+            Debug.LogError($"ArrowPathRenderer: Stack trace: {e.StackTrace}");
+        }
+    }
+    
+    /// <summary>
+    /// Force unlock and re-render the path (call when setting new destination)
+    /// </summary>
+    public void ForceRenderPath()
+    {
+        pathLocked = false;
+        RenderPathFromWaypoints();
+    }
+    
+    /// <summary>
+    /// Clear the current path and unlock for new rendering
+    /// </summary>
+    public void ClearPath()
+    {
+        pathLocked = false;
+        ClearArrows();
+        if (lr != null)
         {
             lr.positionCount = 0;
         }
-
-        // 2) Arrows
-        ClearArrows();
-        PlaceArrows();
+        bakedPoints.Clear();
+        Debug.Log("ArrowPathRenderer: Path cleared and unlocked");
     }
 
     private void BakePoints()

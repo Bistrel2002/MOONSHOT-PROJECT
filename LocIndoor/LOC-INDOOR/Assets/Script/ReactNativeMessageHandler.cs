@@ -160,7 +160,7 @@ public class ReactNativeMessageHandler : MonoBehaviour
     }
     
     // Send messages back to React Native
-    private void SendMessageToReactNative(string messageType, string data)
+    public void SendMessageToReactNative(string messageType, string data)
     {
         var message = new UnityMessage { type = messageType, data = data };
         string jsonMessage = JsonUtility.ToJson(message);

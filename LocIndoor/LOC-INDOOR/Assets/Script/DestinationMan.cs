@@ -12,6 +12,12 @@ public class DestinationManager : MonoBehaviour
 
     public List<Category> categories = new List<Category>();
     public ArrowPathRenderer pathRenderer;
+    
+    [Header("AR Navigation Settings")]
+    [Tooltip("Fixed starting point for navigation (leave null to use camera position once)")]
+    public Transform fixedStartPoint;
+    
+    private Transform cachedStartPoint;
 
     void Start()
     {
@@ -82,19 +88,107 @@ public class DestinationManager : MonoBehaviour
         var cat = categories.Find(c => c.categoryName == category);
         if (cat != null && index >= 0 && index < cat.destinations.Count)
         {
-            Transform player = Camera.main.transform; // AR start point
+            // Use fixed start point or cache camera position at first call
+            Transform startPoint = GetStableStartPoint();
 
             pathRenderer.waypoints = new Transform[]
             {
-                player,
+                startPoint,
                 cat.destinations[index]
             };
 
-            pathRenderer.RenderPathFromWaypoints();
+            // Use ForceRenderPath to ensure path is rendered even if locked
+            pathRenderer.ForceRenderPath();
+            Debug.Log($"Navigation path set from {startPoint.position} to {cat.destinations[index].position}");
         }
         else
         {
             Debug.LogWarning($"No destination found for {category} at index {index}");
         }
+    }
+    
+    /// <summary>
+    /// Gets a stable starting point that won't change when the camera rotates
+    /// </summary>
+    private Transform GetStableStartPoint()
+    {
+        // Option 1: Use a fixed start point if assigned in Inspector
+        if (fixedStartPoint != null)
+        {
+            return fixedStartPoint;
+        }
+        
+        // Option 2: Cache the camera position on first call
+        if (cachedStartPoint == null)
+        {
+            // Create a fixed point based on current camera position
+            GameObject startObj = new GameObject("AR_StartPoint");
+            startObj.transform.position = Camera.main.transform.position;
+            startObj.transform.rotation = Quaternion.identity; // Keep neutral rotation
+            cachedStartPoint = startObj.transform;
+            
+            Debug.Log($"Created fixed start point at: {cachedStartPoint.position}");
+        }
+        
+        return cachedStartPoint;
+    }
+    
+    /// <summary>
+    /// Call this to reset the start point (useful when user moves significantly)
+    /// </summary>
+    public void ResetStartPoint()
+    {
+        if (cachedStartPoint != null)
+        {
+            DestroyImmediate(cachedStartPoint.gameObject);
+            cachedStartPoint = null;
+            Debug.Log("Start point reset - will be recalculated on next navigation");
+        }
+    }
+    
+    /// <summary>
+    /// Get a list of all categories and their destinations for external use
+    /// </summary>
+    public List<Category> GetAllCategories()
+    {
+        return categories;
+    }
+    
+    /// <summary>
+    /// Get a specific category by name
+    /// </summary>
+    public Category GetCategory(string categoryName)
+    {
+        return categories.Find(c => c.categoryName == categoryName);
+    }
+    
+    /// <summary>
+    /// Get a destination by category name and index
+    /// </summary>
+    public Transform GetDestination(string categoryName, int index)
+    {
+        var category = GetCategory(categoryName);
+        if (category != null && index >= 0 && index < category.destinations.Count)
+        {
+            return category.destinations[index];
+        }
+        return null;
+    }
+    
+    /// <summary>
+    /// Check if a category exists
+    /// </summary>
+    public bool HasCategory(string categoryName)
+    {
+        return categories.Exists(c => c.categoryName == categoryName);
+    }
+    
+    /// <summary>
+    /// Get the count of destinations in a category
+    /// </summary>
+    public int GetDestinationCount(string categoryName)
+    {
+        var category = GetCategory(categoryName);
+        return category?.destinations.Count ?? 0;
     }
 }
