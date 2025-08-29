@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 40,
   },
   headerBackButton: {
@@ -89,15 +89,17 @@ const styles = StyleSheet.create({
   headerContent: {
     flex: 1,
     alignItems: 'center',
-  },
+  }, 
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
+    paddingRight: 40,
     color: '#FFFFFF',
   },
   headerSubtitle: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
+    paddingRight: 40,
     marginTop: 4,
   },
   arCameraContainer: {
