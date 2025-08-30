@@ -81,6 +81,9 @@ export default function UnityTestView({ onUnityReady, onUnityError }: UnityTestV
       UnityService.setUnityViewRef(unityRef.current);
       console.log('UnityTestView: UnityView reference set after Unity loaded');
       console.log('UnityTestView: UnityService isReady:', UnityService.isReady());
+
+      // Initialize Unity service
+      UnityService.initialize();
       onUnityReady?.();
     } else {
       console.error('UnityTestView: UnityRef is null after Unity loaded');

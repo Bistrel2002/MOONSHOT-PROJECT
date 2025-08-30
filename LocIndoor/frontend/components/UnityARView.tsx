@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, PermissionsAndroid, Platform, TouchableOpacity, Linking, Alert, Dimensions } from 'react-native';
 import * as IntentLauncher from 'expo-intent-launcher';
 import UnityView from '@azesmway/react-native-unity';
-import unityService from '../services/unityService';
+import UnityService from '../services/unityService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -15,6 +15,8 @@ interface Destination {
   };
   floor?: string;
   building?: string;
+  category?: string;
+  index?: number;
 }
 
 interface UnityARViewProps {
@@ -33,6 +35,8 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
   const [showUnity, setShowUnity] = useState(true); // Show Unity immediately
   const [useFallback, setUseFallback] = useState(false);
   const [isLoadingScene, setIsLoadingScene] = useState(false);
+  const [unityDestinations, setUnityDestinations] = useState<any[]>([]);
+  const [hasLoadedDestinations, setHasLoadedDestinations] = useState(false);
   const unityViewRef = useRef<any>(null);
   const crashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -101,11 +105,40 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
     // Set Unity view reference in service
     if (unityViewRef.current) {
       console.log('Setting UnityView ref in service...');
-      unityService.setUnityViewRef(unityViewRef.current);
-      unityService.initialize();
-      console.log('Unity service initialized, isReady:', unityService.isReady());
+      UnityService.setUnityViewRef(unityViewRef.current);
+      UnityService.initialize();
+      console.log('Unity service initialized, isReady:', UnityService.isReady());
+
+      // Load destinations from Unity
+      loadDestinationsFromUnity();
+
+      // If we have a destination passed from main screen, start navigation
+      if (destination && destination.category && destination.index !== undefined) {
+        console.log('Destination passed from main screen, starting navigation...');
+        setTimeout(() => {
+          handleStartNavigation();
+        }, 1000); // Wait a moment for destinations to load
+      }
     } else {
       console.error('UnityView ref is null when Unity loaded');
+    }
+  };
+
+  // Load destinations from Unity
+  const loadDestinationsFromUnity = async () => {
+    try {
+      console.log('Loading destinations from Unity...');
+      const destinations = await UnityService.getDestinations();
+      console.log('Destinations loaded from Unity:', destinations);
+
+      if (destinations.categories && destinations.categories.length > 0) {
+        setUnityDestinations(destinations.categories);
+        setHasLoadedDestinations(true);
+        setUnityStatus('Destinations loaded from Unity');
+      }
+    } catch (error) {
+      console.error('Failed to load destinations from Unity:', error);
+      setUnityStatus('Using fallback destinations');
     }
   };
 
@@ -129,8 +162,21 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
         parsedMessage = { type: 'unity_message', data: message };
       }
 
+      // Handle destinations list response
+      if (parsedMessage.type === 'destinations_list') {
+        try {
+          const destinationsData = JSON.parse(parsedMessage.data);
+          console.log('Parsed destinations from Unity:', destinationsData);
+          setUnityDestinations(destinationsData.categories || []);
+          setHasLoadedDestinations(true);
+          setUnityStatus('Destinations loaded from Unity');
+        } catch (parseError) {
+          console.error('Error parsing destinations data:', parseError);
+        }
+      }
+
       // Pass message to Unity service for handling
-      unityService.handleUnityResponse(message);
+      UnityService.handleUnityResponse(message);
 
       // Handle UI-specific responses
       switch (parsedMessage.type) {
@@ -172,7 +218,7 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
     } catch (e) {
       console.error('Error parsing Unity message:', e);
       // Still pass raw message to Unity service
-      unityService.handleUnityResponse(message);
+      UnityService.handleUnityResponse(message);
     }
 
     // Set up crash detection - if no message for 10 seconds, assume crash
@@ -230,7 +276,7 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
       setIsLoadingScene(true);
       console.log('📊 Current state:', {
         unityLoaded,
-        unityServiceReady: unityService.isReady(),
+        unityServiceReady: UnityService.isReady(),
         unityCrashed,
         unityViewRef: !!unityViewRef.current
       });
@@ -259,14 +305,14 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
         }
       }
 
-      if (!unityService.isReady()) {
+      if (!UnityService.isReady()) {
         console.log('⚙️ Unity service not ready, checking UnityView ref...');
         if (unityViewRef.current) {
           console.log('🔗 Setting UnityView ref manually...');
-          unityService.setUnityViewRef(unityViewRef.current);
+          UnityService.setUnityViewRef(unityViewRef.current);
           // Wait a moment for the service to initialize
           await new Promise(resolve => setTimeout(resolve, 500));
-          console.log('✅ Unity service ready after manual setup:', unityService.isReady());
+          console.log('✅ Unity service ready after manual setup:', UnityService.isReady());
         } else {
           throw new Error('UnityView reference not available');
         }
@@ -275,18 +321,19 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
       // Unity view is already shown, no need to set it again
 
       // Use Unity service to load the floorline scene
-      console.log('🚀 Calling unityService.loadScene("floorline")...');
-      await unityService.loadScene('floorline');
+      console.log('🚀 Calling UnityService.loadScene("floorline")...');
+      await UnityService.loadScene('floorline');
 
       console.log('🎉 Floorline scene loaded successfully');
       setIsLoadingScene(false);
     } catch (error) {
       console.error('❌ Error loading floorline scene:', error);
-      console.error('📋 Error details:', {
+      const errorDetails = error instanceof Error ? {
         message: error.message,
         stack: error.stack,
         name: error.name
-      });
+      } : { message: 'Unknown error' };
+      console.error('📋 Error details:', errorDetails);
       setUnityCrashed(true);
       setShowUnity(false);
       setIsLoadingScene(false);
@@ -303,19 +350,19 @@ export default function UnityARView({ destination, onNavigationStart, onNavigati
 
     try {
       // Check if Unity is ready
-      if (!unityService.isReady()) {
+      if (!UnityService.isReady()) {
         console.log('Unity service not ready, initializing...');
         if (unityViewRef.current) {
-          unityService.setUnityViewRef(unityViewRef.current);
+          UnityService.setUnityViewRef(unityViewRef.current);
           await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
 
-      // Send navigation start command to Unity
+      // Send navigation start command to Unity using destination data
       const navigationMessage = {
         action: 'navigate',
-        category: 'default', // You might want to determine this based on your destination
-        index: 0 // You might want to determine this based on your destination
+        category: destination.category || 'default',
+        index: destination.index || 0
       };
 
       console.log('📤 Sending navigation message to Unity:', navigationMessage);
@@ -466,5 +513,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    padding: 20,
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });

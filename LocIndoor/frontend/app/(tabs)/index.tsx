@@ -17,8 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import Svg, { Line, Path, Circle } from 'react-native-svg';
-import UnityService, { CategoryInfo, DestinationInfo } from '../../services/unityService';
-import UnityTestView from '../../components/UnityTestView';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,11 +35,7 @@ export default function HomeScreen() {
   // Search input ref
   const searchInputRef = useRef<TextInput>(null);
 
-  // Unity destinations data
-  const [unityDestinations, setUnityDestinations] = useState<CategoryInfo[]>([]);
-  const [isLoadingDestinations, setIsLoadingDestinations] = useState(true);
-  const [destinationsError, setDestinationsError] = useState<string | null>(null);
-  const [unityViewRef, setUnityViewRef] = useState<any>(null);
+  // Unity communication moved to AR view only
 
   // Fallback categories if Unity destinations fail to load
   const fallbackCategories = [
@@ -52,25 +47,22 @@ export default function HomeScreen() {
     { id: 'Studies', name: 'Studies', icon: '📚' },
   ];
 
-  // Get categories from Unity or fallback
-  const categories = unityDestinations.length > 0 
-    ? [{ id: 'all', name: 'All', icon: '📍' }, ...unityDestinations.map(cat => ({
-        id: cat.categoryName,
-        name: cat.categoryName,
-        icon: getCategoryIcon(cat.categoryName)
-      }))]
-    : fallbackCategories;
+  // Get categories - using fallback only since Unity communication moved to AR view
+  const categories = fallbackCategories;
 
-  // Get all destinations from Unity
-  const allDestinations = unityDestinations.flatMap(category => 
-    category.destinations.map(dest => ({
-      id: `${category.categoryName}_${dest.index}`,
-      name: dest.name,
-      type: category.categoryName.toLowerCase(),
-      category: category.categoryName,
-      index: dest.index
-    }))
-  );
+  // Get all destinations - using fallback only since Unity communication moved to AR view
+  const allDestinations = fallbackCategories
+    .filter(cat => cat.id !== 'all') // Exclude 'all' category
+    .flatMap(category =>
+      // Create sample destinations for each category
+      Array.from({ length: 2 }, (_, index) => ({
+        id: `${category.id}_${index}`,
+        name: `${category.name} Location ${index + 1}`,
+        type: category.id.toLowerCase(),
+        category: category.id,
+        index: index
+      }))
+    );
 
   // Helper function to get category icon
   const getCategoryIcon = (categoryName: string): string => {
@@ -84,41 +76,11 @@ export default function HomeScreen() {
     }
   };
 
-  // Handle Unity responses
-  const handleUnityResponse = (responseJson: string) => {
-    try {
-      UnityService.handleUnityResponse(responseJson);
-    } catch (error) {
-      console.error('Error handling Unity response:', error);
-    }
-  };
+  // Unity communication is now handled in AR view only
 
-  useEffect(() => {
-    // Delay Unity initialization to prevent immediate crashes
-    const initUnity = async () => {
-      try {
-        // Wait a moment for the app to stabilize
-        await new Promise(resolve => setTimeout(resolve, 2000));
+    useEffect(() => {
+    // Initialize with fallback categories - Unity communication moved to AR view
 
-        // Initialize Unity service only if we have a Unity view reference
-        if (unityViewRef) {
-          UnityService.initialize();
-        }
-      } catch (error) {
-        console.error('Failed to initialize Unity:', error);
-        // Continue without Unity - use fallback categories
-      }
-    };
-
-    // Only initialize Unity after a delay
-    initUnity();
-
-    // Set up Unity response handler
-    UnityService.setResponseHandler(handleUnityResponse);
-    
-    // Load destinations from Unity
-    loadDestinationsFromUnity();
-    
     // Initial animations
     Animated.parallel([
       Animated.timing(fadeAnimation, {
@@ -173,76 +135,17 @@ export default function HomeScreen() {
     };
   }, []);
 
-  // Test Unity connection
-  const testUnityConnection = async () => {
-    try {
-      console.log('Testing Unity connection...');
-      
-      if (!UnityService.isReady()) {
-        Alert.alert(
-          'Unity Not Ready',
-          'Unity service is not ready. Make sure Unity is running and the bridge scripts are set up.',
-          [{ text: 'OK' }]
-        );
-        return;
-      }
-      
-      // Try to get destinations as a connection test
-      const destinations = await UnityService.getDestinations();
-      Alert.alert(
-        'Unity Connected!',
-        `Successfully connected to Unity! Found ${destinations.categories.length} categories.`,
-        [{ text: 'OK' }]
-      );
-      
-      // Update the destinations
-      setUnityDestinations(destinations.categories);
-      setDestinationsError(null);
-    } catch (error) {
-      console.error('Unity connection test failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      Alert.alert(
-        'Unity Connection Failed',
-        `Failed to connect to Unity.\n\nError: ${errorMessage}\n\nPlease check:\n1. Unity is running\n2. UnityBridge script is attached to a GameObject\n3. DestinationManager is assigned in UnityBridge\n4. Check console for more details`,
-        [{ text: 'OK' }]
-      );
-    }
-  };
+  // Unity connection testing moved to AR view
 
-  // Load destinations from Unity
-  const loadDestinationsFromUnity = async () => {
-    try {
-      setIsLoadingDestinations(true);
-      setDestinationsError(null);
-      
-      // Check if Unity is ready
-      if (!UnityService.isReady()) {
-        console.log('Unity not ready yet, using fallback destinations');
-        setUnityDestinations([]);
-        setDestinationsError('Unity not ready - using fallback destinations');
-        return;
-      }
-      
-      const destinations = await UnityService.getDestinations();
-      setUnityDestinations(destinations.categories);
-      console.log('Loaded destinations from Unity:', destinations);
-    } catch (error) {
-      console.error('Failed to load destinations from Unity:', error);
-      setDestinationsError('Failed to load destinations from Unity - check Unity setup');
-      // Use fallback categories
-      setUnityDestinations([]);
-    } finally {
-      setIsLoadingDestinations(false);
-    }
-  };
-
-  // Filter locations based on selected category and search query
+    // Filter locations based on selected category and search query
   const filteredLocations = allDestinations.filter(location => {
-    const matchesCategory = selectedCategory === 'all' || location.type === selectedCategory;
-    const matchesSearch = searchQuery === '' || 
+    const matchesCategory = selectedCategory === 'all' || location.category.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesSearch = searchQuery === '' ||
       location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      location.type.toLowerCase().includes(searchQuery.toLowerCase());
-    
+      location.category.toLowerCase().includes(searchQuery.toLowerCase());
+
+
+
     return matchesCategory && matchesSearch;
   });
 
@@ -304,39 +207,27 @@ export default function HomeScreen() {
     }
   };
 
-  const handleUnityNavigation = async (location: typeof allDestinations[0]) => {
-    try {
-      console.log('Starting Unity navigation to:', location);
-      
-      // Send navigation request to Unity
-      await UnityService.navigateToDestination(location.category, location.index);
-      
-      // Show success message
-      Alert.alert(
-        'Navigation Started',
-        `Starting AR navigation to ${location.name}`,
-        [
-          {
-            text: 'Continue in AR',
-            onPress: () => router.push({
-              pathname: '/ar-navigation',
-              params: { destination: JSON.stringify(location) }
-            })
-          },
-          {
-            text: 'Stay Here',
-            style: 'cancel'
-          }
-        ]
-      );
-    } catch (error) {
-      console.error('Unity navigation failed:', error);
-      Alert.alert(
-        'Navigation Failed',
-        'Failed to start navigation in Unity. Please try again.',
-        [{ text: 'OK' }]
-      );
-    }
+    const handleUnityNavigation = async (location: typeof allDestinations[0]) => {
+    console.log('Starting navigation to:', location);
+
+    // Show loading state and navigate to AR view
+    Alert.alert(
+      'Starting Navigation',
+      `Preparing AR navigation to ${location.name}...`,
+      [
+        {
+          text: 'Continue',
+          onPress: () => router.push({
+            pathname: '/ar-navigation',
+            params: { destination: JSON.stringify(location) }
+          })
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        }
+      ]
+    );
   };
 
   const handleARNavigation = () => {
@@ -364,30 +255,9 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* Hidden Unity connection component - only render after delay */}
-      {unityViewRef && (
-        <UnityTestView
-          onUnityReady={() => {
-            console.log('Unity connection established');
-            // Try to load destinations when Unity is ready
-            loadDestinationsFromUnity();
-          }}
-          onUnityError={(error) => {
-            console.error('Unity connection error:', error);
-            setDestinationsError(`Unity error: ${error}`);
-            // Continue with fallback destinations
-            setUnityDestinations([]);
-          }}
-        />
-      )}
+      {/* Unity connection is now handled in AR view only */}
 
-      {/* Loading indicator for Unity initialization */}
-      {!unityViewRef && (
-        <View style={styles.loadingOverlay}>
-          <Text style={styles.loadingText}>Initializing AR System...</Text>
-          <Text style={styles.loadingSubtext}>Please wait while we set up augmented reality navigation</Text>
-        </View>
-      )}
+      {/* Unity initialization moved to AR view only */}
       
       {/* AR Navigation themed background */}
       <LinearGradient
@@ -575,27 +445,7 @@ export default function HomeScreen() {
                 Nearby Locations ({filteredLocations.length})
               </Text>
               <View style={styles.headerButtons}>
-                <TouchableOpacity 
-                  style={styles.testUnityButton}
-                  onPress={() => testUnityConnection()}
-                >
-                  <MaterialIcons 
-                    name="wifi" 
-                    size={18} 
-                    color="#00D4FF" 
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.refreshButton}
-                  onPress={loadDestinationsFromUnity}
-                  disabled={isLoadingDestinations}
-                >
-                  <MaterialIcons 
-                    name="refresh" 
-                    size={20} 
-                    color={isLoadingDestinations ? "#666" : "#00D4FF"} 
-                  />
-                </TouchableOpacity>
+                {/* Unity controls moved to AR view */}
               </View>
             </View>
             <ScrollView 
@@ -603,35 +453,7 @@ export default function HomeScreen() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.locationsListContent}
             >
-              {isLoadingDestinations ? (
-                <BlurView intensity={15} style={styles.loadingContainer}>
-                  <LinearGradient
-                    colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.05)']}
-                    style={styles.loadingContent}
-                  >
-                    <Text style={styles.loadingIcon}>⏳</Text>
-                    <Text style={styles.loadingTitle}>Loading destinations...</Text>
-                    <Text style={styles.loadingMessage}>Fetching locations from Unity</Text>
-                  </LinearGradient>
-                </BlurView>
-              ) : destinationsError ? (
-                <BlurView intensity={15} style={styles.errorContainer}>
-                  <LinearGradient
-                    colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0.05)']}
-                    style={styles.errorContent}
-                  >
-                    <Text style={styles.errorIcon}>⚠️</Text>
-                    <Text style={styles.errorTitle}>Failed to load destinations</Text>
-                    <Text style={styles.errorMessage}>{destinationsError}</Text>
-                    <TouchableOpacity 
-                      style={styles.retryButton}
-                      onPress={loadDestinationsFromUnity}
-                    >
-                      <Text style={styles.retryText}>Retry</Text>
-                    </TouchableOpacity>
-                  </LinearGradient>
-                </BlurView>
-              ) : filteredLocations.length > 0 ? (
+                            {filteredLocations.length > 0 ? (
                 filteredLocations.map((location) => (
                   <LocationCard key={location.id} location={location} />
                 ))
