@@ -86,40 +86,12 @@ public class BeaconTestController : MonoBehaviour
         Debug.Log($"[BeaconTest] {message}");
     }
     
-    // Debug GUI
+    // Debug GUI - DISABLED (UI removed to keep only MinewBeaconManager and BeaconDisplayUI)
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(10, 100, 380, 250));
-        GUILayout.Box("Beacon Test Controller", GUILayout.Width(360));
-        
-        if (beaconManager != null)
-        {
-            GUILayout.Label($"Bluetooth: {(beaconManager.IsBluetoothEnabled ? "ON" : "OFF")}");
-            GUILayout.Label($"Scanning: {(beaconManager.IsScanning ? "YES" : "NO")}");
-            GUILayout.Label($"Initialized: {(beaconManager.IsInitialized ? "YES" : "NO")}");
-            GUILayout.Label($"Detected Beacons: {beaconManager.GetDetectedBeacons().Count}");
-            
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Start"))
-                beaconManager.StartBeaconScanning();
-            if (GUILayout.Button("Stop"))
-                beaconManager.StopBeaconScanning();
-            if (GUILayout.Button("Clear"))
-                logMessages.Clear();
-            GUILayout.EndHorizontal();
-        }
-        else
-        {
-            GUILayout.Label("ERROR: No beacon manager found!");
-        }
-        
-        GUILayout.Label("Log:");
-        foreach (var msg in logMessages)
-        {
-            GUILayout.Label(msg);
-        }
-        
-        GUILayout.EndArea();
+        // UI has been disabled - test functionality continues in background
+        // Event logging and beacon monitoring still active via console output
+        // Component continues to monitor beacon events and log to Unity Console
     }
     
     void OnDestroy()

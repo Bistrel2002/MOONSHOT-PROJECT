@@ -14,6 +14,13 @@ public class MinewBeaconData
     public int major;
     public int minor;
     public float estimatedDistance;
+    public float rawDistance;
+    public float filteredDistance;
+    public DistanceAccuracy accuracy;
+    
+    // RSSI history for smoothing
+    protected List<int> rssiHistory = new List<int>();
+    protected const int MAX_RSSI_HISTORY = 5;
     
     public MinewBeaconData(string mac, string name, int rssi, int battery, string uuid = "", int major = 0, int minor = 0)
     {
@@ -24,24 +31,188 @@ public class MinewBeaconData
         this.uuid = uuid;
         this.major = major;
         this.minor = minor;
-        this.estimatedDistance = CalculateDistance(rssi);
+        
+        UpdateRSSI(rssi);
+        
+        // Calculate distances
+        this.rawDistance = CalculateRawDistance(rssi);
+        this.filteredDistance = CalculateFilteredDistance();
+        this.estimatedDistance = filteredDistance;
+        this.accuracy = DetermineAccuracy(rssi);
     }
     
-    private float CalculateDistance(int rssi)
+    public void UpdateRSSI(int newRssi)
+    {
+        rssiHistory.Add(newRssi);
+        if (rssiHistory.Count > MAX_RSSI_HISTORY)
+        {
+            rssiHistory.RemoveAt(0);
+        }
+        
+        this.rssi = newRssi;
+        this.rawDistance = CalculateRawDistance(newRssi);
+        this.filteredDistance = CalculateFilteredDistance();
+        this.estimatedDistance = filteredDistance;
+        this.accuracy = DetermineAccuracy(newRssi);
+    }
+    
+    private float CalculateRawDistance(int rssi)
     {
         if (rssi == 0) return -1.0f;
         
-        // Simple distance estimation based on RSSI
-        // This is an approximation and should be calibrated for your specific beacons
-        float ratio = rssi * 1.0f / -59; // -59 dBm is typical RSSI at 1 meter
-        if (ratio < 1.0)
+        // Improved distance calculation using multiple methods
+        return CalculateDistanceImproved(rssi, -59, 2.0f); // -59 dBm at 1m, path loss = 2.0
+    }
+    
+    private float CalculateFilteredDistance()
+    {
+        if (rssiHistory.Count == 0) return -1.0f;
+        
+        // Use median RSSI for more stable distance calculation
+        var sortedRssi = new List<int>(rssiHistory);
+        sortedRssi.Sort();
+        
+        int medianRssi;
+        int count = sortedRssi.Count;
+        if (count % 2 == 0)
         {
-            return Mathf.Pow(ratio, 10);
+            medianRssi = (sortedRssi[count / 2 - 1] + sortedRssi[count / 2]) / 2;
         }
         else
         {
-            return (0.89976f) * Mathf.Pow(ratio, 7.7095f) + 0.111f;
+            medianRssi = sortedRssi[count / 2];
         }
+        
+        return CalculateDistanceImproved(medianRssi, -59, 2.0f);
+    }
+    
+    protected float CalculateDistanceImproved(int rssi, int txPower, float pathLoss)
+    {
+        if (rssi == 0) return -1.0f;
+        
+        // Enhanced distance calculation with environmental compensation
+        // Formula: Distance = 10^((TxPower - RSSI) / (10 * n))
+        // Where n is the path loss exponent (2.0 for free space, 2.0-4.0 for indoor)
+        
+        float distance = Mathf.Pow(10f, (txPower - rssi) / (10f * pathLoss));
+        
+        // Apply environmental corrections
+        distance = ApplyEnvironmentalCorrection(distance, rssi);
+        
+        return Mathf.Clamp(distance, 0.1f, 100f);
+    }
+    
+    protected float ApplyEnvironmentalCorrection(float distance, int rssi)
+    {
+        // Apply corrections based on signal strength ranges
+        if (rssi >= -50)
+        {
+            // Very close range - high accuracy
+            return distance * 0.95f; 
+        }
+        else if (rssi >= -65)
+        {
+            // Good range - minor correction
+            return distance * 1.0f; 
+        }
+        else if (rssi >= -75)
+        {
+            // Medium range - moderate correction for indoor obstacles
+            return distance * 1.15f; 
+        }
+        else if (rssi >= -85)
+        {
+            // Far range - significant correction
+            return distance * 1.3f; 
+        }
+        else
+        {
+            // Very far/weak signal - high uncertainty
+            return distance * 1.5f; 
+        }
+    }
+    
+    protected DistanceAccuracy DetermineAccuracy(int rssi)
+    {
+        if (rssi >= -50) return DistanceAccuracy.High;
+        if (rssi >= -65) return DistanceAccuracy.Medium;
+        if (rssi >= -75) return DistanceAccuracy.Low;
+        return DistanceAccuracy.VeryLow;
+    }
+}
+
+public enum DistanceAccuracy
+{
+    VeryLow,    // > 8m or very weak signal
+    Low,        // 5-8m range
+    Medium,     // 2-5m range  
+    High        // < 2m range
+}
+
+// Calibrated beacon data class that uses configurable parameters
+public class CalibratedMinewBeaconData : MinewBeaconData
+{
+    private int calibratedTxPower;
+    private float calibratedPathLoss;
+    private int maxHistorySize;
+    
+    public CalibratedMinewBeaconData(string mac, string name, int rssi, int battery, string uuid, int major, int minor,
+                                   int txPower, float pathLoss, int historySize) 
+        : base(mac, name, rssi, battery, uuid, major, minor)
+    {
+        this.calibratedTxPower = txPower;
+        this.calibratedPathLoss = pathLoss;
+        this.maxHistorySize = historySize;
+        
+        // Recalculate with calibrated parameters
+        RecalculateDistance();
+    }
+    
+    public new void UpdateRSSI(int newRssi)
+    {
+        // Update RSSI history with configurable size
+        rssiHistory.Add(newRssi);
+        while (rssiHistory.Count > maxHistorySize)
+        {
+            rssiHistory.RemoveAt(0);
+        }
+        
+        this.rssi = newRssi;
+        RecalculateDistance();
+    }
+    
+    private void RecalculateDistance()
+    {
+        this.rawDistance = CalculateRawDistanceCalibrated(rssi);
+        this.filteredDistance = CalculateFilteredDistanceCalibrated();
+        this.estimatedDistance = filteredDistance;
+        this.accuracy = DetermineAccuracy(rssi);
+    }
+    
+    private float CalculateRawDistanceCalibrated(int rssi)
+    {
+        if (rssi == 0) return -1.0f;
+        return CalculateDistanceImproved(rssi, calibratedTxPower, calibratedPathLoss);
+    }
+    
+    private float CalculateFilteredDistanceCalibrated()
+    {
+        if (rssiHistory.Count == 0) return -1.0f;
+        
+        // Use weighted average instead of median for smoother results
+        float weightedSum = 0f;
+        float totalWeight = 0f;
+        
+        for (int i = 0; i < rssiHistory.Count; i++)
+        {
+            // More recent readings get higher weight
+            float weight = (i + 1) / (float)rssiHistory.Count;
+            weightedSum += rssiHistory[i] * weight;
+            totalWeight += weight;
+        }
+        
+        int averageRssi = Mathf.RoundToInt(weightedSum / totalWeight);
+        return CalculateDistanceImproved(averageRssi, calibratedTxPower, calibratedPathLoss);
     }
 }
 
@@ -51,6 +222,18 @@ public class MinewBeaconManager : MonoBehaviour
     public bool autoStartScanning = true;
     public float scanUpdateInterval = 2.0f;
     public int rssiFilterThreshold = -80;
+    
+    [Header("Distance Calibration")]
+    [Tooltip("Transmit power of your beacons at 1 meter (usually -59 to -65 dBm)")]
+    public int txPowerAt1m = -59;
+    [Tooltip("Path loss exponent (2.0 = free space, 2.0-4.0 = indoor environment)")]
+    [Range(1.5f, 4.0f)]
+    public float pathLossExponent = 2.2f;
+    [Tooltip("Enable RSSI smoothing for more stable distance readings")]
+    public bool enableRssiSmoothing = true;
+    [Tooltip("Number of RSSI readings to average (3-10 recommended)")]
+    [Range(3, 10)]
+    public int rssiHistorySize = 5;
     
     [Header("Navigation Integration")]
     public newIndoorNav indoorNavigation;
@@ -293,8 +476,8 @@ public class MinewBeaconManager : MonoBehaviour
             
             FrameData frameData = ProcessAdvFrames(advFrames);
             
-            // Create beacon data object
-            MinewBeaconData beaconData = new MinewBeaconData(mac, name, rssi, battery, frameData.uuid, frameData.major, frameData.minor);
+            // Create beacon data object with calibrated parameters
+            MinewBeaconData beaconData = CreateCalibratedBeaconData(mac, name, rssi, battery, frameData.uuid, frameData.major, frameData.minor);
             
             return beaconData;
             
@@ -369,6 +552,26 @@ public class MinewBeaconManager : MonoBehaviour
         }
         
         return new FrameData(uuid, major, minor);
+    }
+    
+    private MinewBeaconData CreateCalibratedBeaconData(string mac, string name, int rssi, int battery, string uuid, int major, int minor)
+    {
+        // Check if we already have this beacon to preserve RSSI history
+        MinewBeaconData existingBeacon = detectedBeacons.Find(b => b.mac == mac);
+        
+        if (existingBeacon != null && enableRssiSmoothing)
+        {
+            // Update existing beacon with new RSSI
+            existingBeacon.UpdateRSSI(rssi);
+            existingBeacon.battery = battery; // Update battery level
+            return existingBeacon;
+        }
+        else
+        {
+            // Create new beacon with calibrated distance calculation
+            return new CalibratedMinewBeaconData(mac, name, rssi, battery, uuid, major, minor, 
+                                               txPowerAt1m, pathLossExponent, rssiHistorySize);
+        }
     }
     
     private void UpdateBeaconsList(List<MinewBeaconData> newBeacons)
@@ -660,41 +863,12 @@ public class MinewBeaconManager : MonoBehaviour
         Debug.LogError($"[MinewBeaconManager] {message}");
     }
     
-    // Debug UI
+    // Debug UI - DISABLED (UI removed to focus on BeaconDisplayUI)
     private void OnGUI()
     {
-        if (!showDebugUI) return;
-        
-        GUILayout.BeginArea(new Rect(10, 320, 400, 200));
-        GUILayout.Box("Minew Beacon Manager", GUILayout.Width(380));
-        
-        GUILayout.Label($"Initialized: {isInitialized}");
-        GUILayout.Label($"Bluetooth: {(bluetoothEnabled ? "Enabled" : "Disabled")}");
-        GUILayout.Label($"Scanning: {isScanning}");
-        GUILayout.Label($"Detected Beacons: {detectedBeacons.Count}");
-        
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button(isScanning ? "Stop Scan" : "Start Scan"))
-        {
-            if (isScanning)
-                StopBeaconScanning();
-            else
-                StartBeaconScanning();
-        }
-        
-        if (GUILayout.Button("Check Bluetooth"))
-        {
-            CheckBluetoothStatus();
-        }
-        GUILayout.EndHorizontal();
-        
-        // Display detected beacons
-        foreach (var beacon in detectedBeacons)
-        {
-            GUILayout.Label($"{beacon.name}: {beacon.rssi}dBm, {beacon.estimatedDistance:F1}m");
-        }
-        
-        GUILayout.EndArea();
+        // UI has been disabled - all beacon management functionality continues in background
+        // Scanning controls and status are now available through BeaconDisplayUI
+        // Core functionality (initialization, scanning, beacon detection) remains fully active
     }
     
     private void OnDestroy()

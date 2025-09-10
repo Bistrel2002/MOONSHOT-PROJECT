@@ -272,33 +272,15 @@ public class BeaconDiagnostics : MonoBehaviour
         Debug.Log($"[BeaconDiagnostics] {message}");
     }
     
-    // Debug GUI
+    // Debug GUI - DISABLED (UI removed to keep only MinewBeaconManager and BeaconDisplayUI)
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(10, 530, 400, 220));
-        GUILayout.Box("Beacon Diagnostics", GUILayout.Width(380));
-        
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Run Diagnostics"))
-            RunDiagnostics();
-        if (GUILayout.Button("Test Commands"))
-            TestBeaconCommands();
-        GUILayout.EndHorizontal();
-        
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Class Access Test"))
-            TestSDKClassAccessOnly();
-        if (GUILayout.Button("Clear Log"))
-            ClearLog();
-        GUILayout.EndHorizontal();
-        
-        // Show diagnostic log
-        foreach (string logEntry in diagnosticLog)
-        {
-            GUILayout.Label(logEntry);
-        }
-        
-        GUILayout.EndArea();
+        // UI has been disabled - diagnostic functions are still available via context menu
+        // Right-click on this component in the Inspector to access:
+        // - Run Diagnostics
+        // - Test Commands  
+        // - Test SDK Class Access Only
+        // - Clear Log
     }
     
     void OnDestroy()

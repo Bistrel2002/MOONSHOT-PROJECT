@@ -151,34 +151,13 @@ public class AndroidPermissionHelper : MonoBehaviour
         Debug.LogError($"[AndroidPermissionHelper] {message}");
     }
     
-    // Debug UI
+    // Debug UI - DISABLED (UI removed to keep only MinewBeaconManager and BeaconDisplayUI)
     private void OnGUI()
     {
-        if (!verboseLogging) return;
-        
-        GUILayout.BeginArea(new Rect(10, 10, 300, 150));
-        GUILayout.Box("Permission Helper", GUILayout.Width(280));
-        
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            bool allPermissions = CheckAllPermissions();
-            GUILayout.Label($"All Permissions: {(allPermissions ? "✓" : "✗")}");
-            
-            if (GUILayout.Button("Request Permissions"))
-            {
-                RequestPermissionsManually();
-            }
-            
-            if (GUILayout.Button("Check Permissions"))
-            {
-                CheckPermissionsManually();
-            }
-        }
-        else
-        {
-            GUILayout.Label("Platform: Not Android");
-        }
-        
-        GUILayout.EndArea();
+        // UI has been disabled - permission functions are still available via context menu
+        // Right-click on this component in the Inspector to access:
+        // - Request Permissions
+        // - Check Permissions
+        // All permission handling continues automatically in background
     }
 } 
